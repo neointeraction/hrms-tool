@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
@@ -18,6 +18,7 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
 import { useAuth } from "../context/AuthContext";
+import { getAccessibleMenuItems } from "../utils/navigation";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -25,6 +26,7 @@ export default function MainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -33,51 +35,43 @@ export default function MainLayout() {
       to: "/",
       icon: LayoutDashboard,
       label: "Dashboard",
-      roles: ["admin", "hr", "accountant", "pm", "employee", "intern"],
     },
     {
       to: "/work",
       icon: Briefcase,
       label: "Work",
-      roles: ["admin", "pm", "employee", "intern", "contractor"],
     },
     {
       to: "/leaves",
       icon: CalendarDays,
       label: "Leaves",
-      roles: ["admin", "hr", "pm", "employee", "intern"],
     },
     {
       to: "/growth",
       icon: TrendingUp,
       label: "Growth",
-      roles: ["admin", "hr", "pm", "employee"],
     },
     {
       to: "/payroll",
       icon: DollarSign,
       label: "Payroll",
-      roles: ["admin", "hr", "accountant"],
     },
     {
       to: "/profile",
       icon: User,
       label: "Profile",
-      roles: [
-        "admin",
-        "hr",
-        "accountant",
-        "pm",
-        "employee",
-        "intern",
-        "contractor",
-      ],
     },
   ];
 
-  const navItems = allNavItems.filter(
-    (item) => user && item.roles.includes(user.role)
-  );
+  // Get accessible menu items from navigation utility and merge with icons
+  const accessibleRoutes = user ? getAccessibleMenuItems(user.role) : [];
+  const navItems = accessibleRoutes.map((route) => {
+    const navItem = allNavItems.find((item) => item.to === route.to);
+    return {
+      ...route,
+      icon: navItem?.icon || User,
+    };
+  });
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
@@ -227,6 +221,7 @@ export default function MainLayout() {
                       onClick={() => {
                         logout();
                         setIsProfileOpen(false);
+                        navigate("/login", { replace: true });
                       }}
                       className="w-full px-4 py-2 text-left text-sm text-status-error hover:bg-bg-hover flex items-center gap-2"
                     >

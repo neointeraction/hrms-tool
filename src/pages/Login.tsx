@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Lock, Mail, AlertCircle } from "lucide-react";
+import {
+  getFirstAccessibleRoute,
+  getAccessibleMenuItems,
+} from "../utils/navigation";
 
 export default function Login() {
   const [email, setEmail] = useState("employee@company.com"); // Default for demo
@@ -11,15 +15,22 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await login(email);
-      navigate(from, { replace: true });
+      const user = await login(email);
+
+      // Get accessible routes for the user's role
+      const accessibleRoutes = getAccessibleMenuItems(user.role);
+      const firstRoute = getFirstAccessibleRoute(user.role);
+      const from = location.state?.from?.pathname;
+
+      // Only use 'from' if it's accessible to the user's role, otherwise use first accessible route
+      const isFromAccessible =
+        from && accessibleRoutes.some((route) => route.to === from);
+      navigate(isFromAccessible ? from : firstRoute, { replace: true });
     } catch (err) {
       setError("Invalid credentials. Please try again.");
     }

@@ -4,7 +4,7 @@ import type { User, AuthState } from "../types/auth";
 import { authService } from "../services/authService";
 
 interface AuthContextType extends AuthState {
-  login: (email: string) => Promise<void>;
+  login: (email: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -43,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Persist session
       localStorage.setItem("hrms_user", JSON.stringify(response.user));
       localStorage.setItem("hrms_token", response.token);
+
+      return response.user;
     } catch (error) {
       console.error("Login failed", error);
       throw error;
