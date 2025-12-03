@@ -1,0 +1,251 @@
+import { useState } from "react";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Briefcase,
+  CalendarDays,
+  TrendingUp,
+  DollarSign,
+  User,
+  Menu,
+  X,
+  Moon,
+  Sun,
+  Bell,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
+import { useTheme } from "../hooks/useTheme";
+import { cn } from "../utils/cn";
+import { useAuth } from "../context/AuthContext";
+
+export default function MainLayout() {
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  const allNavItems = [
+    {
+      to: "/",
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      roles: ["admin", "hr", "accountant", "pm", "employee", "intern"],
+    },
+    {
+      to: "/work",
+      icon: Briefcase,
+      label: "Work",
+      roles: ["admin", "pm", "employee", "intern", "contractor"],
+    },
+    {
+      to: "/leaves",
+      icon: CalendarDays,
+      label: "Leaves",
+      roles: ["admin", "hr", "pm", "employee", "intern"],
+    },
+    {
+      to: "/growth",
+      icon: TrendingUp,
+      label: "Growth",
+      roles: ["admin", "hr", "pm", "employee"],
+    },
+    {
+      to: "/payroll",
+      icon: DollarSign,
+      label: "Payroll",
+      roles: ["admin", "hr", "accountant"],
+    },
+    {
+      to: "/profile",
+      icon: User,
+      label: "Profile",
+      roles: [
+        "admin",
+        "hr",
+        "accountant",
+        "pm",
+        "employee",
+        "intern",
+        "contractor",
+      ],
+    },
+  ];
+
+  const navItems = allNavItems.filter(
+    (item) => user && item.roles.includes(user.role)
+  );
+
+  const getBreadcrumbs = () => {
+    const path = location.pathname;
+    if (path === "/") return "Dashboard";
+    const item = navItems.find((item) => item.to === path);
+    return item ? item.label : "Page";
+  };
+
+  return (
+    <div className="min-h-screen bg-bg-main flex flex-col md:flex-row transition-colors duration-200">
+      {/* Mobile Header */}
+      <header className="md:hidden bg-bg-sidebar border-b border-border p-4 flex justify-between items-center sticky top-0 z-20">
+        <div className="flex items-center gap-2">
+          <button onClick={toggleSidebar} className="text-text-primary p-1">
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+          <span className="font-bold text-xl text-brand-primary">HRMS</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="text-text-secondary p-2 rounded-full hover:bg-bg-hover">
+            <Bell size={20} />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-brand-secondary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+            {user?.avatar?.length === 2 ? (
+              user.avatar
+            ) : (
+              <img
+                src={user?.avatar}
+                alt={user?.name}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-10 w-64 bg-bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen flex flex-col",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="p-6 hidden md:flex items-center justify-between border-b border-border h-16">
+          <span className="font-bold text-2xl text-brand-primary">HRMS</span>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={() => setIsSidebarOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-brand-primary/10 text-brand-primary"
+                    : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                )
+              }
+            >
+              <item.icon size={20} />
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-border space-y-4">
+          <div className="space-y-2">{/* Dev Role Switcher Removed */}</div>
+
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 text-text-secondary hover:text-text-primary text-sm w-full px-4 py-2 rounded-lg hover:bg-bg-hover transition-colors"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-0 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-[calc(100vh-64px)] md:h-screen overflow-hidden">
+        {/* Desktop Header */}
+        <header className="hidden md:flex bg-bg-sidebar border-b border-border h-16 px-8 items-center justify-between sticky top-0 z-10">
+          <div className="flex items-center gap-2 text-text-secondary text-sm">
+            <span className="text-text-muted">Home</span>
+            <ChevronRight size={16} />
+            <span className="font-medium text-text-primary">
+              {getBreadcrumbs()}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button className="text-text-secondary p-2 rounded-full hover:bg-bg-hover relative">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full"></span>
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity"
+              >
+                <div className="text-right hidden md:block">
+                  <p className="text-sm font-medium text-text-primary">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-text-muted">{user?.designation}</p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center text-white font-bold overflow-hidden">
+                  {user?.avatar?.length === 2 ? (
+                    user.avatar
+                  ) : (
+                    <img
+                      src={user?.avatar}
+                      alt={user?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+              </button>
+
+              {isProfileOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsProfileOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-bg-card rounded-lg shadow-lg border border-border py-1 z-20">
+                    <div className="px-4 py-2 border-b border-border md:hidden">
+                      <p className="text-sm font-medium text-text-primary">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        {user?.designation}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsProfileOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-status-error hover:bg-bg-hover flex items-center gap-2"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
