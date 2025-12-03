@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:static": "vite build --mode static",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "static-preview": "vite preview --outDir dist-static"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -19,6 +21,7 @@
     "react-hook-form": "^7.67.0",
     "react-router-dom": "^6.30.2",
     "tailwind-merge": "^3.4.0",
+    "terser": "^5.44.1",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },

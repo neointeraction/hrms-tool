@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+// import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Dashboard from "../features/dashboard/Dashboard";
 import Timesheet from "../features/timesheets/Timesheet";
@@ -10,8 +10,9 @@ import RoleGuard from "../components/auth/RoleGuard";
 
 import Login from "../pages/Login";
 import Unauthorized from "../pages/Unauthorized";
+import { createHashRouter } from "react-router-dom";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/login",
     element: <Login />,
