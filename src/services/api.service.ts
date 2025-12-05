@@ -250,6 +250,57 @@ class ApiService {
 
     return response.json();
   }
+
+  // Employee Management
+  async getEmployees(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/employees`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch employees");
+    }
+    return response.json();
+  }
+
+  async getEmployeeById(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch employee");
+    }
+    return response.json();
+  }
+
+  async createEmployee(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create employee");
+    }
+    return response.json();
+  }
+
+  async updateEmployee(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update employee");
+    }
+    return response.json();
+  }
 }
 
 export const apiService = new ApiService();

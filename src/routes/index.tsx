@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 
-import AdminDashboard from "../features/admin/AdminDashboard";
+import EmployeeManagement from "../features/employee/EmployeeManagement";
 import RoleGuard from "../components/auth/RoleGuard";
 
 import Login from "../pages/Login";
@@ -44,10 +44,10 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "user-management",
+        path: "employee-management",
         element: (
-          <RoleGuard allowedRoles={["admin"]}>
-            <AdminDashboard />
+          <RoleGuard allowedRoles={["admin", "hr"]}>
+            <EmployeeManagement />
           </RoleGuard>
         ),
       },

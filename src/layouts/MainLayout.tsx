@@ -35,9 +35,9 @@ export default function MainLayout() {
       label: "Dashboard",
     },
     {
-      to: "/user-management",
+      to: "/employee-management",
       icon: Users,
-      label: "User Management",
+      label: "Employee Management",
     },
   ];
 

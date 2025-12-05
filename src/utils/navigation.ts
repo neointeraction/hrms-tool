@@ -13,9 +13,9 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "hr", "accountant", "pm", "employee", "intern"],
   },
   {
-    to: "/user-management",
-    label: "User Management",
-    roles: ["admin"],
+    to: "/employee-management",
+    label: "Employee Management",
+    roles: ["admin", "hr"],
   },
 ];
 

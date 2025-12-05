@@ -1,28 +1,27 @@
 import { useState } from "react";
-import { Users, Shield, FileText } from "lucide-react";
-import UserManagement from "./UserManagement";
+import { Shield, FileText } from "lucide-react";
 import RoleManagement from "./RoleManagement";
 import AuditLogs from "./AuditLogs";
 
-type Tab = "users" | "roles" | "audit";
+type Tab = "roles" | "audit";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("users");
+  const [activeTab, setActiveTab] = useState<Tab>("roles");
 
   const tabs = [
-    { id: "users", label: "User Management", icon: Users },
     { id: "roles", label: "Role Management", icon: Shield },
     { id: "audit", label: "Audit Logs", icon: FileText },
   ];
 
   return (
     <div className="space-y-6">
+      {/* ... header ... */}
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold text-text-primary">
           System Administration
         </h1>
         <p className="text-text-secondary">
-          Manage users, roles, and system configurations.
+          Manage users, roles, employees, and system configurations.
         </p>
       </div>
 
@@ -46,7 +45,6 @@ export default function AdminDashboard() {
 
       {/* Content */}
       <div className="bg-white rounded-xl shadow-sm border border-border p-6">
-        {activeTab === "users" && <UserManagement />}
         {activeTab === "roles" && <RoleManagement />}
         {activeTab === "audit" && <AuditLogs />}
       </div>
