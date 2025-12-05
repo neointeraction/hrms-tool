@@ -1,147 +1,210 @@
 import {
-  Activity,
-  Shield,
-  Server,
-  Database,
-  AlertTriangle,
   Users,
+  Shield,
+  AlertTriangle,
+  Activity,
+  Settings,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const stats = [
+    {
+      label: "Total Users",
+      value: "124",
+      change: "+4 this month",
+      icon: Users,
+      color: "text-blue-600",
+      bg: "bg-blue-100",
+    },
+    {
+      label: "Active Roles",
+      value: "8",
+      change: "No changes",
+      icon: Shield,
+      color: "text-purple-600",
+      bg: "bg-purple-100",
+    },
+    {
+      label: "Security Alerts",
+      value: "2",
+      change: "Requires attention",
+      icon: AlertTriangle,
+      color: "text-amber-600",
+      bg: "bg-amber-100",
+    },
+    {
+      label: "System Uptime",
+      value: "99.9%",
+      change: "Last 30 days",
+      icon: Activity,
+      color: "text-green-600",
+      bg: "bg-green-100",
+    },
+  ];
+
+  const quickActions = [
+    {
+      label: "Manage Users",
+      desc: "Add, edit, or deactivate users",
+      icon: Users,
+      path: "/user-management",
+      color: "bg-blue-50 text-blue-600 hover:bg-blue-100",
+    },
+    {
+      label: "Role Configuration",
+      desc: "Manage permissions and access",
+      icon: Shield,
+      path: "/user-management", // Ideally this should deep link to the Roles tab if possible, or just the main admin page
+      color: "bg-purple-50 text-purple-600 hover:bg-purple-100",
+    },
+    {
+      label: "Audit Logs",
+      desc: "View system activity logs",
+      icon: FileText,
+      path: "/user-management", // Same here, links to admin module
+      color: "bg-gray-50 text-gray-600 hover:bg-gray-100",
+    },
+    {
+      label: "System Settings",
+      desc: "Global configuration",
+      icon: Settings,
+      path: "/settings", // Placeholder
+      color: "bg-slate-50 text-slate-600 hover:bg-slate-100",
+    },
+  ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      user: "Sarah Smith (HR)",
+      action: "Created new employee profile",
+      target: "John Doe",
+      time: "10 mins ago",
+    },
+    {
+      id: 2,
+      user: "System Admin",
+      action: "Updated role permissions",
+      target: "Project Manager Role",
+      time: "1 hour ago",
+    },
+    {
+      id: 3,
+      user: "System",
+      action: "Failed login attempt detected",
+      target: "IP: 192.168.1.45",
+      time: "2 hours ago",
+      isAlert: true,
+    },
+    {
+      id: 4,
+      user: "Mike Johnson",
+      action: "Reset password",
+      target: "Self-service",
+      time: "4 hours ago",
+    },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-text-primary">
-          System Overview 🛡️
-        </h1>
+        <h1 className="text-3xl font-bold text-text-primary">Admin Console</h1>
         <p className="text-text-secondary mt-1">
-          Monitoring {user?.name}'s admin console
+          Welcome back, {user?.name}. Here's the system overview.
         </p>
       </div>
 
-      {/* Health Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="text-status-success" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              System Uptime
-            </h2>
-          </div>
-          <p className="text-3xl font-bold text-text-primary">99.98%</p>
-          <p className="text-sm text-text-secondary mb-4">Last 30 days</p>
-          <div className="flex items-center gap-2 text-sm text-status-success">
-            <span className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
-            All Systems Operational
-          </div>
-        </div>
-
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <Server className="text-brand-primary" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Server Load
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1 text-sm">
-                <span className="text-text-secondary">CPU Usage</span>
-                <span className="text-text-primary">45%</span>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-text-secondary text-sm font-medium">
+                  {stat.label}
+                </p>
+                <h3 className="text-2xl font-bold text-text-primary mt-2">
+                  {stat.value}
+                </h3>
               </div>
-              <div className="h-1.5 bg-bg-main rounded-full overflow-hidden">
-                <div className="h-full bg-brand-primary w-[45%] rounded-full" />
+              <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
+                <stat.icon size={20} />
               </div>
             </div>
-            <div>
-              <div className="flex justify-between mb-1 text-sm">
-                <span className="text-text-secondary">Memory</span>
-                <span className="text-text-primary">62%</span>
-              </div>
-              <div className="h-1.5 bg-bg-main rounded-full overflow-hidden">
-                <div className="h-full bg-brand-primary w-[62%] rounded-full" />
-              </div>
-            </div>
+            <p className="text-xs text-text-secondary mt-4 font-medium">
+              {stat.change}
+            </p>
           </div>
-        </div>
-
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <Database className="text-status-info" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">Backups</h2>
-          </div>
-          <p className="text-lg font-medium text-text-primary">
-            Last Backup: 2h ago
-          </p>
-          <p className="text-sm text-text-secondary mb-4">Size: 4.2 GB</p>
-          <button className="text-sm text-brand-primary hover:underline">
-            View Logs
-          </button>
-        </div>
+        ))}
       </div>
 
-      {/* Security Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <Shield className="text-status-warning" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Security Alerts
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Column */}
+        <div className="lg:col-span-3 space-y-8">
+          {/* Quick Actions */}
+          <section>
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
+              Quick Actions
             </h2>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-bg-main rounded-lg border-l-4 border-status-warning">
-              <AlertTriangle size={16} className="text-status-warning" />
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  Failed Login Attempts
-                </p>
-                <p className="text-xs text-text-secondary">
-                  5 attempts from IP 192.168.1.1
-                </p>
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {quickActions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => navigate(action.path)}
+                  className={`flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-transparent transition-all hover:scale-105 ${action.color}`}
+                >
+                  <div className="p-2 bg-white/50 rounded-lg shadow-sm">
+                    <action.icon size={24} />
+                  </div>
+                  <span className="font-semibold text-sm">{action.label}</span>
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-3 p-3 bg-bg-main rounded-lg border-l-4 border-status-success">
-              <Shield size={16} className="text-status-success" />
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  Patch Update
-                </p>
-                <p className="text-xs text-text-secondary">
-                  Security patch v2.4 applied successfully
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <Users className="text-brand-secondary" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Role Audit
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-2 hover:bg-bg-main rounded transition-colors">
-              <span className="text-sm text-text-primary">Admin Users</span>
-              <span className="font-mono text-sm font-bold">3</span>
+          {/* Recent Activity */}
+          <section className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-text-primary">
+                Recent System Activity
+              </h2>
+              <button className="text-sm text-brand-primary hover:underline">
+                View All Logs
+              </button>
             </div>
-            <div className="flex justify-between items-center p-2 hover:bg-bg-main rounded transition-colors">
-              <span className="text-sm text-text-primary">HR Executives</span>
-              <span className="font-mono text-sm font-bold">5</span>
+            <div className="divide-y divide-border">
+              {recentActivity.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="p-4 flex items-start gap-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div
+                    className={`mt-1 w-2 h-2 rounded-full ${
+                      activity.isAlert ? "bg-red-500" : "bg-blue-500"
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm text-text-primary">
+                      <span className="font-medium">{activity.user}</span>{" "}
+                      {activity.action}
+                    </p>
+                    <p className="text-xs text-text-secondary mt-1">
+                      Target: {activity.target} • {activity.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between items-center p-2 hover:bg-bg-main rounded transition-colors">
-              <span className="text-sm text-text-primary">Managers</span>
-              <span className="font-mono text-sm font-bold">12</span>
-            </div>
-            <button className="w-full mt-2 py-2 border border-border rounded-lg text-sm hover:bg-bg-hover">
-              Generate Audit Report
-            </button>
-          </div>
+          </section>
         </div>
       </div>
     </div>

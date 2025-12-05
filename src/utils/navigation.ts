@@ -13,37 +13,9 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "hr", "accountant", "pm", "employee", "intern"],
   },
   {
-    to: "/work",
-    label: "Work",
-    roles: ["admin", "pm", "employee", "intern", "contractor"],
-  },
-  {
-    to: "/leaves",
-    label: "Leaves",
-    roles: ["admin", "hr", "pm", "employee", "intern"],
-  },
-  {
-    to: "/growth",
-    label: "Growth",
-    roles: ["admin", "hr", "pm", "employee"],
-  },
-  {
-    to: "/payroll",
-    label: "Payroll",
-    roles: ["admin", "hr", "accountant"],
-  },
-  {
-    to: "/profile",
-    label: "Profile",
-    roles: [
-      "admin",
-      "hr",
-      "accountant",
-      "pm",
-      "employee",
-      "intern",
-      "contractor",
-    ],
+    to: "/user-management",
+    label: "User Management",
+    roles: ["admin"],
   },
 ];
 

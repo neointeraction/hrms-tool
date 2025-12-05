@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Briefcase,
-  CalendarDays,
-  TrendingUp,
-  DollarSign,
+  Users,
   User,
   Menu,
   X,
@@ -14,11 +10,13 @@ import {
   Bell,
   ChevronRight,
   LogOut,
+  LayoutDashboard,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
 import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
+import NotificationDropdown from "../components/common/NotificationDropdown";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -37,29 +35,9 @@ export default function MainLayout() {
       label: "Dashboard",
     },
     {
-      to: "/work",
-      icon: Briefcase,
-      label: "Work",
-    },
-    {
-      to: "/leaves",
-      icon: CalendarDays,
-      label: "Leaves",
-    },
-    {
-      to: "/growth",
-      icon: TrendingUp,
-      label: "Growth",
-    },
-    {
-      to: "/payroll",
-      icon: DollarSign,
-      label: "Payroll",
-    },
-    {
-      to: "/profile",
-      icon: User,
-      label: "Profile",
+      to: "/user-management",
+      icon: Users,
+      label: "User Management",
     },
   ];
 
@@ -174,10 +152,7 @@ export default function MainLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="text-text-secondary p-2 rounded-full hover:bg-bg-hover relative">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full"></span>
-            </button>
+            <NotificationDropdown />
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}

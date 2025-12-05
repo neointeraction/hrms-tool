@@ -20,7 +20,7 @@ export default function Login() {
     setError("");
 
     try {
-      const user = await login(email);
+      const user = await login(email, password);
 
       // Get accessible routes for the user's role
       const accessibleRoutes = getAccessibleMenuItems(user.role);
@@ -31,8 +31,8 @@ export default function Login() {
       const isFromAccessible =
         from && accessibleRoutes.some((route) => route.to === from);
       navigate(isFromAccessible ? from : firstRoute, { replace: true });
-    } catch (err) {
-      setError("Invalid credentials. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials. Please try again.");
     }
   };
 
