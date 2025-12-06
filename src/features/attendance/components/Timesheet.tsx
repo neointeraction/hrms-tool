@@ -10,6 +10,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
+import { Button } from "../../../components/common/Button";
+import { Input } from "../../../components/common/Input";
+import { Select } from "../../../components/common/Select";
+import { Textarea } from "../../../components/common/Textarea";
 
 export default function Timesheet() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -234,26 +238,22 @@ export default function Timesheet() {
         </div>
         <div className="flex gap-2">
           {hasDraftEntries && (
-            <button
+            <Button
+              className="bg-green-600 hover:bg-green-700"
               onClick={handleSubmitForApproval}
               disabled={submitting}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              isLoading={submitting}
+              leftIcon={!submitting && <Send size={18} />}
             >
-              {submitting ? (
-                <Loader2 className="animate-spin" size={18} />
-              ) : (
-                <Send size={18} />
-              )}
               Submit for Approval
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
+            leftIcon={<Plus size={18} />}
           >
-            <Plus size={18} />
             Add Entry
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -265,25 +265,20 @@ export default function Timesheet() {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">
-                Date
-              </label>
-              <input
+              <Input
+                label="Date"
                 type="date"
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })
                 }
                 required
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">
-                Project
-              </label>
               {projects.length > 0 ? (
-                <select
+                <Select
+                  label="Project"
                   value={formData.project}
                   onChange={(e) =>
                     setFormData({
@@ -293,17 +288,15 @@ export default function Timesheet() {
                     })
                   }
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                >
-                  <option value="">Select Project</option>
-                  {projects.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  options={projects.map((p) => ({
+                    value: p._id,
+                    label: p.name,
+                  }))}
+                  placeholder="Select Project"
+                />
               ) : (
-                <input
+                <Input
+                  label="Project"
                   type="text"
                   value={formData.project}
                   onChange={(e) =>
@@ -311,32 +304,27 @@ export default function Timesheet() {
                   }
                   required
                   placeholder="Project name"
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                 />
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">
-                Task
-              </label>
               {projectTasks.length > 0 ? (
-                <select
+                <Select
+                  label="Task"
                   value={formData.task}
                   onChange={(e) =>
                     setFormData({ ...formData, task: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                >
-                  <option value="">Select Task</option>
-                  {projectTasks.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.title}
-                    </option>
-                  ))}
-                </select>
+                  options={projectTasks.map((t) => ({
+                    value: t._id,
+                    label: t.title,
+                  }))}
+                  placeholder="Select Task"
+                />
               ) : (
-                <input
+                <Input
+                  label="Task"
                   type="text"
                   value={formData.task}
                   onChange={(e) =>
@@ -344,70 +332,56 @@ export default function Timesheet() {
                   }
                   required
                   placeholder="Task description"
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                 />
               )}
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  Start Time
-                </label>
-                <input
+                <Input
+                  label="Start Time"
                   type="time"
                   value={formData.startTime}
                   onChange={(e) =>
                     setFormData({ ...formData, startTime: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  End Time
-                </label>
-                <input
+                <Input
+                  label="End Time"
                   type="time"
                   value={formData.endTime}
                   onChange={(e) =>
                     setFormData({ ...formData, endTime: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                 />
               </div>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-text-secondary mb-1">
-                Description (Optional)
-              </label>
-              <textarea
+              <Textarea
+                label="Description (Optional)"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
                 rows={2}
                 placeholder="Additional details..."
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
               />
             </div>
           </div>
           <div className="flex gap-2">
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
-            >
-              <Save size={16} />
+            <Button type="submit" leftIcon={<Save size={16} />}>
               Save Entry
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       )}

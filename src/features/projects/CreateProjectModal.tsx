@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Button } from "../../components/common/Button";
+import { Input } from "../../components/common/Input";
+import { Select } from "../../components/common/Select";
+import { Textarea } from "../../components/common/Textarea";
 
 interface CreateProjectModalProps {
   onClose: () => void;
@@ -68,121 +72,92 @@ export default function CreateProjectModal({
             <X size={20} />
           </button>
         </div>
-
         <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto">
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Project Name *
-            </label>
-            <input
+            <Input
+              label="Project Name *"
               type="text"
               required
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Client Name
-            </label>
-            <input
+            <Input
+              label="Client Name"
               type="text"
               value={formData.client}
               onChange={(e) =>
                 setFormData({ ...formData, client: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Project Manager *
-            </label>
-            <select
+            <Select
+              label="Project Manager *"
               required
               value={formData.manager}
               onChange={(e) =>
                 setFormData({ ...formData, manager: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            >
-              <option value="">Select Manager</option>
-              {managers.map((m) => (
-                <option key={m.user?._id || m._id} value={m.user?._id || m._id}>
-                  {m.firstName} {m.lastName}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-text-muted mt-1">
-              Select the person responsible for this project and task
-              assignment.
-            </p>
+              options={managers.map((m) => ({
+                value: m.user?._id || m._id,
+                label: `${m.firstName} ${m.lastName}`,
+              }))}
+              helperText="Select the person responsible for this project and task assignment."
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Start Date
-              </label>
-              <input
+              <Input
+                label="Start Date"
                 type="date"
                 value={formData.startDate}
                 onChange={(e) =>
                   setFormData({ ...formData, startDate: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                End Date
-              </label>
-              <input
+              <Input
+                label="End Date"
                 type="date"
                 value={formData.endDate}
                 onChange={(e) =>
                   setFormData({ ...formData, endDate: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-border rounded-lg"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Description
-            </label>
-            <textarea
+            <Textarea
+              label="Description"
               rows={3}
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             />
           </div>
         </form>
-
         <div className="p-4 border-t border-border flex justify-end gap-3 mt-auto">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-primary hover:bg-bg-hover rounded-lg transition-colors"
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg transition-colors disabled:opacity-50"
+          </Button>
+          <Button
+            onClick={() =>
+              handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+            }
+            isLoading={loading}
           >
-            {loading ? "Creating..." : "Create Project"}
-          </button>
+            Create Project
+          </Button>
         </div>
       </div>
     </div>

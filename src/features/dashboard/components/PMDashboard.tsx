@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { apiService } from "../../../services/api.service";
+import { Button } from "../../../components/common/Button";
 
 export default function PMDashboard() {
   const { user } = useAuth();
@@ -282,12 +283,14 @@ export default function PMDashboard() {
                 Active Projects
               </h2>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => (window.location.href = "/projects")}
-              className="text-xs text-brand-primary font-medium hover:underline"
+              className="text-brand-primary font-medium hover:underline hover:bg-transparent p-0"
             >
               View All
-            </button>
+            </Button>
           </div>
           <div className="space-y-6">
             {loading ? (
