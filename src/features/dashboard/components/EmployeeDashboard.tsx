@@ -52,40 +52,6 @@ export default function EmployeeDashboard() {
 
       {/* Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Attendance */}
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-brand-primary/10 rounded-lg">
-                <Clock className="text-brand-primary" size={24} />
-              </div>
-              <h2 className="text-lg font-semibold text-text-primary">
-                Attendance
-              </h2>
-            </div>
-            <div className="text-center py-4">
-              <p className="text-5xl font-bold text-text-primary font-mono tracking-tight">
-                {formatTime(timer)}
-              </p>
-              <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-status-success/10 text-status-success">
-                <span className="w-2 h-2 rounded-full bg-status-success animate-pulse mr-2" />
-                Checked In
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => setIsCheckedIn(!isCheckedIn)}
-            className={cn(
-              "w-full py-3 px-4 rounded-lg font-medium transition-all duration-300",
-              isCheckedIn
-                ? "bg-status-error/10 text-status-error hover:bg-status-error/20"
-                : "bg-brand-primary text-white hover:bg-brand-secondary"
-            )}
-          >
-            {isCheckedIn ? "Check Out" : "Check In"}
-          </button>
-        </div>
-
         {/* Leave Balance */}
         <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-6">
