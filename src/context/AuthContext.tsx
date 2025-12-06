@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { User, AuthState } from "../types/auth";
+import type { User, AuthState, Role } from "../types/auth";
 import { apiService } from "../services/api.service";
 
 interface AuthContextType extends AuthState {
@@ -33,6 +33,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  // Normalize role names from API (handles old lowercase names)
+  const normalizeRole = (apiRole: string): Role => {
+    const roleMap: Record<string, Role> = {
+      admin: "Admin",
+      hr: "HR",
+      accountant: "Accountant",
+      pm: "Project Manager",
+      employee: "Employee",
+      intern: "Intern",
+      contractor: "Consultant",
+      consultant: "Consultant",
+    };
+
+    // If it's already capitalized, return as-is
+    if (Object.values(roleMap).includes(apiRole as Role)) {
+      return apiRole as Role;
+    }
+
+    // Otherwise map from lowercase to capitalized
+    return roleMap[apiRole.toLowerCase()] || "Employee";
+  };
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -46,7 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: userData.user._id,
         email: userData.user.email,
         name: userData.user.email.split("@")[0], // Extract name from email for now
-        role: userData.user.roles[0] || "employee",
+        role: normalizeRole(
+          userData.user.roles[0]?.name || userData.user.roles[0] || "employee"
+        ),
         department: userData.user.department,
         designation: userData.user.employeeId,
         avatar: userData.user.email.substring(0, 2).toUpperCase(),
@@ -97,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "admin-1",
         email: "admin@sys.com",
         name: "System Admin",
-        role: "admin",
+        role: "Admin",
         department: "IT",
         designation: "System Administrator",
         avatar: "SA",
@@ -106,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "hr-1",
         email: "hr@company.com",
         name: "HR Executive",
-        role: "hr",
+        role: "HR",
         department: "Human Resources",
         designation: "HR Executive",
         avatar: "HR",
@@ -115,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "pm-1",
         email: "pm@company.com",
         name: "Project Manager",
-        role: "pm",
+        role: "Project Manager",
         department: "Engineering",
         designation: "Project Manager",
         avatar: "PM",
@@ -124,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "emp-1",
         email: "employee@company.com",
         name: "John Employee",
-        role: "employee",
+        role: "Employee",
         department: "Engineering",
         designation: "Software Engineer",
         avatar: "JE",
@@ -133,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "acc-1",
         email: "acc@company.com",
         name: "Accountant",
-        role: "accountant",
+        role: "Accountant",
         department: "Finance",
         designation: "Senior Accountant",
         avatar: "AC",
@@ -142,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "int-1",
         email: "intern@company.com",
         name: "Intern",
-        role: "intern",
+        role: "Intern",
         department: "Engineering",
         designation: "Software Intern",
         avatar: "IN",
@@ -151,7 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: "con-1",
         email: "contract@company.com",
         name: "Contractor",
-        role: "contractor",
+        role: "Consultant",
         department: "Engineering",
         designation: "Contract Developer",
         avatar: "CO",

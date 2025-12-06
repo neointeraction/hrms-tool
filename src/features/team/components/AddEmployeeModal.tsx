@@ -200,13 +200,13 @@ export default function AddEmployeeModal({
               className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
             >
               <option value="">Select Role</option>
-              <option value="System Admin">System Admin</option>
-              <option value="HR Executive">HR Executive</option>
+              <option value="Admin">Admin</option>
+              <option value="HR">HR</option>
               <option value="Accountant">Accountant</option>
               <option value="Project Manager">Project Manager</option>
-              <option value="Employees">Employees</option>
-              <option value="Interns">Interns</option>
-              <option value="Contractors">Contractors</option>
+              <option value="Employee">Employee</option>
+              <option value="Intern">Intern</option>
+              <option value="Consultant">Consultant</option>
             </select>
           </div>
 

@@ -10,12 +10,58 @@ export const menuItems: MenuItem[] = [
   {
     to: "/",
     label: "Dashboard",
-    roles: ["admin", "hr", "accountant", "pm", "employee", "intern"],
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+    ],
   },
   {
     to: "/employee-management",
     label: "Employee Management",
-    roles: ["admin", "hr"],
+    roles: ["Admin", "HR"],
+  },
+  {
+    to: "/attendance",
+    label: "Attendance & Time Tracking",
+    roles: ["Employee", "HR", "Project Manager", "Intern", "Consultant"],
+  },
+  {
+    to: "/audit",
+    label: "Audit Trail",
+    roles: ["Admin", "HR"],
+  },
+  {
+    to: "/leave",
+    label: "Leave Management",
+    roles: [
+      "Admin",
+      "HR",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
+  },
+  {
+    to: "/payroll",
+    label: "Payroll & Finance",
+    roles: ["Admin", "HR", "Accountant", "Employee", "Intern", "Consultant"],
+  },
+  {
+    to: "/projects",
+    label: "Project Management",
+    roles: [
+      "Admin",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+      "Accountant",
+    ],
   },
 ];
 

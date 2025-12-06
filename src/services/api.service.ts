@@ -233,21 +233,187 @@ class ApiService {
     return response.json();
   }
 
-  async getAuditLogs(filters?: any): Promise<ApiResponse> {
-    const queryParams = new URLSearchParams(filters).toString();
+  // Leave Management Methods
+  async applyLeave(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/apply`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to apply for leave");
+    }
+    return response.json();
+  }
+
+  async getMyLeaves(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/my-leaves`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch my leaves");
+    return response.json();
+  }
+
+  async getPendingLeaveApprovals(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/pending-approvals`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok)
+      throw new Error("Failed to fetch pending leave approvals");
+    return response.json();
+  }
+
+  async approveLeave(id: string, comments?: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/${id}/approve`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ comments }),
+    });
+    if (!response.ok) throw new Error("Failed to approve leave");
+    return response.json();
+  }
+
+  async rejectLeave(id: string, comments?: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/${id}/reject`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ comments }),
+    });
+    if (!response.ok) throw new Error("Failed to reject leave");
+    return response.json();
+  }
+
+  // Payroll Methods
+  async upsertSalaryStructure(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/payroll/structure`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to save salary structure");
+    return response.json();
+  }
+
+  async getSalaryStructure(employeeId: string): Promise<any> {
     const response = await fetch(
-      `${API_BASE_URL}/admin/audit-logs?${queryParams}`,
+      `${API_BASE_URL}/payroll/structure/${employeeId}`,
       {
-        method: "GET",
         headers: this.getAuthHeaders(),
       }
     );
-
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to fetch audit logs");
+      if (response.status === 404) return { structure: null }; // Handle not found gracefully
+      throw new Error("Failed to fetch salary structure");
     }
+    return response.json();
+  }
 
+  async calculatePayroll(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/payroll/calculate`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to calculate payroll");
+    return response.json();
+  }
+
+  async getPayrollList(params?: any): Promise<any> {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(
+      `${API_BASE_URL}/payroll/list?${queryParams}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch payroll list");
+    return response.json();
+  }
+
+  async updatePayrollStatus(id: string, status: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/payroll/${id}/status`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Failed to update payroll status");
+    return response.json();
+  }
+
+  async getMyPayslips(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/payroll/my-payslips`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch payslips");
+    return response.json();
+  }
+
+  // Project Management Methods
+  async getProjects(params?: any): Promise<any> {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/projects?${queryParams}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch projects");
+    return response.json();
+  }
+
+  async getProjectById(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch project");
+    return response.json();
+  }
+
+  async createProject(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/projects`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to create project");
+    return response.json();
+  }
+
+  async updateProject(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to update project");
+    return response.json();
+  }
+
+  // Task Management Methods
+  async getTasks(params?: any): Promise<any> {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/tasks?${queryParams}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch tasks");
+    return response.json();
+  }
+
+  async createTask(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to create task");
+    return response.json();
+  }
+
+  async updateTask(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to update task");
     return response.json();
   }
 
@@ -299,6 +465,267 @@ class ApiService {
       const error = await response.json();
       throw new Error(error.message || "Failed to update employee");
     }
+    return response.json();
+  }
+
+  // Attendance Methods
+  async clockIn(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/clock-in`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to clock in");
+    }
+    return response.json();
+  }
+
+  async clockOut(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/clock-out`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to clock out");
+    }
+    return response.json();
+  }
+
+  async startBreak(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/break-start`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to start break");
+    }
+    return response.json();
+  }
+
+  async endBreak(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/break-end`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to end break");
+    }
+    return response.json();
+  }
+
+  async getAttendanceStatus(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/status`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch status");
+    return response.json();
+  }
+
+  async getAttendanceHistory(params?: any): Promise<any> {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(
+      `${API_BASE_URL}/attendance/history?${queryParams}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch history");
+    return response.json();
+  }
+
+  // Timesheet Methods
+  async createTimesheetEntry(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/entry`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create timesheet entry");
+    }
+    return response.json();
+  }
+
+  async getTimesheetEntries(params?: any): Promise<any> {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(
+      `${API_BASE_URL}/timesheet/entries?${queryParams}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch timesheet entries");
+    return response.json();
+  }
+
+  async updateTimesheetEntry(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/entry/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update timesheet entry");
+    }
+    return response.json();
+  }
+
+  async deleteTimesheetEntry(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/entry/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete timesheet entry");
+    return response.json();
+  }
+
+  // Time Correction Methods
+  async requestTimeCorrection(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/time-correction/request`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to request correction");
+    }
+    return response.json();
+  }
+
+  async getMyCorrections(): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/time-correction/my-requests`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch corrections");
+    return response.json();
+  }
+
+  async getPendingCorrections(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/time-correction/pending`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch pending corrections");
+    return response.json();
+  }
+
+  async approveCorrection(id: string, comments?: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/time-correction/${id}/approve`,
+      {
+        method: "PUT",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ comments }),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to approve correction");
+    return response.json();
+  }
+
+  async rejectCorrection(id: string, comments?: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/time-correction/${id}/reject`,
+      {
+        method: "PUT",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ comments }),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to reject correction");
+    return response.json();
+  }
+
+  async getTeamStatus(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/attendance/team-status`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch team status");
+    return response.json();
+  }
+
+  // Timesheet Approval Methods
+  async submitTimesheets(weekEnding: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/submit`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ weekEnding }),
+    });
+    if (!response.ok) throw new Error("Failed to submit timesheets");
+    return response.json();
+  }
+
+  async getPendingTimesheetApprovals(): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/timesheet/pending-approvals`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch pending approvals");
+    return response.json();
+  }
+
+  async approveTimesheet(id: string, comments?: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/${id}/approve`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ comments }),
+    });
+    if (!response.ok) throw new Error("Failed to approve timesheet");
+    return response.json();
+  }
+
+  async rejectTimesheet(id: string, comments: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/${id}/reject`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ comments }),
+    });
+    if (!response.ok) throw new Error("Failed to reject timesheet");
+    return response.json();
+  }
+
+  // Audit Trail Methods
+  async getAuditLogs(filters?: {
+    entityType?: string;
+    action?: string;
+    employee?: string;
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+  }): Promise<any> {
+    const params = new URLSearchParams();
+    if (filters?.entityType) params.append("entityType", filters.entityType);
+    if (filters?.action) params.append("action", filters.action);
+    if (filters?.employee) params.append("employee", filters.employee);
+    if (filters?.startDate) params.append("startDate", filters.startDate);
+    if (filters?.endDate) params.append("endDate", filters.endDate);
+    if (filters?.limit) params.append("limit", filters.limit.toString());
+
+    const response = await fetch(`${API_BASE_URL}/audit?${params}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch audit logs");
+    return response.json();
+  }
+
+  async getEntityAuditLogs(entityType: string, entityId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/audit/${entityType}/${entityId}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch entity audit logs");
     return response.json();
   }
 }

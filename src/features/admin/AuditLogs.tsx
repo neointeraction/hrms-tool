@@ -20,7 +20,7 @@ export default function AuditLogs() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getAuditLogs({ filter });
+      const response = await apiService.getAuditLogs();
       setLogs(response.logs || []);
     } catch (err) {
       console.error("Failed to fetch logs, using mock data", err);

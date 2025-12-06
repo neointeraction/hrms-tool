@@ -8,7 +8,7 @@ import {
 } from "../utils/navigation";
 
 export default function Login() {
-  const [email, setEmail] = useState("employee@company.com"); // Default for demo
+  const [email, setEmail] = useState("shameer@neointeraction.com"); // Default for demo
   const [password, setPassword] = useState("password");
   const [error, setError] = useState("");
   const { login, isLoading } = useAuth();
@@ -114,22 +114,22 @@ export default function Login() {
             </p>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
-                onClick={() => setEmail("admin@sys.com")}
+                onClick={() => setEmail("admin@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
-                admin@sys.com
+                admin@neointeraction.com
               </button>
               <button
-                onClick={() => setEmail("hr@company.com")}
+                onClick={() => setEmail("hr@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 hr@company.com
               </button>
               <button
-                onClick={() => setEmail("pm@company.com")}
+                onClick={() => setEmail("liya@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
-                pm@company.com
+                liya@neointeraction.com
               </button>
               <button
                 onClick={() => setEmail("employee@company.com")}

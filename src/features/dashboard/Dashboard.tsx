@@ -13,19 +13,19 @@ export default function Dashboard() {
   if (!user) return null;
 
   switch (user.role) {
-    case "admin":
+    case "Admin":
       return <AdminDashboard />;
-    case "hr":
+    case "HR":
       return <HRDashboard />;
-    case "pm":
+    case "Project Manager":
       return <PMDashboard />;
-    case "accountant":
+    case "Accountant":
       return <AccountantDashboard />;
-    case "contractor":
+    case "Consultant":
       return <ContractorDashboard />;
-    case "intern":
+    case "Intern":
       return <InternDashboard />;
-    case "employee":
+    case "Employee":
     default:
       return <EmployeeDashboard />;
   }

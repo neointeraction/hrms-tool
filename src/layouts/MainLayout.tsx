@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Users,
   User,
+  UserCircle2,
   Menu,
   X,
   Moon,
@@ -192,6 +193,16 @@ export default function MainLayout() {
                         {user?.designation}
                       </p>
                     </div>
+                    <button
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        navigate("/profile");
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-bg-hover flex items-center gap-2"
+                    >
+                      <UserCircle2 size={16} />
+                      My Profile
+                    </button>
                     <button
                       onClick={() => {
                         logout();

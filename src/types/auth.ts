@@ -1,11 +1,11 @@
 export type Role =
-  | "admin"
-  | "hr"
-  | "accountant"
-  | "pm"
-  | "employee"
-  | "intern"
-  | "contractor";
+  | "Admin"
+  | "HR"
+  | "Accountant"
+  | "Project Manager"
+  | "Employee"
+  | "Intern"
+  | "Consultant";
 
 export interface User {
   id: string;
