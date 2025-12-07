@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { CheckCircle } from "lucide-react";
+import { Select } from "../../components/common/Select";
 import { apiService } from "../../services/api.service";
 
 export default function PayrollProcessor() {
@@ -28,7 +29,7 @@ export default function PayrollProcessor() {
 
   const loadEmployees = async () => {
     try {
-      const data = await apiService.getEmployees();
+      const data: any = await apiService.getEmployees();
       setEmployees(Array.isArray(data) ? data : data.employees || []);
     } catch (err) {
       console.error("failed to load employees");
@@ -44,8 +45,11 @@ export default function PayrollProcessor() {
         year: selectedYear,
       });
       loadPayrollList(); // Refresh list to show new draft
-    } catch (err) {
-      alert("Failed to calculate payroll. Ensure salary structure is defined.");
+    } catch (err: any) {
+      alert(
+        err.message ||
+          "Failed to calculate payroll. Ensure salary structure is defined."
+      );
     } finally {
       setLoading(false);
     }
@@ -61,40 +65,38 @@ export default function PayrollProcessor() {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-border p-6">
+    <div className="bg-bg-card rounded-lg border border-border p-6">
       <div className="flex gap-4 mb-6 items-center bg-bg-main p-4 rounded-lg">
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="p-2 border border-border rounded"
-        >
-          {[
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-          ].map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
-          className="p-2 border border-border rounded"
-        >
-          <option value={2024}>2024</option>
-          <option value={2025}>2025</option>
-        </select>
+        <div className="w-40">
+          <Select
+            value={selectedMonth}
+            onChange={(value) => setSelectedMonth(value as string)}
+            options={[
+              "January",
+              "February",
+              "March",
+              "April",
+              "May",
+              "June",
+              "July",
+              "August",
+              "September",
+              "October",
+              "November",
+              "December",
+            ].map((m) => ({ value: m, label: m }))}
+          />
+        </div>
+        <div className="w-28">
+          <Select
+            value={selectedYear}
+            onChange={(value) => setSelectedYear(Number(value))}
+            options={[
+              { value: 2024, label: "2024" },
+              { value: 2025, label: "2025" },
+            ]}
+          />
+        </div>
         <div className="ml-auto text-sm text-text-secondary">
           Process payroll for {selectedMonth} {selectedYear}
         </div>

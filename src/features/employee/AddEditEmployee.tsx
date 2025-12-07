@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/common/Modal";
 import { apiService } from "../../services/api.service";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
+import { Select } from "../../components/common/Select";
 
 interface AddEditEmployeeProps {
   isOpen: boolean;
@@ -31,6 +32,8 @@ export default function AddEditEmployee({
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<any>({
     // Basic
@@ -96,6 +99,14 @@ export default function AddEditEmployee({
             ? employee.dateOfExit.split("T")[0]
             : "",
         });
+        if (employee.profilePicture) {
+          // If storing path like "uploads/..." append backend URL
+          // Assuming image is served from same origin or full URL.
+          // For now, assume relative path 'uploads/...' needs '/uploads/...' prepended or usage of API_URL
+          // We'll trust backend sends relative path e.g. 'uploads/file.png'.
+          // Simple preview hack:
+          setImagePreview(`http://localhost:5001/${employee.profilePicture}`);
+        }
       } else {
         // Reset form
         setFormData({
@@ -135,6 +146,8 @@ export default function AddEditEmployee({
           education: [],
           dependents: [],
         });
+        setProfileImage(null);
+        setImagePreview(null);
       }
     }
   }, [isOpen, employee]);
@@ -155,6 +168,25 @@ export default function AddEditEmployee({
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    setImagePreview(null);
+    // Note: If we want to remove existing image from backend, logic would be more complex (e.g. set a flag).
+    // For now, this just clears the new selection.
   };
 
   const handleArrayChange = (
@@ -188,10 +220,41 @@ export default function AddEditEmployee({
     e.preventDefault();
     setLoading(true);
     try {
+      // Create FormData
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        // Skip system fields and populated objects that shouldn't be sent back
+        if (
+          [
+            "user",
+            "_id",
+            "__v",
+            "addedTime",
+            "modifiedTime",
+            "addedBy",
+            "modifiedBy",
+          ].includes(key)
+        ) {
+          return;
+        }
+
+        if (Array.isArray(formData[key])) {
+          // For arrays, we might need strict JSON stringify or loop
+          // Simple array handling:
+          data.append(key, JSON.stringify(formData[key]));
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+          data.append(key, formData[key]);
+        }
+      });
+
+      if (profileImage) {
+        data.append("profilePicture", profileImage);
+      }
+
       if (employee) {
-        await apiService.updateEmployee(employee._id, formData);
+        await apiService.updateEmployee(employee._id, data);
       } else {
-        await apiService.createEmployee(formData);
+        await apiService.createEmployee(data);
       }
       onClose();
     } catch (err: any) {
@@ -209,34 +272,31 @@ export default function AddEditEmployee({
     options?: string[]
   ) => (
     <div>
-      <label className="block text-sm font-medium text-text-secondary mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
       {options ? (
-        <select
-          name={name}
-          value={formData[name]}
-          onChange={handleChange}
-          disabled={viewMode}
-          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
-        >
-          <option value="">Select {label}</option>
-          {options.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleChange}
-          disabled={viewMode}
+        <Select
+          label={label}
           required={required}
-          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
+          value={formData[name]}
+          onChange={(value) => handleChange({ target: { name, value } })}
+          options={options.map((opt) => ({ value: opt, label: opt }))}
+          disabled={viewMode}
+          className="disabled:opacity-60"
         />
+      ) : (
+        <>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            {label} {required && <span className="text-red-500">*</span>}
+          </label>
+          <input
+            type={type}
+            name={name}
+            value={formData[name]}
+            onChange={handleChange}
+            disabled={viewMode}
+            required={required}
+            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+          />
+        </>
       )}
     </div>
   );
@@ -278,6 +338,52 @@ export default function AddEditEmployee({
             {/* Basic Info */}
             {activeTab === "Basic Info" && (
               <div className="grid grid-cols-2 gap-4">
+                {/* Profile Picture Upload - Top of Basic Tab */}
+                <div className="col-span-2 flex items-center gap-4 mb-4">
+                  <div className="w-24 h-24 rounded-full bg-bg-main border-2 border-dashed border-border flex items-center justify-center overflow-hidden relative group">
+                    {imagePreview ? (
+                      <>
+                        <img
+                          src={imagePreview}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                        {!viewMode && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveImage}
+                            className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <Upload className="text-gray-400" size={24} />
+                    )}
+                  </div>
+                  {!viewMode && (
+                    <div>
+                      <input
+                        type="file"
+                        id="profileUpload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                      <label
+                        htmlFor="profileUpload"
+                        className="cursor-pointer px-4 py-2 bg-bg-card border border-border rounded-lg hover:bg-bg-hover text-sm font-medium transition-colors text-text-primary"
+                      >
+                        {imagePreview ? "Change Photo" : "Upload Photo"}
+                      </label>
+                      <p className="text-xs text-text-secondary mt-1">
+                        PNG, JPG or GIF. Max 5MB.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {renderInput("Employee ID", "employeeId", "text", true)}
                 {renderInput("First Name", "firstName", "text", true)}
                 {renderInput("Last Name", "lastName", "text", true)}
@@ -295,7 +401,7 @@ export default function AddEditEmployee({
                       onChange={handleChange}
                       required={!employee}
                       placeholder="Enter password for new user"
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
                     />
                   </div>
                 )}
@@ -320,23 +426,19 @@ export default function AddEditEmployee({
                 ])}
                 {renderInput("Designation", "designation")}
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">
-                    Role
-                  </label>
-                  <select
-                    name="role"
+                  <Select
+                    label="Role"
                     value={formData.role}
-                    onChange={handleChange}
+                    onChange={(value) =>
+                      handleChange({ target: { name: "role", value } })
+                    }
+                    options={roles.map((r) => ({
+                      value: r.name,
+                      label: r.name,
+                    }))}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
-                  >
-                    <option value="">Select Role</option>
-                    {roles.map((r) => (
-                      <option key={r._id} value={r.name}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </select>
+                    className="disabled:opacity-60"
+                  />
                 </div>
                 {renderInput(
                   "Employment Type",
@@ -375,23 +477,21 @@ export default function AddEditEmployee({
             {activeTab === "Hierarchy" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">
-                    Reporting Manager
-                  </label>
-                  <select
-                    name="reportingManager"
+                  <Select
+                    label="Reporting Manager"
                     value={formData.reportingManager}
-                    onChange={handleChange}
+                    onChange={(value) =>
+                      handleChange({
+                        target: { name: "reportingManager", value },
+                      })
+                    }
+                    options={managers.map((m) => ({
+                      value: m._id,
+                      label: `${m.firstName} ${m.lastName}`,
+                    }))}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
-                  >
-                    <option value="">Select Manager</option>
-                    {managers.map((m) => (
-                      <option key={m._id} value={m._id}>
-                        {m.firstName} {m.lastName}
-                      </option>
-                    ))}
-                  </select>
+                    className="disabled:opacity-60"
+                  />
                 </div>
               </div>
             )}
@@ -420,7 +520,7 @@ export default function AddEditEmployee({
                     value={formData.aboutMe}
                     onChange={handleChange}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-bg-main bg-bg-card text-text-primary"
                     rows={3}
                   />
                 </div>
@@ -433,7 +533,7 @@ export default function AddEditEmployee({
                     value={formData.expertise}
                     onChange={handleChange}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-bg-main bg-bg-card text-text-primary"
                     rows={3}
                   />
                 </div>
@@ -466,7 +566,7 @@ export default function AddEditEmployee({
                     value={formData.presentAddress}
                     onChange={handleChange}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-bg-main bg-bg-card text-text-primary"
                     rows={2}
                   />
                 </div>
@@ -479,7 +579,7 @@ export default function AddEditEmployee({
                     value={formData.permanentAddress}
                     onChange={handleChange}
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-bg-main bg-bg-card text-text-primary"
                     rows={2}
                   />
                 </div>
@@ -546,7 +646,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -560,7 +660,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -577,7 +677,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -592,7 +692,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                       </div>
@@ -647,7 +747,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -661,7 +761,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -675,7 +775,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                         <input
@@ -694,7 +794,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border p-1 rounded"
+                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                       </div>
@@ -712,7 +812,7 @@ export default function AddEditEmployee({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 font-medium transition-colors"
+              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover font-medium transition-colors"
               disabled={loading}
             >
               Cancel

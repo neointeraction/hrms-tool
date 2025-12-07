@@ -94,7 +94,7 @@ export default function AssetManagement() {
             {assets.map((asset) => (
               <tr
                 key={asset.id}
-                className="border-b border-border hover:bg-bg-hover/50 transition-colors"
+                className="border-b border-border hover:bg-bg-hover transition-colors"
               >
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-2">

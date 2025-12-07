@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import type { RegisterUserData } from "../../../services/api.service";
+import { Select } from "../../../components/common/Select";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -165,49 +166,48 @@ export default function AddEmployeeModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              Department <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
+            <Select
+              label="Department"
               required
-              className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
-            >
-              <option value="">Select Department</option>
-              <option value="Engineering">Engineering</option>
-              <option value="IT">IT</option>
-              <option value="Design">Design</option>
-              <option value="Product">Product</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Sales">Sales</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Operations">Operations</option>
-            </select>
+              value={formData.department}
+              onChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  department: value as string,
+                }))
+              }
+              options={[
+                { value: "Engineering", label: "Engineering" },
+                { value: "IT", label: "IT" },
+                { value: "Design", label: "Design" },
+                { value: "Product", label: "Product" },
+                { value: "Marketing", label: "Marketing" },
+                { value: "Sales", label: "Sales" },
+                { value: "HR", label: "HR" },
+                { value: "Finance", label: "Finance" },
+                { value: "Operations", label: "Operations" },
+              ]}
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              Role <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
+            <Select
+              label="Role"
               required
-              className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
-            >
-              <option value="">Select Role</option>
-              <option value="Admin">Admin</option>
-              <option value="HR">HR</option>
-              <option value="Accountant">Accountant</option>
-              <option value="Project Manager">Project Manager</option>
-              <option value="Employee">Employee</option>
-              <option value="Intern">Intern</option>
-              <option value="Consultant">Consultant</option>
-            </select>
+              value={formData.role}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, role: value as string }))
+              }
+              options={[
+                { value: "Admin", label: "Admin" },
+                { value: "HR", label: "HR" },
+                { value: "Accountant", label: "Accountant" },
+                { value: "Project Manager", label: "Project Manager" },
+                { value: "Employee", label: "Employee" },
+                { value: "Intern", label: "Intern" },
+                { value: "Consultant", label: "Consultant" },
+              ]}
+            />
           </div>
 
           {/* Footer */}

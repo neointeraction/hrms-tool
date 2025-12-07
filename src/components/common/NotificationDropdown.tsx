@@ -114,7 +114,7 @@ export default function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-border z-50 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute right-0 mt-2 w-80 bg-bg-card rounded-xl shadow-lg border border-border overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
           <div className="p-4 border-b border-border flex justify-between items-center">
             <h3 className="font-semibold text-text-primary">Notifications</h3>
             {unreadCount > 0 && (
@@ -139,7 +139,7 @@ export default function NotificationDropdown() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-bg-hover/50 transition-colors relative group ${
+                    className={`p-4 border-b border-border hover:bg-bg-hover transition-colors relative group ${
                       !notification.read ? "bg-brand-primary/5" : ""
                     }`}
                   >

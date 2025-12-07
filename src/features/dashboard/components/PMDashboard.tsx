@@ -21,6 +21,7 @@ export default function PMDashboard() {
   const [teamStatus, setTeamStatus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+  const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
@@ -49,8 +50,17 @@ export default function PMDashboard() {
 
   const fetchPendingApprovals = async () => {
     try {
-      const data = await apiService.getPendingTimesheetApprovals();
-      setPendingApprovalsCount(data.timesheets?.length || 0);
+      const [timesheets, leaves] = await Promise.all([
+        apiService
+          .getPendingTimesheetApprovals()
+          .catch(() => ({ timesheets: [] })),
+        apiService
+          .getPendingLeaveApprovals()
+          .catch(() => ({ leaveRequests: [] })),
+      ]);
+
+      setPendingApprovalsCount(timesheets.timesheets?.length || 0);
+      setPendingLeavesCount(leaves.leaveRequests?.length || 0);
     } catch (error) {
       console.error("Failed to fetch pending approvals:", error);
     }
@@ -64,6 +74,8 @@ export default function PMDashboard() {
       console.error("Failed to fetch projects:", error);
     }
   };
+
+  // ... (rest of helper functions unchanged)
 
   const getStatusCounts = () => {
     const clockedIn = teamStatus.filter(
@@ -102,6 +114,7 @@ export default function PMDashboard() {
   };
 
   const counts = getStatusCounts();
+  const totalPending = pendingApprovalsCount + pendingLeavesCount;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -118,6 +131,7 @@ export default function PMDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Team Status Card - Live Data */}
         <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+          {/* Same as before... omitting strictly unchanged parts if tool allows, but let's be safe and include surrounding context or use precise replacement */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users className="text-brand-primary" size={24} />
@@ -198,9 +212,9 @@ export default function PMDashboard() {
             <h2 className="text-lg font-semibold text-text-primary">
               Approvals
             </h2>
-            {pendingApprovalsCount > 0 && (
+            {totalPending > 0 && (
               <span className="ml-auto px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
-                {pendingApprovalsCount}
+                {totalPending}
               </span>
             )}
           </div>
@@ -223,21 +237,35 @@ export default function PMDashboard() {
                   Review
                 </button>
               </div>
-            ) : (
+            ) : null}
+
+            {pendingLeavesCount > 0 ? (
+              <div
+                onClick={() => (window.location.href = "/leaves")}
+                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex justify-between items-center cursor-pointer hover:bg-yellow-100 transition-colors"
+              >
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    Leave Requests
+                  </p>
+                  <p className="text-xs text-text-secondary">
+                    {pendingLeavesCount} pending request
+                    {pendingLeavesCount > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <button className="text-xs bg-brand-primary text-white px-3 py-1 rounded-full">
+                  Review
+                </button>
+              </div>
+            ) : null}
+
+            {totalPending === 0 && (
               <div className="p-3 bg-bg-main rounded-lg text-center">
                 <p className="text-sm text-text-secondary">
                   No pending approvals
                 </p>
               </div>
             )}
-            <div className="p-3 bg-bg-main rounded-lg flex justify-between items-center opacity-50">
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  Leave Request
-                </p>
-                <p className="text-xs text-text-secondary">Coming soon</p>
-              </div>
-            </div>
           </div>
         </div>
 

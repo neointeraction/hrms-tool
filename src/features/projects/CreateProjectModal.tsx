@@ -22,34 +22,46 @@ export default function CreateProjectModal({
     manager: "",
     startDate: "",
     endDate: "",
-    // members not implemented in simple form yet
+    members: [] as string[],
   });
-  const [managers, setManagers] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadManagers();
+    loadEmployees();
   }, []);
 
-  const loadManagers = async () => {
+  const loadEmployees = async () => {
     try {
-      // Ideally endpoint filters by role, but reusing getEmployees
-      const data = await apiService.getEmployees();
-      // Ideally filter for PM role, but filtering by all for flexibility in MVP
-      setManagers(Array.isArray(data) ? data : data.employees || []);
+      const data: any = await apiService.getEmployees();
+      setEmployees(Array.isArray(data) ? data : data.employees || []);
     } catch (err) {
       console.error("Failed to load users");
     }
+  };
+
+  const handleMemberToggle = (employeeId: string) => {
+    setFormData((prev) => {
+      const isSelected = prev.members.includes(employeeId);
+      if (isSelected) {
+        return {
+          ...prev,
+          members: prev.members.filter((id) => id !== employeeId),
+        };
+      } else {
+        return {
+          ...prev,
+          members: [...prev.members, employeeId],
+        };
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await apiService.createProject({
-        ...formData,
-        // members: [] // Optional
-      });
+      await apiService.createProject(formData);
       onSuccess();
     } catch (err) {
       alert("Failed to create project");
@@ -60,7 +72,7 @@ export default function CreateProjectModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]">
+      <div className="bg-bg-card rounded-lg shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh] border border-border">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-lg font-bold text-text-primary">
             Create New Project
@@ -101,15 +113,54 @@ export default function CreateProjectModal({
               label="Project Manager *"
               required
               value={formData.manager}
-              onChange={(e) =>
-                setFormData({ ...formData, manager: e.target.value })
+              onChange={(value) =>
+                setFormData({ ...formData, manager: value as string })
               }
-              options={managers.map((m) => ({
+              options={employees.map((m) => ({
                 value: m.user?._id || m._id,
                 label: `${m.firstName} ${m.lastName}`,
               }))}
-              helperText="Select the person responsible for this project and task assignment."
+              helperText="Select the person responsible for this project."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Team Members ({formData.members.length})
+            </label>
+            <div className="border border-border rounded-lg p-2 max-h-40 overflow-y-auto space-y-2">
+              {employees.length === 0 ? (
+                <p className="text-xs text-text-secondary text-center py-2">
+                  No employees found.
+                </p>
+              ) : (
+                employees.map((emp) => {
+                  const empId = emp.user?._id || emp._id;
+                  return (
+                    <label
+                      key={empId}
+                      className="flex items-center gap-2 p-2 hover:bg-bg-hover rounded cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.members.includes(empId)}
+                        onChange={() => handleMemberToggle(empId)}
+                        className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                      />
+                      <span className="text-sm text-text-primary">
+                        {emp.firstName} {emp.lastName}{" "}
+                        <span className="text-text-secondary text-xs">
+                          ({emp.designation})
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })
+              )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Select employees to assign to this project.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

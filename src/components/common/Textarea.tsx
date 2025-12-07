@@ -1,4 +1,4 @@
-import React, { type TextareaHTMLAttributes, forwardRef } from "react";
+import { type TextareaHTMLAttributes, forwardRef } from "react";
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -19,7 +19,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-text-secondary mb-1"
           >
             {label}
           </label>
@@ -29,21 +29,21 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           rows={rows}
           className={`
-          w-full rounded-lg border bg-white px-3 py-2 text-sm
+          w-full rounded-lg border bg-bg-card px-3 py-2 text-sm text-text-primary placeholder-text-muted
           ${
             error
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-brand-primary"
+              ? "border-status-error focus:ring-status-error"
+              : "border-border focus:ring-brand-primary"
           }
           focus:outline-none focus:ring-2 focus:border-transparent
-          disabled:bg-gray-50 disabled:text-gray-500
+          disabled:bg-bg-main disabled:text-text-muted
           ${className}
         `}
           {...props}
         />
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+        {error && <p className="mt-1 text-xs text-status-error">{error}</p>}
         {!error && helperText && (
-          <p className="mt-1 text-xs text-gray-500">{helperText}</p>
+          <p className="mt-1 text-xs text-text-muted">{helperText}</p>
         )}
       </div>
     );

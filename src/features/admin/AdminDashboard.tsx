@@ -44,7 +44,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-border p-6">
+      <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6">
         {activeTab === "roles" && <RoleManagement />}
         {activeTab === "audit" && <AuditLogs />}
       </div>

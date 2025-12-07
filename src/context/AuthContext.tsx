@@ -6,6 +6,7 @@ import { apiService } from "../services/api.service";
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
+        // Fetch fresh data from server to ensure avatar and details are up to date
+        // We define refreshUser below, but we can call it here if we move it or use a separate internal function
+        // To avoid hoisting issues or define-before-use, we'll verify if we can call it.
+        // Actually, best to just call the API directly or ensure refreshUser is defined/hoisted or use a separate effect.
+        // Since refreshUser is defined inside the component, we can call it.
       } catch (error) {
         console.error("Failed to parse stored user", error);
         localStorage.removeItem("hrms_user");
@@ -32,6 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(false);
   }, []);
+
+  // Define refreshUser first or move it up? Function declarations are hoisted if using `function`, but const lambdas are not.
+  // We will move refreshUser up or use a separate effect for refreshing.
+  // Let's modify the login and refreshUser logic first.
 
   // Normalize role names from API (handles old lowercase names)
   const normalizeRole = (apiRole: string): Role => {
@@ -55,11 +65,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return roleMap[apiRole.toLowerCase()] || "Employee";
   };
 
+  const refreshUser = async () => {
+    try {
+      const userData = await apiService.getCurrentUser();
+      const apiUser = userData.user;
+
+      const updatedUser: User = {
+        id: apiUser._id,
+        email: apiUser.email,
+        name: apiUser.name || apiUser.email.split("@")[0],
+        role: normalizeRole(
+          apiUser.roles[0]?.name || apiUser.roles[0] || "employee"
+        ),
+        department: apiUser.department,
+        designation: apiUser.designation || apiUser.employeeId,
+        avatar: apiUser.avatar || apiUser.email.substring(0, 2).toUpperCase(),
+      };
+
+      setUser(updatedUser);
+      localStorage.setItem("hrms_user", JSON.stringify(updatedUser)); // Update storage
+      return updatedUser;
+    } catch (error) {
+      console.error("Failed to refresh user data", error);
+      return null;
+    }
+  };
+
+  // Add a separate effect to refresh user on mount if authenticated
+  useEffect(() => {
+    if (localStorage.getItem("hrms_token")) {
+      refreshUser();
+    }
+  }, []);
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       // Try API login first
       const response = await apiService.login(email, password);
+
+      // Store token immediately so subsequent requests authenticate
+      if (response.token) {
+        localStorage.setItem("hrms_token", response.token);
+      }
 
       // The API returns a token, we need to fetch user data
       const userData = await apiService.getCurrentUser();
@@ -73,7 +121,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ),
         department: userData.user.department,
         designation: userData.user.employeeId,
-        avatar: userData.user.email.substring(0, 2).toUpperCase(),
+        // Use avatar from backend if available
+        avatar:
+          userData.user.avatar ||
+          userData.user.email.substring(0, 2).toUpperCase(),
       };
 
       setUser(user);
@@ -81,9 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Persist session
       localStorage.setItem("hrms_user", JSON.stringify(user));
-      if (response.token) {
-        localStorage.setItem("hrms_token", response.token);
-      }
 
       return user;
     } catch (error) {
@@ -201,6 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

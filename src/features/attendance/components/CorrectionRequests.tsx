@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
+import { Select } from "../../../components/common/Select";
 
 export default function CorrectionRequests() {
   const { user } = useAuth();
@@ -115,19 +116,20 @@ export default function CorrectionRequests() {
           >
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  Type
-                </label>
-                <select
+                <Select
+                  label="Type"
                   value={formData.correctionType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, correctionType: e.target.value })
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      correctionType: value as string,
+                    })
                   }
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                >
-                  <option value="add">Add Missing Entry</option>
-                  <option value="edit">Edit Existing Entry</option>
-                </select>
+                  options={[
+                    { value: "add", label: "Add Missing Entry" },
+                    { value: "edit", label: "Edit Existing Entry" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-1">

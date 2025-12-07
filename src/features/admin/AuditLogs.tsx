@@ -108,7 +108,7 @@ export default function AuditLogs() {
           placeholder="Search logs by action, user, or module..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="bg-transparent border-none outline-none flex-1 text-sm"
+          className="bg-transparent border-none outline-none flex-1 text-sm text-text-primary placeholder:text-text-muted"
         />
         <button className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors">
           <Calendar size={14} />
@@ -125,7 +125,7 @@ export default function AuditLogs() {
           <Loader2 className="animate-spin text-brand-primary" size={32} />
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
               <tr>
@@ -151,7 +151,7 @@ export default function AuditLogs() {
                 filteredLogs.map((log) => (
                   <tr
                     key={log._id}
-                    className="hover:bg-bg-hover/50 transition-colors"
+                    className="hover:bg-bg-hover transition-colors"
                   >
                     <td className="px-6 py-4 text-sm text-text-secondary whitespace-nowrap">
                       {new Date(log.timestamp).toLocaleString()}

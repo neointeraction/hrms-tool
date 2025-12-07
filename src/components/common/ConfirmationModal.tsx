@@ -34,7 +34,7 @@ export function ConfirmationModal({
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 font-medium transition-colors"
+            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover font-medium transition-colors"
             disabled={isLoading}
           >
             {cancelText}
@@ -43,7 +43,7 @@ export function ConfirmationModal({
             onClick={onConfirm}
             className={`px-4 py-2 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               variant === "danger"
-                ? "bg-red-600 hover:bg-red-700"
+                ? "bg-status-error hover:bg-red-700"
                 : "bg-brand-primary hover:bg-brand-secondary"
             }`}
             disabled={isLoading}

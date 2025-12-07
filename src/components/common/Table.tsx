@@ -32,7 +32,7 @@ export function Table<T extends { _id: string } | { id: string }>({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-border overflow-hidden">
+    <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
       <table className="w-full text-left border-collapse">
         <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
           <tr>
@@ -57,13 +57,13 @@ export function Table<T extends { _id: string } | { id: string }>({
             data.map((item) => (
               <tr
                 key={(item as any)._id || (item as any).id}
-                className={`hover:bg-bg-hover/50 transition-colors ${
+                className={`hover:bg-bg-hover transition-colors ${
                   onRowClick ? "cursor-pointer" : ""
                 }`}
                 onClick={() => onRowClick && onRowClick(item)}
               >
                 {columns.map((col, index) => (
-                  <td key={index} className="px-6 py-4">
+                  <td key={index} className="px-6 py-4 text-text-primary">
                     {col.render
                       ? col.render(item)
                       : (item[col.accessorKey as keyof T] as React.ReactNode)}

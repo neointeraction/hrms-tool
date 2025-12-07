@@ -35,7 +35,7 @@ export default function CreateTaskModal({
     try {
       // In MVP, load all employees or just project members.
       // For now, load all employees to allow assignment.
-      const data = await apiService.getEmployees();
+      const data: any = await apiService.getEmployees();
       setMembers(Array.isArray(data) ? data : data.employees || []);
     } catch (err) {
       console.error("Failed to load users");
@@ -60,7 +60,7 @@ export default function CreateTaskModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 flex flex-col">
+      <div className="bg-bg-card rounded-lg shadow-xl w-full max-w-md mx-4 flex flex-col border border-border">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-lg font-bold text-text-primary">New Task</h2>
           <button
@@ -87,8 +87,8 @@ export default function CreateTaskModal({
             <Select
               label="Assignee"
               value={formData.assignee}
-              onChange={(e) =>
-                setFormData({ ...formData, assignee: e.target.value })
+              onChange={(value) =>
+                setFormData({ ...formData, assignee: value as string })
               }
               options={members.map((m) => ({
                 value: m.user?._id || m._id,
@@ -103,8 +103,8 @@ export default function CreateTaskModal({
               <Select
                 label="Priority"
                 value={formData.priority}
-                onChange={(e) =>
-                  setFormData({ ...formData, priority: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, priority: value as string })
                 }
                 options={[
                   { value: "Low", label: "Low" },

@@ -27,7 +27,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-text-secondary mb-2">
           {label}
         </label>
       )}
@@ -42,18 +42,18 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
               type="radio"
               checked={value === option.value}
               onChange={() => onChange(option.value)}
-              className="w-4 h-4 text-brand-primary border-gray-300 focus:ring-brand-primary"
+              className="w-4 h-4 text-brand-primary border-border bg-bg-card focus:ring-brand-primary"
             />
             <label
               htmlFor={`${name}-${option.value}`}
-              className="ml-2 block text-sm text-gray-700 cursor-pointer select-none"
+              className="ml-2 block text-sm text-text-primary cursor-pointer select-none"
             >
               {option.label}
             </label>
           </div>
         ))}
       </div>
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs text-status-error">{error}</p>}
     </div>
   );
 };

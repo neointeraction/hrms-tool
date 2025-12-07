@@ -112,7 +112,7 @@ export default function EmployeeProfiles() {
                 filteredEmployees.map((employee) => (
                   <tr
                     key={employee._id}
-                    className="border-b border-border hover:bg-bg-hover/50 transition-colors"
+                    className="border-b border-border hover:bg-bg-hover transition-colors"
                   >
                     <td className="py-3 px-4 text-text-primary font-medium">
                       {employee.email}

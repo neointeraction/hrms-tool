@@ -125,7 +125,7 @@ export default function AdminDashboard() {
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow"
+            className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex justify-between items-start">
               <div>
@@ -136,7 +136,12 @@ export default function AdminDashboard() {
                   {stat.value}
                 </h3>
               </div>
-              <div className={`p-3 rounded-lg ${stat.bg} ${stat.color}`}>
+              <div
+                className={`p-3 rounded-lg ${stat.bg.replace(
+                  "bg-",
+                  "bg-"
+                )}/10 ${stat.color}`}
+              >
                 <stat.icon size={20} />
               </div>
             </div>
@@ -160,9 +165,16 @@ export default function AdminDashboard() {
                 <button
                   key={index}
                   onClick={() => navigate(action.path)}
-                  className={`flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-transparent transition-all hover:scale-105 ${action.color}`}
+                  className={`flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-transparent transition-all hover:scale-105 bg-bg-card hover:bg-bg-hover text-text-primary`}
                 >
-                  <div className="p-2 bg-white/50 rounded-lg shadow-sm">
+                  <div
+                    className={`p-2 rounded-lg shadow-sm ${
+                      action.color
+                        .replace("bg-", "bg-")
+                        .replace(" hover:bg-", " hover:bg-")
+                        .split(" ")[0]
+                    }/10 ${action.color.split(" ")[1]}`}
+                  >
                     <action.icon size={24} />
                   </div>
                   <span className="font-semibold text-sm">{action.label}</span>
@@ -172,7 +184,7 @@ export default function AdminDashboard() {
           </section>
 
           {/* Recent Activity */}
-          <section className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
+          <section className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h2 className="text-lg font-semibold text-text-primary">
                 Recent System Activity
@@ -185,11 +197,11 @@ export default function AdminDashboard() {
               {recentActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className="p-4 flex items-start gap-4 hover:bg-gray-50 transition-colors"
+                  className="p-4 flex items-start gap-4 hover:bg-bg-hover transition-colors"
                 >
                   <div
                     className={`mt-1 w-2 h-2 rounded-full ${
-                      activity.isAlert ? "bg-red-500" : "bg-blue-500"
+                      activity.isAlert ? "bg-status-error" : "bg-brand-primary"
                     }`}
                   />
                   <div className="flex-1">

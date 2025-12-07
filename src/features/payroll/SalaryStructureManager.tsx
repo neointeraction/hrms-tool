@@ -25,7 +25,7 @@ export default function SalaryStructureManager() {
 
   const loadEmployees = async () => {
     try {
-      const data = await apiService.getEmployees();
+      const data: any = await apiService.getEmployees();
       setEmployees(Array.isArray(data) ? data : data.employees || []);
     } catch (err) {
       console.error("Failed to load employees");
@@ -115,7 +115,7 @@ export default function SalaryStructureManager() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-white rounded-lg border border-border p-4 h-fit">
+      <div className="bg-bg-card rounded-lg border border-border p-4 h-fit">
         <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
           <Search size={18} /> Select Employee
         </h3>
@@ -149,7 +149,7 @@ export default function SalaryStructureManager() {
 
       <div className="md:col-span-2 space-y-6">
         {selectedEmployee ? (
-          <div className="bg-white rounded-lg border border-border p-6 space-y-6">
+          <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6">
             <div className="flex justify-between items-center border-b border-border pb-4">
               <h2 className="text-lg font-bold text-text-primary">
                 Salary Structure
@@ -174,7 +174,7 @@ export default function SalaryStructureManager() {
                   onChange={(e) =>
                     updateField("baseSalary", Number(e.target.value))
                   }
-                  className="w-full p-2 border border-border rounded"
+                  className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
                 />
               </div>
               <div className="space-y-1">
@@ -185,7 +185,7 @@ export default function SalaryStructureManager() {
                   type="number"
                   value={structure.hra}
                   onChange={(e) => updateField("hra", Number(e.target.value))}
-                  className="w-full p-2 border border-border rounded"
+                  className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function SalaryStructureManager() {
                       onChange={(e) =>
                         updateAllowance(idx, "name", e.target.value)
                       }
-                      className="flex-1 p-2 border border-border rounded text-sm"
+                      className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
                     />
                     <input
                       type="number"
@@ -222,7 +222,7 @@ export default function SalaryStructureManager() {
                       onChange={(e) =>
                         updateAllowance(idx, "amount", Number(e.target.value))
                       }
-                      className="w-32 p-2 border border-border rounded text-sm"
+                      className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
                     />
                     <button
                       onClick={() => removeAllowance(idx)}
@@ -263,7 +263,7 @@ export default function SalaryStructureManager() {
                       onChange={(e) =>
                         updateDeduction(idx, "name", e.target.value)
                       }
-                      className="flex-1 p-2 border border-border rounded text-sm"
+                      className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
                     />
                     <input
                       type="number"
@@ -272,7 +272,7 @@ export default function SalaryStructureManager() {
                       onChange={(e) =>
                         updateDeduction(idx, "amount", Number(e.target.value))
                       }
-                      className="w-32 p-2 border border-border rounded text-sm"
+                      className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
                     />
                     <button
                       onClick={() => removeDeduction(idx)}
@@ -312,7 +312,7 @@ export default function SalaryStructureManager() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg border border-border p-12 text-text-secondary">
+          <div className="flex flex-col items-center justify-center h-full bg-bg-card rounded-lg border border-border p-12 text-text-secondary">
             <Users size={48} className="mb-4 text-text-muted opacity-50" />
             <p>Select an employee to manage their salary structure.</p>
           </div>

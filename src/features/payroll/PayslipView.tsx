@@ -34,7 +34,7 @@ export default function PayslipView() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {payslips.length === 0 ? (
-        <div className="col-span-full text-center py-12 text-text-muted bg-white border border-border rounded-lg">
+        <div className="col-span-full text-center py-12 text-text-muted bg-bg-card border border-border rounded-lg">
           <FileText size={48} className="mx-auto mb-2 opacity-20" />
           <p>No payslips available yet.</p>
         </div>
@@ -42,7 +42,7 @@ export default function PayslipView() {
         payslips.map((slip) => (
           <div
             key={slip._id}
-            className="bg-white border border-border rounded-lg p-6 hover:shadow-md transition-all"
+            className="bg-bg-card border border-border rounded-lg p-6 hover:shadow-md transition-all"
           >
             <div className="flex justify-between items-start mb-4">
               <div>

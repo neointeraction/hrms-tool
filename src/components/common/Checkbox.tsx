@@ -1,4 +1,4 @@
-import React, { type InputHTMLAttributes, forwardRef } from "react";
+import { type InputHTMLAttributes, forwardRef } from "react";
 
 interface CheckboxProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
@@ -19,7 +19,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             id={checkboxId}
             type="checkbox"
             className={`
-            w-4 h-4 rounded border-gray-300 text-brand-primary 
+            w-4 h-4 rounded border-border text-brand-primary bg-bg-card
             focus:ring-brand-primary focus:ring-2
             disabled:opacity-50
             ${className}
@@ -31,11 +31,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           <div className="ml-2 text-sm">
             <label
               htmlFor={checkboxId}
-              className="font-medium text-gray-700 select-none"
+              className="font-medium text-text-primary select-none"
             >
               {label}
             </label>
-            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+            {error && <p className="text-xs text-status-error mt-1">{error}</p>}
           </div>
         )}
       </div>

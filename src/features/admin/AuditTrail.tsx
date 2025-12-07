@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Filter, Loader2, Clock, User, FileText } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Select } from "../../components/common/Select";
 
 export default function AuditTrail() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -37,17 +38,17 @@ export default function AuditTrail() {
 
   const getActionBadge = (action: string) => {
     const colors: Record<string, string> = {
-      create: "bg-green-100 text-green-800",
-      update: "bg-blue-100 text-blue-800",
-      delete: "bg-red-100 text-red-800",
-      approve: "bg-green-100 text-green-800",
-      reject: "bg-red-100 text-red-800",
-      submit: "bg-yellow-100 text-yellow-800",
+      create: "bg-status-success/10 text-status-success",
+      update: "bg-brand-primary/10 text-brand-primary",
+      delete: "bg-status-error/10 text-status-error",
+      approve: "bg-status-success/10 text-status-success",
+      reject: "bg-status-error/10 text-status-error",
+      submit: "bg-status-warning/10 text-status-warning",
     };
     return (
       <span
         className={`px-2 py-1 rounded-full text-xs font-medium ${
-          colors[action] || "bg-gray-100 text-gray-800"
+          colors[action] || "bg-bg-main text-text-secondary"
         }`}
       >
         {action.toUpperCase()}
@@ -94,41 +95,37 @@ export default function AuditTrail() {
         </div>
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
-              Entity Type
-            </label>
-            <select
+            <Select
+              label="Entity Type"
               value={filters.entityType}
-              onChange={(e) =>
-                setFilters({ ...filters, entityType: e.target.value })
+              onChange={(value) =>
+                setFilters({ ...filters, entityType: value as string })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            >
-              <option value="">All</option>
-              <option value="TimeEntry">Time Entry</option>
-              <option value="Timesheet">Timesheet</option>
-              <option value="TimeCorrection">Time Correction</option>
-            </select>
+              options={[
+                { value: "", label: "All" },
+                { value: "TimeEntry", label: "Time Entry" },
+                { value: "Timesheet", label: "Timesheet" },
+                { value: "TimeCorrection", label: "Time Correction" },
+              ]}
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
-              Action
-            </label>
-            <select
+            <Select
+              label="Action"
               value={filters.action}
-              onChange={(e) =>
-                setFilters({ ...filters, action: e.target.value })
+              onChange={(value) =>
+                setFilters({ ...filters, action: value as string })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            >
-              <option value="">All</option>
-              <option value="create">Create</option>
-              <option value="update">Update</option>
-              <option value="delete">Delete</option>
-              <option value="submit">Submit</option>
-              <option value="approve">Approve</option>
-              <option value="reject">Reject</option>
-            </select>
+              options={[
+                { value: "", label: "All" },
+                { value: "create", label: "Create" },
+                { value: "update", label: "Update" },
+                { value: "delete", label: "Delete" },
+                { value: "submit", label: "Submit" },
+                { value: "approve", label: "Approve" },
+                { value: "reject", label: "Reject" },
+              ]}
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
@@ -140,7 +137,7 @@ export default function AuditTrail() {
               onChange={(e) =>
                 setFilters({ ...filters, startDate: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
             />
           </div>
           <div>
@@ -153,7 +150,7 @@ export default function AuditTrail() {
               onChange={(e) =>
                 setFilters({ ...filters, endDate: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
             />
           </div>
         </div>
@@ -211,7 +208,7 @@ export default function AuditTrail() {
                         <p className="text-xs text-red-600 font-medium mb-1">
                           Old:
                         </p>
-                        <pre className="text-xs bg-red-50 p-2 rounded overflow-auto">
+                        <pre className="text-xs bg-status-error/5 p-2 rounded overflow-auto text-text-primary">
                           {JSON.stringify(log.changes.old, null, 2)}
                         </pre>
                       </div>
@@ -221,7 +218,7 @@ export default function AuditTrail() {
                         <p className="text-xs text-green-600 font-medium mb-1">
                           New:
                         </p>
-                        <pre className="text-xs bg-green-50 p-2 rounded overflow-auto">
+                        <pre className="text-xs bg-status-success/5 p-2 rounded overflow-auto text-text-primary">
                           {JSON.stringify(log.changes.new, null, 2)}
                         </pre>
                       </div>

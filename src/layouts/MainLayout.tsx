@@ -12,6 +12,11 @@ import {
   ChevronRight,
   LogOut,
   LayoutDashboard,
+  Clock,
+  ClipboardList,
+  CalendarDays,
+  Banknote,
+  Briefcase,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -39,6 +44,31 @@ export default function MainLayout() {
       to: "/employee-management",
       icon: Users,
       label: "Employee Management",
+    },
+    {
+      to: "/attendance",
+      icon: Clock,
+      label: "Attendance & Time Tracking",
+    },
+    {
+      to: "/audit",
+      icon: ClipboardList,
+      label: "Audit Trail",
+    },
+    {
+      to: "/leave",
+      icon: CalendarDays,
+      label: "Leave Management",
+    },
+    {
+      to: "/payroll",
+      icon: Banknote,
+      label: "Payroll & Finance",
+    },
+    {
+      to: "/projects",
+      icon: Briefcase,
+      label: "Project Management",
     },
   ];
 

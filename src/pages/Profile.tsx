@@ -7,19 +7,17 @@ import {
   Briefcase,
   Building2,
   Save,
-  X,
   MapPin,
   Calendar,
   Phone,
   IdCard,
   Heart,
-  Lightbulb,
-  Users2,
-  Home,
-  GraduationCap,
+  X,
   Loader2,
   Plus,
   Trash2,
+  GraduationCap,
+  Users2,
 } from "lucide-react";
 
 const TABS = [
@@ -32,7 +30,7 @@ const TABS = [
 ];
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -88,6 +86,9 @@ export default function Profile() {
     education: [],
   });
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   // Fetch employee data on component mount
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -99,7 +100,7 @@ export default function Profile() {
         const userId = response.user._id;
 
         // Fetch all employees and find the current user's record
-        const employeesResponse = await apiService.getEmployees();
+        const employeesResponse: any = await apiService.getEmployees();
         const allEmployees = Array.isArray(employeesResponse)
           ? employeesResponse
           : employeesResponse.employees || [];
@@ -160,6 +161,12 @@ export default function Profile() {
             workExperience: employeeRecord.workExperience || [],
             education: employeeRecord.education || [],
           });
+
+          if (employeeRecord.profilePicture) {
+            setPreviewUrl(
+              `http://localhost:5001/${employeeRecord.profilePicture}`
+            );
+          }
         }
       } catch (err: any) {
         console.error("Failed to fetch employee data:", err);
@@ -183,6 +190,18 @@ export default function Profile() {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     if (!employeeId) {
       alert("Employee ID not found. Cannot update profile.");
@@ -191,8 +210,29 @@ export default function Profile() {
 
     setSaving(true);
     try {
-      await apiService.updateEmployee(employeeId, profileData);
+      const formData = new FormData();
+
+      // Append all profile data
+      Object.keys(profileData).forEach((key) => {
+        const value = (profileData as any)[key];
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+
+      // Append file if selected
+      if (selectedFile) {
+        formData.append("profilePicture", selectedFile);
+      }
+
+      await apiService.updateEmployee(employeeId, formData);
       setIsEditing(false);
+
+      // Update global user state (Header, etc.)
+      await refreshUser();
+
       alert("Profile updated successfully!");
     } catch (err: any) {
       console.error("Failed to update profile:", err);
@@ -205,6 +245,9 @@ export default function Profile() {
   const handleCancel = () => {
     // Reset to original values
     setIsEditing(false);
+    setSelectedFile(null);
+    // Ideally revert previewUrl to original, but we need to store original URL.
+    // For simplicity, we just keep current preview or could refetch.
   };
 
   const handleArrayChange = (
@@ -289,7 +332,6 @@ export default function Profile() {
       </div>
     );
   };
-
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Loading State */}
@@ -363,17 +405,35 @@ export default function Profile() {
             {/* Avatar Section */}
             <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border lg:col-span-1">
               <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-full bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold overflow-hidden mb-4">
-                  {user?.avatar?.length === 2 ? (
-                    user.avatar
-                  ) : (
+                <div className="w-32 h-32 rounded-full bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold overflow-hidden mb-4 relative group">
+                  {previewUrl ? (
                     <img
-                      src={user?.avatar}
-                      alt={user?.name}
+                      src={previewUrl}
+                      alt="Profile"
                       className="w-full h-full object-cover"
                     />
+                  ) : (
+                    <span>
+                      {profileData.firstName?.[0]}
+                      {profileData.lastName?.[0]}
+                    </span>
+                  )}
+
+                  {isEditing && (
+                    <label className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                      <span className="text-white text-xs font-medium">
+                        Change Photo
+                      </span>
+                    </label>
                   )}
                 </div>
+                {/* ... Rest of avatar section */}
                 <h3 className="text-lg font-semibold text-text-primary text-center">
                   {profileData.firstName} {profileData.lastName}
                 </h3>

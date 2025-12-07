@@ -51,7 +51,7 @@ export default function ProjectDashboard() {
       {loading ? (
         <div className="text-center py-12">Loading projects...</div>
       ) : projects.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-border rounded-lg">
+        <div className="text-center py-12 bg-bg-card border border-border rounded-lg">
           <Briefcase
             size={48}
             className="mx-auto mb-4 text-text-muted opacity-50"
@@ -77,7 +77,7 @@ export default function ProjectDashboard() {
             <Link
               key={project._id}
               to={`/projects/${project._id}`}
-              className="bg-white border border-border rounded-lg p-5 hover:shadow-md transition-shadow group"
+              className="bg-bg-card border border-border rounded-lg p-5 hover:shadow-md transition-shadow group"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>

@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-bg-main flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+      <div className="bg-bg-card rounded-xl shadow-lg w-full max-w-md overflow-hidden border border-border">
         <div className="bg-brand-primary p-8 text-center">
           <h1 className="text-3xl font-bold text-white mb-2">HRMS Portal</h1>
           <p className="text-brand-primary/20 text-white/80">
@@ -68,7 +68,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all bg-bg-card text-text-primary"
                   placeholder="name@company.com"
                   required
                 />
@@ -88,7 +88,7 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all bg-bg-card text-text-primary"
                   placeholder="••••••••"
                   required
                 />

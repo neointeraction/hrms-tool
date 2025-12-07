@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Select } from "../../components/common/Select";
 
 interface ApplyLeaveModalProps {
   isOpen: boolean;
@@ -48,8 +49,8 @@ export default function ApplyLeaveModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="bg-bg-card rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 border border-border">
         <div className="flex justify-between items-center p-4 border-b border-border bg-bg-main">
           <h3 className="font-semibold text-text-primary">Apply for Leave</h3>
           <button
@@ -68,20 +69,19 @@ export default function ApplyLeaveModal({
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-text-secondary uppercase">
-              Leave Type
-            </label>
-            <select
-              name="type"
+            <Select
+              label="Leave Type"
               value={formData.type}
-              onChange={handleChange}
-              className="w-full p-2 border border-border rounded-lg bg-white/50 focus:outline-none focus:border-brand-primary transition-colors text-sm"
-            >
-              <option value="Casual">Casual Leave</option>
-              <option value="Sick">Sick Leave</option>
-              <option value="Paid">Paid Leave</option>
-              <option value="Unpaid">Unpaid Leave</option>
-            </select>
+              onChange={(value) =>
+                setFormData({ ...formData, type: value as string })
+              }
+              options={[
+                { value: "Casual", label: "Casual Leave" },
+                { value: "Sick", label: "Sick Leave" },
+                { value: "Paid", label: "Paid Leave" },
+                { value: "Unpaid", label: "Unpaid Leave" },
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -95,7 +95,7 @@ export default function ApplyLeaveModal({
                 value={formData.startDate}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-border rounded-lg bg-white/50 focus:outline-none focus:border-brand-primary transition-colors text-sm"
+                className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm text-text-primary"
               />
             </div>
             <div className="space-y-1">
@@ -108,7 +108,7 @@ export default function ApplyLeaveModal({
                 value={formData.endDate}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-border rounded-lg bg-white/50 focus:outline-none focus:border-brand-primary transition-colors text-sm"
+                className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm text-text-primary"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function ApplyLeaveModal({
               required
               rows={3}
               placeholder="Please provide a reason for your leave..."
-              className="w-full p-2 border border-border rounded-lg bg-white/50 focus:outline-none focus:border-brand-primary transition-colors text-sm resize-none"
+              className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm resize-none text-text-primary"
             />
           </div>
 

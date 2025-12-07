@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../../utils/cn";
 import { useAuth } from "../../../context/AuthContext";
+import { apiService } from "../../../services/api.service";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
@@ -38,6 +39,97 @@ export default function EmployeeDashboard() {
       .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
+  // Work Summary State
+  const [workStats, setWorkStats] = useState({
+    totalHours: 0,
+    onTimePercentage: 0,
+  });
+
+  useEffect(() => {
+    const fetchWorkStats = async () => {
+      try {
+        const now = new Date();
+        const startOfMonth = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1
+        ).toISOString();
+        const endOfMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        ).toISOString();
+
+        // Fetch Timesheets for hours
+        // Note: The backend might filter by date range if params are passed,
+        // ensuring we only get relevant entries. If not, we filter client-side.
+        // Assuming getTimesheetEntries accepts startDate/endDate or similar.
+        // Based on api.service.ts, it passes params as query string.
+        const timesheetResponse = await apiService.getTimesheetEntries({
+          startDate: startOfMonth,
+          endDate: endOfMonth,
+        });
+
+        // Handle array or object response structure
+        const entries = Array.isArray(timesheetResponse)
+          ? timesheetResponse
+          : timesheetResponse.data || [];
+
+        const totalHours = entries.reduce((acc: number, entry: any) => {
+          // Only count approved or submitted? For dashboard "Work Summary" maybe all logged work.
+          // Let's count all non-rejected for now, or just duration.
+          // duration is usually in hours.
+          return acc + (Number(entry.duration) || 0);
+        }, 0);
+
+        // Fetch Attendance for On-Time %
+        const attendanceResponse = await apiService.getAttendanceHistory({
+          startDate: startOfMonth,
+          endDate: endOfMonth,
+        });
+
+        const attendanceLogs = Array.isArray(attendanceResponse)
+          ? attendanceResponse
+          : attendanceResponse.data || attendanceResponse.history || [];
+
+        let onTimeCount = 0;
+        let totalPresentDays = 0;
+
+        attendanceLogs.forEach((log: any) => {
+          if (log.clockIn) {
+            totalPresentDays++;
+            const clockInTime = new Date(log.clockIn);
+            // Check if 9:30 AM or earlier
+            // We need to compare time parts only.
+            // Assuming local time comparison or server time.
+            // Let's simply check hours and minutes.
+            const hours = clockInTime.getHours();
+            const minutes = clockInTime.getMinutes();
+
+            // 9:30 AM = 9 hours, 30 minutes
+            if (hours < 9 || (hours === 9 && minutes <= 30)) {
+              onTimeCount++;
+            }
+          }
+        });
+
+        const onTimePercentage =
+          totalPresentDays > 0
+            ? Math.round((onTimeCount / totalPresentDays) * 100)
+            : 0; // Default to 0 or 100? 0 if no data.
+
+        setWorkStats({
+          totalHours: Math.round(totalHours), // Round to whole number
+          onTimePercentage,
+        });
+      } catch (err) {
+        console.error("Failed to fetch work stats:", err);
+      }
+    };
+
+    fetchWorkStats();
+  }, []);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
@@ -46,7 +138,12 @@ export default function EmployeeDashboard() {
           Good Morning, {user?.name.split(" ")[0]}! 👋
         </h1>
         <p className="text-text-secondary mt-1">
-          Here's your dashboard for today, Tuesday, June 07
+          Here's your dashboard for today,{" "}
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
         </p>
       </div>
 
@@ -119,29 +216,26 @@ export default function EmployeeDashboard() {
             </div>
             <span className="text-sm text-text-muted">This Month</span>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-4 ">
             <div className="p-4 bg-bg-main rounded-lg text-center">
-              <p className="text-3xl font-bold text-brand-primary">142</p>
+              <p className="text-3xl font-bold text-brand-primary">
+                {workStats.totalHours}
+              </p>
               <p className="text-xs text-text-secondary mt-1">Total Hours</p>
             </div>
             <div className="p-4 bg-bg-main rounded-lg text-center">
-              <p className="text-3xl font-bold text-status-success">98%</p>
+              <p
+                className={`text-3xl font-bold ${
+                  workStats.onTimePercentage >= 90
+                    ? "text-status-success"
+                    : workStats.onTimePercentage >= 75
+                    ? "text-status-warning"
+                    : "text-status-error"
+                }`}
+              >
+                {workStats.onTimePercentage}%
+              </p>
               <p className="text-xs text-text-secondary mt-1">On-Time</p>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-text-secondary mb-3">
-              Quick Add Task
-            </h3>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="What are you working on?"
-                className="flex-1 px-4 py-2 bg-bg-main border border-border rounded-lg text-sm focus:ring-2 focus:ring-brand-primary/20 outline-none"
-              />
-              <button className="p-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary">
-                <Plus size={20} />
-              </button>
             </div>
           </div>
         </div>

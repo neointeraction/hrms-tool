@@ -443,10 +443,16 @@ class ApiService {
   }
 
   async createEmployee(data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const headers = this.getAuthHeaders();
+    if (isFormData) {
+      delete (headers as any)["Content-Type"];
+    }
+
     const response = await fetch(`${API_BASE_URL}/employees`, {
       method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
     if (!response.ok) {
       const error = await response.json();
@@ -456,10 +462,16 @@ class ApiService {
   }
 
   async updateEmployee(id: string, data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const headers = this.getAuthHeaders();
+    if (isFormData) {
+      delete (headers as any)["Content-Type"];
+    }
+
     const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
     if (!response.ok) {
       const error = await response.json();

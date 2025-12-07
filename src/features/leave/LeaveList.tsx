@@ -51,7 +51,7 @@ export default function LeaveList() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-border overflow-hidden">
+    <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
       <table className="w-full text-left border-collapse">
         <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
           <tr>
@@ -74,7 +74,7 @@ export default function LeaveList() {
             leaves.map((leave) => (
               <tr
                 key={leave._id}
-                className="hover:bg-bg-hover/50 transition-colors"
+                className="hover:bg-bg-hover transition-colors"
               >
                 <td className="px-6 py-4 font-medium text-text-primary">
                   {leave.type}

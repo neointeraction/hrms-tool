@@ -236,10 +236,18 @@ export default function EmployeeManagement() {
               header: "Employee",
               render: (emp) => (
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-medium">
-                    {emp.firstName?.[0] || "?"}
-                    {emp.lastName?.[0] || ""}
-                  </div>
+                  {emp.profilePicture ? (
+                    <img
+                      src={`http://localhost:5001/${emp.profilePicture}`}
+                      alt={`${emp.firstName} ${emp.lastName}`}
+                      className="w-10 h-10 rounded-full object-cover border border-border"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-medium">
+                      {emp.firstName?.[0] || "?"}
+                      {emp.lastName?.[0] || ""}
+                    </div>
+                  )}
                   <div>
                     <div className="font-medium text-text-primary">
                       {emp.firstName} {emp.lastName}

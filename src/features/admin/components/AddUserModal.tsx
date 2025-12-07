@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Modal } from "../../../components/common/Modal";
+import { Select } from "../../../components/common/Select";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -113,7 +114,7 @@ export default function AddUserModal({
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors"
+            className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors text-text-primary"
             placeholder="e.g. John Doe"
           />
         </div>
@@ -128,7 +129,7 @@ export default function AddUserModal({
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors"
+            className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors text-text-primary"
             placeholder="john@company.com"
           />
         </div>
@@ -145,7 +146,7 @@ export default function AddUserModal({
               onChange={handleChange}
               required
               minLength={6}
-              className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors pr-10"
+              className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors pr-10 text-text-primary"
               placeholder="Min. 6 characters"
             />
             <button
@@ -160,38 +161,32 @@ export default function AddUserModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
-              Role <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
+            <Select
+              label="Role"
               required
-              className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors"
-            >
-              <option value="">Select Role</option>
-              {roles.map((role) => (
-                <option key={role._id} value={role.name}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+              value={formData.role}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, role: value as string }))
+              }
+              options={roles.map((role) => ({
+                value: role.name,
+                label: role.name,
+              }))}
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
-              Status
-            </label>
-            <select
-              name="status"
+            <Select
+              label="Status"
               value={formData.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, status: value as string }))
+              }
+              options={[
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
+              ]}
+            />
           </div>
         </div>
 
@@ -199,7 +194,7 @@ export default function AddUserModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-gray-50 font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover font-medium transition-colors"
             disabled={loading}
           >
             Cancel

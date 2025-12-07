@@ -280,10 +280,10 @@ export default function Timesheet() {
                 <Select
                   label="Project"
                   value={formData.project}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setFormData({
                       ...formData,
-                      project: e.target.value,
+                      project: value as string,
                       task: "",
                     })
                   }
@@ -312,8 +312,8 @@ export default function Timesheet() {
                 <Select
                   label="Task"
                   value={formData.task}
-                  onChange={(e) =>
-                    setFormData({ ...formData, task: e.target.value })
+                  onChange={(value) =>
+                    setFormData({ ...formData, task: value as string })
                   }
                   required
                   options={projectTasks.map((t) => ({

@@ -53,7 +53,7 @@ export default function StatusTracking() {
       case "Terminated":
         return "bg-status-error/10 text-status-error border-status-error/20";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-bg-main text-text-muted border-border";
     }
   };
 
@@ -114,7 +114,7 @@ export default function StatusTracking() {
               {employees.map((employee) => (
                 <tr
                   key={employee.id}
-                  className="border-b border-border hover:bg-bg-hover/50 transition-colors"
+                  className="border-b border-border hover:bg-bg-hover transition-colors"
                 >
                   <td className="py-3 px-4 text-text-primary font-medium">
                     {employee.name}
