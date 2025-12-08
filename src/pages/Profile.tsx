@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { apiService } from "../services/api.service";
+import { apiService, ASSET_BASE_URL } from "../services/api.service";
 import {
   User,
   Mail,
@@ -163,9 +163,7 @@ export default function Profile() {
           });
 
           if (employeeRecord.profilePicture) {
-            setPreviewUrl(
-              `http://localhost:5001/${employeeRecord.profilePicture}`
-            );
+            setPreviewUrl(`${ASSET_BASE_URL}/${employeeRecord.profilePicture}`);
           }
         }
       } catch (err: any) {

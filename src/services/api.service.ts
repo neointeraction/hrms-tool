@@ -1,6 +1,7 @@
 // const API_BASE_URL = "http://localhost:5001/api";
 
-const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
+export const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
+export const ASSET_BASE_URL = "https://hrms-backend-azure.vercel.app";
 
 interface RegisterUserData {
   name: string;

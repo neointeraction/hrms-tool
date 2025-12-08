@@ -10,7 +10,7 @@ import {
   UserX,
   UserCheck,
 } from "lucide-react";
-import { apiService } from "../../services/api.service";
+import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import AddEditEmployee from "./AddEditEmployee";
@@ -238,7 +238,7 @@ export default function EmployeeManagement() {
                 <div className="flex items-center gap-3">
                   {emp.profilePicture ? (
                     <img
-                      src={`http://localhost:5001/${emp.profilePicture}`}
+                      src={`${ASSET_BASE_URL}/${emp.profilePicture}`}
                       alt={`${emp.firstName} ${emp.lastName}`}
                       className="w-10 h-10 rounded-full object-cover border border-border"
                     />

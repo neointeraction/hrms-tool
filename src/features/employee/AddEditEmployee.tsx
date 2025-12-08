@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/common/Modal";
-import { apiService } from "../../services/api.service";
+import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { Select } from "../../components/common/Select";
 
@@ -105,7 +105,7 @@ export default function AddEditEmployee({
           // For now, assume relative path 'uploads/...' needs '/uploads/...' prepended or usage of API_URL
           // We'll trust backend sends relative path e.g. 'uploads/file.png'.
           // Simple preview hack:
-          setImagePreview(`http://localhost:5001/${employee.profilePicture}`);
+          setImagePreview(`${ASSET_BASE_URL}/${employee.profilePicture}`);
         }
       } else {
         // Reset form
