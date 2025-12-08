@@ -17,27 +17,12 @@ import { apiService } from "../../../services/api.service";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
-  const [isCheckedIn, setIsCheckedIn] = useState(true);
-  const [timer, setTimer] = useState(0);
-
-  useEffect(() => {
-    let interval: number;
-    if (isCheckedIn) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isCheckedIn]);
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, "0")}:${m
-      .toString()
-      .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
+  /*
+   * Timer logic removed as it's currently unused in the UI.
+   * To implement a check-in timer, add the UI elements and uncomment this logic.
+   */
+  // const [isCheckedIn, setIsCheckedIn] = useState(true);
+  // const [timer, setTimer] = useState(0);
 
   // Work Summary State
   const [workStats, setWorkStats] = useState({
