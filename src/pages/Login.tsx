@@ -117,44 +117,50 @@ export default function Login() {
                 onClick={() => setEmail("admin@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
-                admin@neointeraction.com
+                admin (Admin)
               </button>
               <button
                 onClick={() => setEmail("hr@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
-                hr@company.com
+                hr (HR)
+              </button>
+              <button
+                onClick={() => setEmail("shameer@neointeraction.com")}
+                className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
+              >
+                shameer (Project Manager)
               </button>
               <button
                 onClick={() => setEmail("liya@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
-                liya@neointeraction.com
+                liya (Employee)
               </button>
-              <button
+              {/* <button
                 onClick={() => setEmail("employee@company.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 employee@company.com
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 onClick={() => setEmail("acc@company.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 acc@company.com
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 onClick={() => setEmail("intern@company.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 intern@company.com
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 onClick={() => setEmail("contract@company.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 contract@company.com
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

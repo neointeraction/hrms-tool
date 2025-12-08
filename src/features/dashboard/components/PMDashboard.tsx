@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import {
   Users,
-  Calendar,
+  // Calendar,
   CheckSquare,
   Briefcase,
-  AlertTriangle,
+  // AlertTriangle,
   TrendingUp,
   UserPlus,
   MessageSquare,
@@ -269,7 +269,7 @@ export default function PMDashboard() {
           </div>
         </div>
 
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+        {/* <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle className="text-status-error" size={24} />
             <h2 className="text-lg font-semibold text-text-primary">
@@ -298,7 +298,7 @@ export default function PMDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Projects Section */}
@@ -360,7 +360,7 @@ export default function PMDashboard() {
         </div>
 
         {/* Talent Section */}
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+        {/* <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="text-status-success" size={20} />
             <h2 className="text-lg font-semibold text-text-primary">
@@ -401,7 +401,7 @@ export default function PMDashboard() {
               <span className="text-xs font-bold text-status-info">Start</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
