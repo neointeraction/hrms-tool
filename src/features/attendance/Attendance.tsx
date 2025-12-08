@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Clock,
-  FileText,
-  History,
-  GitPullRequest,
-  ListChecks,
-} from "lucide-react";
+import { Clock, FileText, History, GitPullRequest } from "lucide-react";
 import ClockInOut from "./components/ClockInOut";
 import Timesheet from "./components/Timesheet";
 import TimeHistory from "./components/TimeHistory";

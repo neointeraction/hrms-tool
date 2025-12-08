@@ -43,21 +43,6 @@ export default function PendingApprovals() {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const comments = prompt("Please provide a reason for rejection:");
-    if (!comments) return;
-
-    setProcessingId(id);
-    try {
-      await apiService.rejectTimesheet(id, comments);
-      fetchPendingApprovals();
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setProcessingId(null);
-    }
-  };
-
   if (!isManager) {
     return null;
   }
