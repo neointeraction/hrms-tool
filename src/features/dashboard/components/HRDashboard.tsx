@@ -4,15 +4,17 @@ import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
 import PayrollSummaryWidget from "./PayrollSummaryWidget";
+import { useGreeting } from "../../../hooks/useGreeting";
 
 export default function HRDashboard() {
   const { user } = useAuth();
+  const greeting = useGreeting();
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">
-          Hello, {user?.name.split(" ")[0]}! 👋
+          {greeting}, {user?.name.split(" ")[0]}! 👋
         </h1>
         <p className="text-text-secondary mt-1">HR Operations Overview</p>
       </div>

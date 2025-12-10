@@ -5,9 +5,11 @@ import { useAuth } from "../../../context/AuthContext";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
+import { useGreeting } from "../../../hooks/useGreeting";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
+  const greeting = useGreeting();
   /*
    * Timer logic removed as it's currently unused in the UI.
    * To implement a check-in timer, add the UI elements and uncomment this logic.
@@ -20,7 +22,7 @@ export default function EmployeeDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-text-primary">
-          Good Morning, {user?.name.split(" ")[0]}! 👋
+          {greeting}, {user?.name.split(" ")[0]}! 👋
         </h1>
         <p className="text-text-secondary mt-1">
           Here's your dashboard for today,{" "}

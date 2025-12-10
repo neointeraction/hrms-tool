@@ -16,9 +16,11 @@ import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import PayrollSummaryWidget from "./PayrollSummaryWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
+import { useGreeting } from "../../../hooks/useGreeting";
 
 export default function PMDashboard() {
   const { user } = useAuth();
+  const greeting = useGreeting();
   const [teamStatus, setTeamStatus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
@@ -120,7 +122,7 @@ export default function PMDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">
-          Welcome back, {user?.name.split(" ")[0]}! 🚀
+          {greeting}, {user?.name.split(" ")[0]}! 🚀
         </h1>
         <p className="text-text-secondary mt-1">
           Project status and team overview for today
