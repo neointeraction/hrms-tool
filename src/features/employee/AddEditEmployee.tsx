@@ -155,10 +155,13 @@ export default function AddEditEmployee({
 
   const fetchDropdowns = async () => {
     try {
+      console.log("Fetching roles and employees...");
       const [rolesData, employeesData] = await Promise.all([
         apiService.getRoles(),
         apiService.getEmployees(),
       ]);
+      console.log("Roles received:", rolesData);
+      console.log("Roles count:", rolesData?.length);
       setRoles(rolesData);
       setManagers(employeesData);
     } catch (err) {

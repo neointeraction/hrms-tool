@@ -75,16 +75,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const apiUser = userData.user;
 
       const updatedUser: User = {
-        id: apiUser._id,
+        id: apiUser.id || apiUser._id,
         email: apiUser.email,
         name: apiUser.name || apiUser.email.split("@")[0],
-        role: normalizeRole(
-          apiUser.roles[0]?.name || apiUser.roles[0] || "employee"
-        ),
-        department: apiUser.department,
-        designation: apiUser.designation || apiUser.employeeId,
-        avatar: apiUser.avatar || apiUser.email.substring(0, 2).toUpperCase(),
         employeeId: apiUser.employeeId,
+        department: apiUser.department,
+        designation: apiUser.designation,
+        // Set role to "Super Admin" if isSuperAdmin is true, otherwise use first role
+        role: apiUser.isSuperAdmin
+          ? "Super Admin"
+          : apiUser.roles?.[0]
+          ? normalizeRole(apiUser.roles[0])
+          : "Employee",
+        roles: apiUser.roles?.map(normalizeRole) || ["Employee"],
+        avatar: apiUser.avatar,
+        tenantId: apiUser.tenantId,
+        isSuperAdmin: apiUser.isSuperAdmin || false,
+        isCompanyAdmin: apiUser.isCompanyAdmin || false,
         doj: apiUser.doj,
         pan: apiUser.pan,
         bankName: apiUser.bankName,
@@ -129,9 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: userData.user._id,
         email: userData.user.email,
         name: userData.user.name || userData.user.email.split("@")[0],
-        role: normalizeRole(
-          userData.user.roles[0]?.name || userData.user.roles[0] || "employee"
-        ),
+        // Set role to "Super Admin" if isSuperAdmin is true
+        role: userData.user.isSuperAdmin
+          ? "Super Admin"
+          : normalizeRole(
+              userData.user.roles[0]?.name ||
+                userData.user.roles[0] ||
+                "employee"
+            ),
         department: userData.user.department,
         designation: userData.user.employeeId,
         // Use avatar from backend if available
@@ -143,6 +155,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pan: userData.user.pan,
         bankName: userData.user.bankName,
         bankAccountNo: userData.user.bankAccountNo,
+        tenantId: userData.user.tenantId,
+        isSuperAdmin: userData.user.isSuperAdmin || false,
+        isCompanyAdmin: userData.user.isCompanyAdmin || false,
       };
 
       setUser(user);

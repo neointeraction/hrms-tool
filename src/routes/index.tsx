@@ -5,6 +5,7 @@ import EmployeeManagement from "../features/employee/EmployeeManagement";
 import RoleGuard from "../components/auth/RoleGuard";
 
 import Login from "../pages/Login";
+import CompanySetup from "../pages/CompanySetup";
 import Unauthorized from "../pages/Unauthorized";
 import Dashboard from "../features/dashboard/Dashboard";
 import Profile from "../pages/Profile";
@@ -16,11 +17,21 @@ import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
+import { TenantList, Analytics } from "../features/superadmin";
+import {
+  CompanySettings,
+  SubscriptionPage,
+  UsageDashboard,
+} from "../features/settings";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <CompanySetup />,
   },
   {
     path: "/unauthorized",
@@ -192,6 +203,48 @@ export const router = createBrowserRouter([
             ]}
           >
             <Organization />
+          </RoleGuard>
+        ),
+      },
+      // Company Settings Routes (Company Admin)
+      {
+        path: "/settings/company",
+        element: (
+          <RoleGuard allowedRoles={["Admin"]}>
+            <CompanySettings />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/settings/subscription",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR", "Accountant"]}>
+            <SubscriptionPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/settings/usage",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <UsageDashboard />
+          </RoleGuard>
+        ),
+      },
+      // Super Admin Routes
+      {
+        path: "/superadmin/tenants",
+        element: (
+          <RoleGuard allowedRoles={["Super Admin"]}>
+            <TenantList />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/superadmin/analytics",
+        element: (
+          <RoleGuard allowedRoles={["Super Admin"]}>
+            <Analytics />
           </RoleGuard>
         ),
       },

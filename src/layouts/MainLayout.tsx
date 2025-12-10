@@ -17,6 +17,8 @@ import {
   Banknote,
   Briefcase,
   Network,
+  Building2,
+  BarChart3,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -76,6 +78,16 @@ export default function MainLayout() {
       to: "/organization",
       icon: Network,
       label: "Hierarchy",
+    },
+    {
+      to: "/superadmin/tenants",
+      icon: Building2,
+      label: "Tenant Management",
+    },
+    {
+      to: "/superadmin/analytics",
+      icon: BarChart3,
+      label: "Platform Analytics",
     },
   ];
 

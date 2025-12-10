@@ -88,6 +88,17 @@ export const menuItems: MenuItem[] = [
       "Consultant",
     ],
   },
+  // Super Admin menu items
+  {
+    to: "/superadmin/tenants",
+    label: "Tenant Management",
+    roles: ["Super Admin"],
+  },
+  {
+    to: "/superadmin/analytics",
+    label: "Platform Analytics",
+    roles: ["Super Admin"],
+  },
 ];
 
 /**

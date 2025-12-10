@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001/";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001/";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app/";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app/";
 
 interface RegisterUserData {
   name: string;
@@ -109,6 +109,124 @@ class ApiService {
     return response.json();
   }
 
+  // Super Admin - Tenant Management
+  async getAllTenants(params?: any): Promise<any> {
+    const queryParams = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : "";
+    const response = await fetch(
+      `${API_BASE_URL}/superadmin/tenants${queryParams}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch tenants");
+    return response.json();
+  }
+
+  async createTenant(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/superadmin/tenants`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create tenant");
+    }
+    return response.json();
+  }
+
+  async deleteTenant(tenantId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/superadmin/tenants/${tenantId}`,
+      {
+        method: "DELETE",
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to delete tenant");
+    return response.json();
+  }
+
+  async updateTenantStatus(tenantId: string, status: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/superadmin/tenants/${tenantId}/status`,
+      {
+        method: "PATCH",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ status }),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to update tenant status");
+    return response.json();
+  }
+
+  async getPlatformAnalytics(): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/superadmin/analytics/overview`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch analytics");
+    return response.json();
+  }
+
+  async registerCompany(data: any): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/registration/register-company`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to register company");
+    }
+    return response.json();
+  }
+
+  // Company Settings
+  async getCompanySettings(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/settings/company`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch company settings");
+    return response.json();
+  }
+
+  async updateCompanySettings(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/settings/company`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update settings");
+    }
+    return response.json();
+  }
+
+  async getSubscriptionDetails(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/settings/subscription`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch subscription");
+    return response.json();
+  }
+
+  async getUsageAnalytics(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/settings/usage`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch usage analytics");
+    return response.json();
+  }
+
   // Admin Methods
   async getAllUsers(): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -119,6 +237,29 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to fetch users");
+    }
+
+    return response.json();
+  }
+
+  async getRoles(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/admin/roles`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch roles");
+    return response.json();
+  }
+
+  async createUser(userData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create user");
     }
 
     return response.json();
@@ -139,14 +280,6 @@ class ApiService {
   }
 
   // Role Management
-  async getRoles(): Promise<any[]> {
-    const response = await fetch(`${API_BASE_URL}/admin/roles`, {
-      headers: this.getAuthHeaders(),
-    });
-    if (!response.ok) throw new Error("Failed to fetch roles");
-    return response.json();
-  }
-
   async createRole(data: {
     name: string;
     permissions?: string[];

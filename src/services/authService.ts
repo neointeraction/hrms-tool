@@ -6,7 +6,7 @@ const MOCK_USERS: Record<string, User> = {
     id: "1",
     name: "Admin User",
     email: "admin@sys.com",
-    role: "Admin",
+    role: "Super Admin",
     designation: "System Administrator",
     avatar: "AD",
   },

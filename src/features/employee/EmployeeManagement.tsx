@@ -23,58 +23,11 @@ export default function EmployeeManagement() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      // Fetch both employees and users
-      const [employeeResponse, userResponse] = await Promise.all([
-        apiService.getEmployees().catch(() => ({ users: [], employees: [] })),
-        apiService.getAllUsers().catch(() => ({ users: [], employees: [] })),
-      ]);
+      // Fetch tenant-scoped employees (already includes user data via populate)
+      const employeeData = await apiService.getEmployees();
 
-      // Extract arrays from responses
-      const employeeData = Array.isArray(employeeResponse)
-        ? employeeResponse
-        : employeeResponse.employees || [];
-      const userData: any[] = Array.isArray(userResponse)
-        ? userResponse
-        : userResponse.users || [];
-
-      // Create a map of user IDs to employee records
-      const employeeMap = new Map();
-      employeeData.forEach((emp: any) => {
-        const userId = emp.user?._id || emp.user;
-        if (userId) {
-          employeeMap.set(userId, emp);
-        }
-      });
-
-      // Merge users with their employee records
-      const mergedData = userData.map((user: any) => {
-        const employee = employeeMap.get(user._id);
-
-        if (employee) {
-          // User has employee record
-          return {
-            ...employee,
-            user: user, // Ensure we have full user data
-          };
-        } else {
-          // User without employee record - create placeholder
-          return {
-            _id: `user_${user._id}`,
-            user: user,
-            employeeId: user.employeeId || "N/A",
-            firstName: user.name?.split(" ")[0] || user.name || "N/A",
-            lastName: user.name?.split(" ").slice(1).join(" ") || "",
-            email: user.email,
-            role: user.roles?.[0]?.name || "N/A",
-            department: user.department || "N/A",
-            employeeStatus: user.status === "active" ? "Active" : "Inactive",
-            workPhone: "",
-            isPlaceholder: true, // Mark as placeholder
-          };
-        }
-      });
-
-      setEmployees(mergedData);
+      // Employees from /api/employees are already tenant-scoped and include user data
+      setEmployees(Array.isArray(employeeData) ? employeeData : []);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Failed to fetch employees");

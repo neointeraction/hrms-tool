@@ -133,6 +133,15 @@ export default function Login() {
             </p>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
+                onClick={() => {
+                  setEmail("superadmin@hrms.com");
+                  setPassword("SuperAdmin@123");
+                }}
+                className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded hover:bg-purple-200 dark:hover:bg-purple-900/50 text-left truncate font-medium border border-purple-200 dark:border-purple-800"
+              >
+                Super Admin
+              </button>
+              <button
                 onClick={() => setEmail("admin@neointeraction.com")}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
