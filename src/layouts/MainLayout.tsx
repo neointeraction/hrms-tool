@@ -24,6 +24,7 @@ import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
 import NotificationDropdown from "../components/layout/NotificationDropdown";
 import ChatWidget from "../features/chat/ChatWidget";
+import Avatar from "../components/ui/Avatar";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -107,17 +108,12 @@ export default function MainLayout() {
         </div>
         <div className="flex items-center gap-2">
           <NotificationDropdown />
-          <div className="w-8 h-8 rounded-full bg-brand-secondary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-            {user?.avatar?.length === 2 ? (
-              user.avatar
-            ) : (
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
+          <Avatar
+            src={user?.avatar}
+            name={user?.name}
+            alt={user?.name}
+            size="sm"
+          />
         </div>
       </header>
 
@@ -199,17 +195,12 @@ export default function MainLayout() {
                   </p>
                   <p className="text-xs text-text-muted">{user?.designation}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center text-white font-bold overflow-hidden">
-                  {user?.avatar?.length === 2 ? (
-                    user.avatar
-                  ) : (
-                    <img
-                      src={user?.avatar}
-                      alt={user?.name}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
+                <Avatar
+                  src={user?.avatar}
+                  name={user?.name}
+                  alt={user?.name}
+                  size="md"
+                />
               </button>
 
               {isProfileOpen && (

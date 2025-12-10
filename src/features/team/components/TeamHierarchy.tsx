@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { apiService } from "../../../services/api.service";
+import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import Avatar from "../../../components/ui/Avatar";
 
 interface Employee {
   _id: string;
@@ -32,18 +33,20 @@ const TreeNode = ({ node }: { node: Employee }) => {
       >
         {/* Avatar */}
         <div className="w-12 h-12 rounded-full overflow-hidden mb-2 border-2 border-brand-primary/20">
-          {node.profilePicture ? (
-            <img
-              src={`http://localhost:5001/${node.profilePicture}`}
-              alt={node.firstName}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-lg">
-              {node.firstName[0]}
-              {node.lastName[0]}
-            </div>
-          )}
+          <Avatar
+            src={
+              node.profilePicture
+                ? `${ASSET_BASE_URL}${node.profilePicture}`.replace(
+                    "//uploads",
+                    "/uploads"
+                  ) // Ensure no double slashes if ASSET_BASE_URL has trailing slash
+                : undefined
+            }
+            name={`${node.firstName} ${node.lastName}`}
+            alt={node.firstName}
+            className="w-full h-full"
+            size="md"
+          />
         </div>
 
         {/* Info */}

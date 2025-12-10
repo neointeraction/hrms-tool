@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { CalendarDays, Plane, Pill, Users, User } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
+import Avatar from "../../../components/ui/Avatar";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../../store/useAppStore";
 
@@ -158,18 +159,17 @@ export default function LeaveWidget() {
                     className="relative group cursor-pointer"
                     title={`${leave.employee.firstName} ${leave.employee.lastName} (${leave.type})`}
                   >
-                    {leave.employee.profilePicture ? (
-                      <img
-                        src={`${ASSET_BASE_URL}${leave.employee.profilePicture}`}
-                        alt={leave.employee.firstName}
-                        className="w-10 h-10 rounded-full border-2 border-white object-cover hover:z-10 relative transition-transform hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full border-2 border-white bg-brand-primary text-white flex items-center justify-center text-xs font-bold hover:z-10 relative transition-transform hover:scale-110">
-                        {leave.employee.firstName?.[0]}
-                        {leave.employee.lastName?.[0]}
-                      </div>
-                    )}
+                    <Avatar
+                      src={
+                        leave.employee.profilePicture
+                          ? `${ASSET_BASE_URL}${leave.employee.profilePicture}`
+                          : undefined
+                      }
+                      name={`${leave.employee.firstName} ${leave.employee.lastName}`}
+                      alt={leave.employee.firstName}
+                      className="w-10 h-10 border-2 border-white hover:z-10 relative transition-transform hover:scale-110"
+                      size="md"
+                    />
 
                     {/* Custom Tooltip */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
