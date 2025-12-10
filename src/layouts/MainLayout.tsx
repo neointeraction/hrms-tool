@@ -17,12 +17,13 @@ import {
   CalendarDays,
   Banknote,
   Briefcase,
+  Network,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
 import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
-import NotificationDropdown from "../components/common/NotificationDropdown";
+import NotificationDropdown from "../components/layout/NotificationDropdown";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -70,6 +71,11 @@ export default function MainLayout() {
       icon: Briefcase,
       label: "Project Management",
     },
+    {
+      to: "/organization",
+      icon: Network,
+      label: "Hierarchy",
+    },
   ];
 
   // Get accessible menu items from navigation utility and merge with icons
@@ -100,9 +106,7 @@ export default function MainLayout() {
           <span className="font-bold text-xl text-brand-primary">HRMS</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="text-text-secondary p-2 rounded-full hover:bg-bg-hover">
-            <Bell size={20} />
-          </button>
+          <NotificationDropdown />
           <div className="w-8 h-8 rounded-full bg-brand-secondary flex items-center justify-center text-white font-bold text-sm overflow-hidden">
             {user?.avatar?.length === 2 ? (
               user.avatar
@@ -252,7 +256,7 @@ export default function MainLayout() {
         </header>
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-8xl mx-auto">
             <Outlet />
           </div>
         </main>

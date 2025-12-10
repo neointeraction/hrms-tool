@@ -1,15 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Plus,
-  Search,
-  Filter,
-  Edit2,
-  Eye,
-  Trash2,
-  Lock,
-  UserX,
-  UserCheck,
-} from "lucide-react";
+import { Plus, Edit2, Eye, Trash2, Lock, UserX, UserCheck } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
@@ -211,29 +201,11 @@ export default function EmployeeManagement() {
       )}
 
       <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
-        {/* Filters Bar - Placeholder for now */}
-        <div className="p-4 border-b border-border flex gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search employees..."
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            />
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50">
-            <Filter size={20} />
-            Filters
-          </button>
-        </div>
-
         <Table
           columns={[
             {
               header: "Employee",
+              accessorKey: "firstName", // Enable sorting by name
               render: (emp) => (
                 <div className="flex items-center gap-3">
                   {emp.profilePicture ? (
@@ -266,6 +238,7 @@ export default function EmployeeManagement() {
             },
             {
               header: "Role & Dept",
+              accessorKey: "role", // Enable sorting by role
               render: (emp) => (
                 <div>
                   <div className="text-sm text-text-primary">{emp.role}</div>
@@ -277,6 +250,8 @@ export default function EmployeeManagement() {
             },
             {
               header: "Status",
+              accessorKey: "user.status",
+              enableSorting: true,
               render: (emp) => {
                 const userStatus = emp.user?.status || "active";
                 return (

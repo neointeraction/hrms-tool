@@ -1,5 +1,9 @@
-import { BookOpen, CheckSquare, Clock, Coffee } from "lucide-react";
+import { BookOpen, CheckSquare } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import AttendanceWidget from "./AttendanceWidget";
+import LeaveWidget from "./LeaveWidget";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import PayrollSummaryWidget from "./PayrollSummaryWidget";
 
 export default function InternDashboard() {
   const { user } = useAuth();
@@ -11,6 +15,14 @@ export default function InternDashboard() {
           Welcome, {user?.name.split(" ")[0]}! 🎓
         </h1>
         <p className="text-text-secondary mt-1">Learning & Development Track</p>
+      </div>
+
+      {/* Standard Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AttendanceWidget />
+        <LeaveWidget />
+        <UpcomingHolidayWidget />
+        <PayrollSummaryWidget />
       </div>
 
       {/* Learning Section */}
@@ -87,46 +99,6 @@ export default function InternDashboard() {
             <button className="text-sm text-brand-primary font-medium hover:underline mt-2">
               View All Modules
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <Clock className="text-brand-secondary" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Timesheet
-            </h2>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-bg-main rounded-lg">
-            <div>
-              <p className="text-sm font-medium text-text-primary">This Week</p>
-              <p className="text-2xl font-bold text-text-primary">32h</p>
-            </div>
-            <button className="px-4 py-2 bg-brand-primary text-white rounded-lg text-sm hover:bg-brand-secondary">
-              Log Time
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <Coffee className="text-status-warning" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Leave Balance
-            </h2>
-          </div>
-          <div className="flex gap-4">
-            <div className="flex-1 p-3 bg-bg-main rounded-lg text-center">
-              <p className="text-2xl font-bold text-text-primary">2</p>
-              <p className="text-xs text-text-secondary">Casual</p>
-            </div>
-            <div className="flex-1 p-3 bg-bg-main rounded-lg text-center">
-              <p className="text-2xl font-bold text-text-primary">1</p>
-              <p className="text-xs text-text-secondary">Sick</p>
-            </div>
           </div>
         </div>
       </div>

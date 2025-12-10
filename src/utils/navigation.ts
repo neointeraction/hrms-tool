@@ -63,6 +63,18 @@ export const menuItems: MenuItem[] = [
       "Accountant",
     ],
   },
+  {
+    to: "/organization",
+    label: "Hierarchy",
+    roles: [
+      "Admin",
+      "HR",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
+  },
 ];
 
 /**

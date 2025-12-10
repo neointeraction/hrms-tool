@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import {
   Users,
-  // Calendar,
   CheckSquare,
   Briefcase,
-  // AlertTriangle,
-  // TrendingUp,
-  // UserPlus,
-  // MessageSquare,
   Clock,
   Coffee,
   Loader2,
@@ -15,6 +10,10 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import PayrollSummaryWidget from "./PayrollSummaryWidget";
+import AttendanceWidget from "./AttendanceWidget";
+import LeaveWidget from "./LeaveWidget";
 
 export default function PMDashboard() {
   const { user } = useAuth();
@@ -75,8 +74,6 @@ export default function PMDashboard() {
     }
   };
 
-  // ... (rest of helper functions unchanged)
-
   const getStatusCounts = () => {
     const clockedIn = teamStatus.filter(
       (t) => t.status === "clocked-in"
@@ -127,11 +124,25 @@ export default function PMDashboard() {
         </p>
       </div>
 
+      {/* Summary Section (Standard Top Widgets) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Attendance Widget */}
+        <AttendanceWidget />
+
+        {/* Leave Widget */}
+        <LeaveWidget />
+
+        {/* Upcoming Holiday */}
+        <UpcomingHolidayWidget />
+
+        {/* Payroll Summary Widget */}
+        <PayrollSummaryWidget />
+      </div>
+
       {/* Team Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Team Status Card - Live Data */}
         <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          {/* Same as before... omitting strictly unchanged parts if tool allows, but let's be safe and include surrounding context or use precise replacement */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users className="text-brand-primary" size={24} />
@@ -268,37 +279,6 @@ export default function PMDashboard() {
             )}
           </div>
         </div>
-
-        {/* <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="text-status-error" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Attention
-            </h2>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-status-error/10 rounded-lg">
-              <AlertTriangle size={16} className="text-status-error" />
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  Overtime Flag
-                </p>
-                <p className="text-xs text-text-secondary">
-                  John Doe logged 11h
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-status-warning/10 rounded-lg">
-              <Calendar size={16} className="text-status-warning" />
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  Deadline Risk
-                </p>
-                <p className="text-xs text-text-secondary">Project Phoenix</p>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {/* Projects Section */}
@@ -358,50 +338,6 @@ export default function PMDashboard() {
             )}
           </div>
         </div>
-
-        {/* Talent Section */}
-        {/* <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="text-status-success" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Talent Development
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-bg-main rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-primary/10 rounded-full text-brand-primary">
-                  <UserPlus size={16} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Onboarding
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    2 New Joiners this week
-                  </p>
-                </div>
-              </div>
-              <span className="text-xs font-bold text-brand-primary">View</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-bg-main rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-status-info/10 rounded-full text-status-info">
-                  <MessageSquare size={16} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Feedback Pending
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    Q2 Reviews for 3 members
-                  </p>
-                </div>
-              </div>
-              <span className="text-xs font-bold text-status-info">Start</span>
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );

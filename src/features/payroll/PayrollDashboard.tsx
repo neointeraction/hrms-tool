@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DollarSign, FileText, Settings } from "lucide-react";
+import { IndianRupee, FileText, Settings } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import SalaryStructureManager from "./SalaryStructureManager";
 import PayrollProcessor from "./PayrollProcessor";
@@ -49,7 +49,7 @@ export default function PayrollDashboard() {
                 : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
-            <DollarSign size={18} />
+            <IndianRupee size={18} />
             Payroll Processing
           </button>
         )}

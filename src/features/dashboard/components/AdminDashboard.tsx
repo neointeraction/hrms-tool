@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import EmployeesOnLeave from "./EmployeesOnLeave";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import UpcomingEventsWidget from "./UpcomingEventsWidget";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -181,6 +184,21 @@ export default function AdminDashboard() {
                 </button>
               ))}
             </div>
+          </section>
+
+          {/* Employees on Leave */}
+          <section>
+            <EmployeesOnLeave />
+          </section>
+
+          {/* Upcoming Holiday */}
+          <section>
+            <UpcomingHolidayWidget />
+          </section>
+
+          {/* Upcoming Events (Birthdays & Anniversaries) */}
+          <section>
+            <UpcomingEventsWidget />
           </section>
 
           {/* Recent Activity */}

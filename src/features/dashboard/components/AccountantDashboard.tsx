@@ -7,6 +7,9 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import AttendanceWidget from "./AttendanceWidget";
+import LeaveWidget from "./LeaveWidget";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
@@ -20,6 +23,13 @@ export default function AccountantDashboard() {
         <p className="text-text-secondary mt-1">
           Financial Overview & Payroll Status
         </p>
+      </div>
+
+      {/* Standard Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <AttendanceWidget />
+        <LeaveWidget />
+        <UpcomingHolidayWidget />
       </div>
 
       {/* Financials Section */}

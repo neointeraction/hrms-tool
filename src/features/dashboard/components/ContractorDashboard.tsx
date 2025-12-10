@@ -1,5 +1,9 @@
 import { Briefcase, Clock, FileText, Monitor, CheckCircle } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import AttendanceWidget from "./AttendanceWidget";
+import LeaveWidget from "./LeaveWidget";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import PayrollSummaryWidget from "./PayrollSummaryWidget";
 
 export default function ContractorDashboard() {
   const { user } = useAuth();
@@ -11,6 +15,14 @@ export default function ContractorDashboard() {
           Hi {user?.name.split(" ")[0]}! 👋
         </h1>
         <p className="text-text-secondary mt-1">Contractor Portal</p>
+      </div>
+
+      {/* Standard Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AttendanceWidget />
+        <LeaveWidget />
+        <UpcomingHolidayWidget />
+        <PayrollSummaryWidget />
       </div>
 
       {/* Work Section */}

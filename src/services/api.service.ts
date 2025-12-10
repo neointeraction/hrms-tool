@@ -1,7 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001/";
 
-export const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-azure.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-azure.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -48,11 +49,15 @@ class ApiService {
     return response.json();
   }
 
-  async login(email: string, password: string): Promise<ApiResponse> {
+  async login(
+    email: string,
+    password: string,
+    location?: { lat: number; lng: number }
+  ): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, location }),
     });
 
     if (!response.ok) {
@@ -93,6 +98,14 @@ class ApiService {
       throw new Error(error.message || "Failed to fetch employees");
     }
 
+    return response.json();
+  }
+
+  async getEmployeesOnLeave(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/active`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch employees on leave");
     return response.json();
   }
 
@@ -236,7 +249,80 @@ class ApiService {
     return response.json();
   }
 
-  // Leave Management Methods
+  // Leave Policies
+  async getLeavePolicies(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave-policies`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch leave policies");
+    }
+    return response.json();
+  }
+
+  async getLeavePolicy(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave-policies/${id}`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch leave policy");
+    }
+    return response.json();
+  }
+
+  async createLeavePolicy(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave-policies`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create leave policy");
+    }
+    return response.json();
+  }
+
+  async updateLeavePolicy(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave-policies/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update leave policy");
+    }
+    return response.json();
+  }
+
+  async deleteLeavePolicy(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave-policies/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete leave policy");
+    }
+    return response.json();
+  }
+
+  // Leave Management (existing) Methods
+  async getLeaveStats(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/leave/stats`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch leave stats");
+    }
+    return response.json();
+  }
+
   async applyLeave(data: any): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/leave/apply`, {
       method: "POST",
@@ -390,6 +476,18 @@ class ApiService {
     return response.json();
   }
 
+  // Audit Log Methods
+
+  async clearAuditLogs(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/audit`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to clear audit logs");
+    }
+  }
+
   // Task Management Methods
   async getTasks(params?: any): Promise<any> {
     const queryParams = new URLSearchParams(params).toString();
@@ -483,6 +581,30 @@ class ApiService {
     return response.json();
   }
 
+  async getUpcomingEvents(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees/upcoming-events`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch upcoming events");
+    }
+    return response.json();
+  }
+
+  async getHierarchy(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/employees/hierarchy`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch hierarchy");
+    }
+    return response.json();
+  }
+
   // Attendance Methods
   async clockIn(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/attendance/clock-in`, {
@@ -496,10 +618,11 @@ class ApiService {
     return response.json();
   }
 
-  async clockOut(): Promise<any> {
+  async clockOut(completedTasks?: string): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/attendance/clock-out`, {
       method: "POST",
       headers: this.getAuthHeaders(),
+      body: JSON.stringify({ completedTasks }),
     });
     if (!response.ok) {
       const error = await response.json();
@@ -549,6 +672,38 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to fetch history");
+    return response.json();
+  }
+
+  // --- Holiday Management ---
+  async getHolidays(year?: number): Promise<any> {
+    const query = year ? `?year=${year}` : "";
+    const response = await fetch(`${API_BASE_URL}/holidays${query}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch holidays");
+    return response.json();
+  }
+
+  async addHoliday(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/holidays`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.message || "Failed to add holiday");
+    }
+    return response.json();
+  }
+
+  async deleteHoliday(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/holidays/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete holiday");
     return response.json();
   }
 
@@ -646,6 +801,24 @@ class ApiService {
     return response.json();
   }
 
+  // Notification Methods
+  async getNotifications(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/notifications`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch notifications");
+    return response.json();
+  }
+
+  async markNotificationRead(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to mark notification as read");
+    return response.json();
+  }
+
   async rejectCorrection(id: string, comments?: string): Promise<any> {
     const response = await fetch(
       `${API_BASE_URL}/time-correction/${id}/reject`,
@@ -710,27 +883,26 @@ class ApiService {
   }
 
   // Audit Trail Methods
-  async getAuditLogs(filters?: {
-    entityType?: string;
-    action?: string;
-    employee?: string;
-    startDate?: string;
-    endDate?: string;
-    limit?: number;
-  }): Promise<any> {
-    const params = new URLSearchParams();
-    if (filters?.entityType) params.append("entityType", filters.entityType);
-    if (filters?.action) params.append("action", filters.action);
-    if (filters?.employee) params.append("employee", filters.employee);
-    if (filters?.startDate) params.append("startDate", filters.startDate);
-    if (filters?.endDate) params.append("endDate", filters.endDate);
-    if (filters?.limit) params.append("limit", filters.limit.toString());
-
-    const response = await fetch(`${API_BASE_URL}/audit?${params}`, {
+  async getAuditLogs(filters?: any): Promise<any> {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(`${API_BASE_URL}/audit?${queryParams}`, {
+      method: "GET",
       headers: this.getAuthHeaders(),
     });
-    if (!response.ok) throw new Error("Failed to fetch audit logs");
+    if (!response.ok) {
+      throw new Error("Failed to fetch audit logs");
+    }
     return response.json();
+  }
+
+  async deleteAuditLog(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/audit/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete audit log");
+    }
   }
 
   async getEntityAuditLogs(entityType: string, entityId: string): Promise<any> {

@@ -200,7 +200,7 @@ export default function PayrollProcessor() {
                       Gross Salary
                     </span>
                     <span className="font-medium">
-                      ${payroll.grossSalary.toLocaleString()}
+                      ₹{payroll.grossSalary.toLocaleString()}
                     </span>
                   </div>
                   <div className="text-right">
@@ -208,7 +208,7 @@ export default function PayrollProcessor() {
                       Net Payable
                     </span>
                     <span className="font-bold text-brand-primary">
-                      ${payroll.netSalary.toLocaleString()}
+                      ₹{payroll.netSalary.toLocaleString()}
                     </span>
                   </div>
                 </div>

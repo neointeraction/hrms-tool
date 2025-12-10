@@ -1,3 +1,5 @@
+import { Table } from "../../components/common/Table";
+
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Calendar, Clock } from "lucide-react";
@@ -46,77 +48,81 @@ export default function LeaveList() {
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">Loading leaves...</div>;
-  }
-
   return (
     <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
-          <tr>
-            <th className="px-6 py-4">Type</th>
-            <th className="px-6 py-4">Duration</th>
-            <th className="px-6 py-4">Dates</th>
-            <th className="px-6 py-4">Reason</th>
-            <th className="px-6 py-4">Status</th>
-            <th className="px-6 py-4">Workflow</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {leaves.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="px-6 py-8 text-center text-text-muted">
-                No leave history found.
-              </td>
-            </tr>
-          ) : (
-            leaves.map((leave) => (
-              <tr
-                key={leave._id}
-                className="hover:bg-bg-hover transition-colors"
+      <Table
+        isLoading={loading}
+        data={leaves}
+        emptyMessage="No leave history found."
+        columns={[
+          {
+            header: "Type",
+            accessorKey: "type",
+            render: (leave) => (
+              <span className="font-medium text-text-primary">
+                {leave.type}
+              </span>
+            ),
+          },
+          {
+            header: "Duration",
+            accessorKey: "totalDays",
+            render: (leave) => (
+              <span className="text-sm text-text-secondary">
+                {leave.totalDays} day{leave.totalDays > 1 ? "s" : ""}
+              </span>
+            ),
+          },
+          {
+            header: "Dates",
+            accessorKey: "startDate", // Sort by start date
+            render: (leave) => (
+              <div className="flex items-center gap-2 text-sm text-text-secondary">
+                <Calendar size={14} />
+                <span>
+                  {format(new Date(leave.startDate), "MMM d, yyyy")} -{" "}
+                  {format(new Date(leave.endDate), "MMM d, yyyy")}
+                </span>
+              </div>
+            ),
+          },
+          {
+            header: "Reason",
+            accessorKey: "reason",
+            render: (leave) => (
+              <span
+                className="text-sm text-text-secondary max-w-xs truncate block"
+                title={leave.reason}
               >
-                <td className="px-6 py-4 font-medium text-text-primary">
-                  {leave.type}
-                </td>
-                <td className="px-6 py-4 text-sm text-text-secondary">
-                  {leave.totalDays} day{leave.totalDays > 1 ? "s" : ""}
-                </td>
-                <td className="px-6 py-4 text-sm text-text-secondary">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} />
-                    <span>
-                      {format(new Date(leave.startDate), "MMM d, yyyy")} -{" "}
-                      {format(new Date(leave.endDate), "MMM d, yyyy")}
-                    </span>
-                  </div>
-                </td>
-                <td
-                  className="px-6 py-4 text-sm text-text-secondary max-w-xs truncate"
-                  title={leave.reason}
-                >
-                  {leave.reason}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
-                      leave.status
-                    )}`}
-                  >
-                    {leave.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-text-secondary">
-                  <div className="flex items-center gap-1">
-                    <Clock size={14} />
-                    {leave.workflowStatus}
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+                {leave.reason}
+              </span>
+            ),
+          },
+          {
+            header: "Status",
+            accessorKey: "status",
+            render: (leave) => (
+              <span
+                className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                  leave.status
+                )}`}
+              >
+                {leave.status}
+              </span>
+            ),
+          },
+          {
+            header: "Workflow",
+            accessorKey: "workflowStatus",
+            render: (leave) => (
+              <div className="flex items-center gap-1 text-sm text-text-secondary">
+                <Clock size={14} />
+                {leave.workflowStatus}
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

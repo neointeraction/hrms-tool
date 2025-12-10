@@ -11,6 +11,9 @@ export default function ClockInOut() {
   const [actionLoading, setActionLoading] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
 
+  const [showClockOutModal, setShowClockOutModal] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState("");
+
   // Fetch current status on mount
   useEffect(() => {
     fetchStatus();
@@ -53,13 +56,19 @@ export default function ClockInOut() {
     }
   };
 
-  const handleClockOut = async () => {
+  const handleClockOutClick = () => {
+    setShowClockOutModal(true);
+  };
+
+  const confirmClockOut = async () => {
     setActionLoading(true);
     try {
-      await apiService.clockOut();
+      await apiService.clockOut(completedTasks);
       setStatus("clocked-out");
       setTimeEntry(null);
       setElapsedTime(0);
+      setShowClockOutModal(false);
+      setCompletedTasks("");
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -177,7 +186,7 @@ export default function ClockInOut() {
               Start Break
             </button>
             <button
-              onClick={handleClockOut}
+              onClick={handleClockOutClick}
               disabled={actionLoading}
               className="flex items-center justify-center gap-2 px-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
             >
@@ -241,6 +250,49 @@ export default function ClockInOut() {
               <p className="font-medium text-text-primary">
                 {timeEntry.totalBreakMinutes || 0} min
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clock Out Modal */}
+      {showClockOutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="bg-bg-card rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 border border-border">
+            <div className="p-4 border-b border-border bg-bg-main">
+              <h3 className="font-semibold text-text-primary">Clock Out</h3>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-text-primary">
+                  Today's Completed Tasks
+                </label>
+                <textarea
+                  value={completedTasks}
+                  onChange={(e) => setCompletedTasks(e.target.value)}
+                  placeholder="Summary of what you worked on today..."
+                  className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary min-h-[100px] text-sm text-text-primary resize-none"
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setShowClockOutModal(false)}
+                  className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmClockOut}
+                  disabled={actionLoading}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
+                >
+                  {actionLoading && (
+                    <Loader2 className="animate-spin" size={16} />
+                  )}
+                  Confirm Clock Out
+                </button>
+              </div>
             </div>
           </div>
         </div>

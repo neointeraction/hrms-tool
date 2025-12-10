@@ -14,12 +14,15 @@ import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
 import { Select } from "../../../components/common/Select";
 import { Textarea } from "../../../components/common/Textarea";
+import { Table } from "../../../components/common/Table";
+import SubmitConfirmationModal from "./SubmitConfirmationModal";
 
 export default function Timesheet() {
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
     project: "",
@@ -30,6 +33,9 @@ export default function Timesheet() {
   });
   const [projects, setProjects] = useState<any[]>([]);
   const [projectTasks, setProjectTasks] = useState<any[]>([]);
+  const [pendingWeekStart, setPendingWeekStart] = useState<Date | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     fetchEntries();
@@ -131,27 +137,53 @@ export default function Timesheet() {
   };
 
   const handleSubmitForApproval = async () => {
-    // Get current week's Sunday
+    // Get current week's Sunday (or week start)
+    // Assuming backend logic uses week ending or starting.
+    // The modal asks for weekStartDate logic or weekEnding?
+    // Let's stick to existing logic but just open modal.
+
+    // Original logic was calculating Week Ending (Sunday?)
     const today = new Date();
-    const dayOfWeek = today.getDay();
+    const dayOfWeek = today.getDay(); // 0 is Sunday
+    // if today is Sunday (0), daysUntilSunday is 0.
+    // If today is Monday (1), days until sunday is 6.
+    // So this calculates Next Sunday or Today if Sunday.
     const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+
+    // Wait, typically timesheets are submitted for the *past* week or current week?
+    // Let's assume standard logic: Submit *Current* week (implied by "daysUntilSunday").
     const weekEnding = new Date(today);
     weekEnding.setDate(today.getDate() + daysUntilSunday);
 
-    if (
-      !confirm(
-        `Submit all draft timesheets for the week ending ${weekEnding.toLocaleDateString()} for approval?`
-      )
-    )
-      return;
+    // Calculate week start for display in modal
+    const weekStart = new Date(weekEnding);
+    weekStart.setDate(weekEnding.getDate() - 6);
+
+    setPendingWeekStart(weekStart);
+    setShowSubmitModal(true);
+  };
+
+  const confirmSubmit = async () => {
+    if (!pendingWeekStart) return;
 
     setSubmitting(true);
     try {
+      // Recalculate weekEnding from pendingWeekStart
+      const weekEnding = new Date(pendingWeekStart);
+      weekEnding.setDate(pendingWeekStart.getDate() + 6);
+
       const result = await apiService.submitTimesheets(
         weekEnding.toISOString().split("T")[0]
       );
+      // alert(result.message); // Maybe show toast or success message? User just wanted modal for *confirm*.
+      // Replacing alert with nothing or toast would be ideal, but for now just close modal.
+      // Alerting result message is still okay for feedback, or we can rely on UI update.
+      // Let's show alert for success feedback as per previous behavior, but maybe in a better way?
+      // User only asked to replace *confirmation* alert.
       alert(result.message);
+
       fetchEntries();
+      setShowSubmitModal(false);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -194,18 +226,6 @@ export default function Timesheet() {
     }
   };
 
-  const groupByWeek = () => {
-    const weeks = new Map<string, any[]>();
-    entries.forEach((entry) => {
-      const weekEnd = new Date(entry.weekEnding).toLocaleDateString();
-      if (!weeks.has(weekEnd)) {
-        weeks.set(weekEnd, []);
-      }
-      weeks.get(weekEnd)!.push(entry);
-    });
-    return weeks;
-  };
-
   const calculateTotalHours = () => {
     return entries
       .reduce((sum, entry) => sum + (entry.hours || 0), 0)
@@ -221,8 +241,6 @@ export default function Timesheet() {
       </div>
     );
   }
-
-  const weeklyEntries = groupByWeek();
 
   return (
     <div className="space-y-6">
@@ -386,110 +404,118 @@ export default function Timesheet() {
         </form>
       )}
 
-      {/* Entries List by Week */}
-      {entries.length === 0 ? (
-        <div className="text-center py-12 text-text-secondary">
-          <p>No timesheet entries yet</p>
-          <p className="text-sm mt-1">Add your first entry to get started</p>
-        </div>
-      ) : (
-        <>
-          {Array.from(weeklyEntries.entries()).map(([weekEnd, weekEntries]) => {
-            const weekTotal = weekEntries
-              .reduce((sum, e) => sum + (e.hours || 0), 0)
-              .toFixed(2);
-            const allSameStatus = weekEntries.every(
-              (e) => e.status === weekEntries[0].status
-            );
-
-            return (
-              <div
-                key={weekEnd}
-                className="border border-border rounded-lg p-4 space-y-3"
-              >
-                <div className="flex justify-between items-center pb-2 border-b border-border">
-                  <div>
-                    <h4 className="font-semibold text-text-primary">
-                      Week Ending: {weekEnd}
-                    </h4>
-                    <p className="text-sm text-text-secondary">
-                      {weekTotal}h total
-                    </p>
-                  </div>
-                  {allSameStatus && getStatusBadge(weekEntries[0].status)}
+      {/* Entries List */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <Table
+          columns={[
+            {
+              header: "Date",
+              accessorKey: "date",
+              render: (entry) => (
+                <span className="text-sm">
+                  {new Date(entry.date).toLocaleDateString()}
+                </span>
+              ),
+            },
+            {
+              header: "Project",
+              accessorKey: "project",
+              render: (entry) => (
+                <span className="font-medium">{entry.project}</span>
+              ),
+            },
+            {
+              header: "Task",
+              accessorKey: "task",
+              render: (entry) => (
+                <div className="flex flex-col">
+                  <span>{entry.task}</span>
+                  {entry.description && (
+                    <span className="text-xs text-text-muted truncate max-w-xs">
+                      {entry.description}
+                    </span>
+                  )}
+                  {entry.reviewComments && (
+                    <span className="text-xs text-yellow-700 mt-1">
+                      Review: {entry.reviewComments}
+                    </span>
+                  )}
                 </div>
+              ),
+            },
+            {
+              header: "Time",
+              render: (entry) => (
+                <span className="text-sm">
+                  {entry.startTime} - {entry.endTime}
+                </span>
+              ),
+            },
+            {
+              header: "Hours",
+              accessorKey: "hours",
+              render: (entry) => (
+                <span className="font-medium text-brand-primary">
+                  {entry.hours}h
+                </span>
+              ),
+            },
+            {
+              header: "Status",
+              accessorKey: "status",
+              render: (entry) => getStatusBadge(entry.status),
+            },
+            {
+              header: "Actions",
+              render: (entry) => {
+                if (entry.status === "draft" || entry.status === "rejected") {
+                  return (
+                    <button
+                      onClick={() => handleDelete(entry._id)}
+                      className="text-text-muted hover:text-red-500 transition-colors p-1"
+                      title="Delete Entry"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  );
+                }
+                return null;
+              },
+            },
+          ]}
+          data={entries}
+          isLoading={loading}
+          emptyMessage="No timesheet entries found"
+        />
+      </div>
 
-                {weekEntries.map((entry) => (
-                  <div
-                    key={entry._id}
-                    className="bg-bg-main border border-border rounded-lg p-4"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="font-semibold text-text-primary">
-                            {entry.project}
-                          </span>
-                          <span className="text-sm text-text-secondary">•</span>
-                          <span className="text-sm text-text-secondary">
-                            {entry.task}
-                          </span>
-                          {getStatusBadge(entry.status)}
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-text-secondary">
-                          <span>
-                            {new Date(entry.date).toLocaleDateString()}
-                          </span>
-                          <span>
-                            {entry.startTime} - {entry.endTime}
-                          </span>
-                          <span className="font-medium text-brand-primary">
-                            {entry.hours}h
-                          </span>
-                        </div>
-                        {entry.description && (
-                          <p className="text-sm text-text-secondary mt-2">
-                            {entry.description}
-                          </p>
-                        )}
-                        {entry.reviewComments && (
-                          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
-                            <p className="font-medium text-yellow-900">
-                              Manager feedback:
-                            </p>
-                            <p className="text-yellow-800">
-                              {entry.reviewComments}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      {(entry.status === "draft" ||
-                        entry.status === "rejected") && (
-                        <button
-                          onClick={() => handleDelete(entry._id)}
-                          className="text-red-500 hover:text-red-700 p-1"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-
-          {/* Total Hours */}
-          <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-4 flex justify-between items-center">
-            <span className="font-semibold text-text-primary">
-              Total Hours (Last 30 Days)
-            </span>
-            <span className="text-2xl font-bold text-brand-primary">
-              {calculateTotalHours()}h
-            </span>
-          </div>
-        </>
+      {entries.length > 0 && (
+        <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-4 flex justify-between items-center">
+          <span className="font-semibold text-text-primary">
+            Total Hours (Last 30 Days)
+          </span>
+          <span className="text-2xl font-bold text-brand-primary">
+            {calculateTotalHours()}h
+          </span>
+        </div>
       )}
+
+      <SubmitConfirmationModal
+        isOpen={showSubmitModal}
+        onClose={() => setShowSubmitModal(false)}
+        onConfirm={confirmSubmit}
+        weekStartDate={pendingWeekStart}
+        totalHours={
+          // Calculate total hours for the *current* week to display in modal?
+          // The existing calculateTotalHours is for *all* entries loaded (last 30 days).
+          // For the modal, it might be nice to filter, but user prompt just said generic "submit modal".
+          // We can pass the total available or just 0 if complex to filter right now without loop.
+          // Let's pass the 30-day total or try to sum draft?
+          entries
+            .filter((e) => e.status === "draft")
+            .reduce((acc, curr) => acc + (curr.hours || 0), 0)
+        }
+      />
     </div>
   );
 }

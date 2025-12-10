@@ -20,7 +20,29 @@ export default function Login() {
     setError("");
 
     try {
-      const user = await login(email, password);
+      // Get location if possible (optional)
+      let coords: { lat: number; lng: number } | undefined;
+
+      try {
+        if (navigator.geolocation) {
+          const position = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                timeout: 5000,
+              });
+            }
+          );
+          coords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+        }
+      } catch (err) {
+        console.log("Location access denied or failed", err);
+        // Continue login without location
+      }
+
+      const user = await login(email, password, coords);
 
       // Get accessible routes for the user's role
       const accessibleRoutes = getAccessibleMenuItems(user.role);

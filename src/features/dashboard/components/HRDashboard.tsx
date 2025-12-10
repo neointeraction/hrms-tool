@@ -1,11 +1,9 @@
-import {
-  FileCheck,
-  AlertCircle,
-  TrendingUp,
-  MessageCircle,
-  Heart,
-} from "lucide-react";
+import { FileCheck, TrendingUp, MessageCircle, Heart } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import AttendanceWidget from "./AttendanceWidget";
+import LeaveWidget from "./LeaveWidget";
+import PayrollSummaryWidget from "./PayrollSummaryWidget";
 
 export default function HRDashboard() {
   const { user } = useAuth();
@@ -17,6 +15,14 @@ export default function HRDashboard() {
           Hello, {user?.name.split(" ")[0]}! 👋
         </h1>
         <p className="text-text-secondary mt-1">HR Operations Overview</p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AttendanceWidget />
+        <LeaveWidget />
+        <UpcomingHolidayWidget />
+        <PayrollSummaryWidget />
       </div>
 
       {/* Overview Stats */}
@@ -45,8 +51,8 @@ export default function HRDashboard() {
         </div>
       </div>
 
-      {/* Actions & Compliance */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Actions & Compliance & Events */}
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-6">
             <FileCheck className="text-brand-primary" size={20} />
@@ -76,50 +82,6 @@ export default function HRDashboard() {
               <button className="text-sm text-brand-primary font-medium hover:underline">
                 Resolve
               </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <AlertCircle className="text-status-info" size={20} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Compliance & Training
-            </h2>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="font-medium text-text-primary">
-                  POSH Training
-                </span>
-                <span className="text-status-success text-sm">98%</span>
-              </div>
-              <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                <div className="h-full bg-status-success w-[98%] rounded-full" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="font-medium text-text-primary">
-                  Security Awareness
-                </span>
-                <span className="text-status-warning text-sm">85%</span>
-              </div>
-              <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                <div className="h-full bg-status-warning w-[85%] rounded-full" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="font-medium text-text-primary">
-                  New Hire Onboarding
-                </span>
-                <span className="text-brand-primary text-sm">100%</span>
-              </div>
-              <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                <div className="h-full bg-brand-primary w-full rounded-full" />
-              </div>
             </div>
           </div>
         </div>

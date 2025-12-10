@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
-import { Filter, Loader2, Clock, User, FileText } from "lucide-react";
+import {
+  Filter,
+  Loader2,
+  Clock,
+  User,
+  FileText,
+  MapPin,
+  Trash2,
+} from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Select } from "../../components/common/Select";
+import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 
 export default function AuditTrail() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -12,10 +21,61 @@ export default function AuditTrail() {
     startDate: "",
     endDate: "",
   });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     fetchAuditLogs();
   }, []);
+
+  const handleClearLogs = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Clear Audit Trail",
+      message:
+        "Are you sure you want to delete ALL audit logs? This action cannot be undone.",
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await apiService.clearAuditLogs();
+          setLogs([]); // Clear local state immediately
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Failed to clear logs", error);
+          alert("Failed to clear logs");
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
+  };
+
+  const handleDeleteLog = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Audit Log",
+      message: "Are you sure you want to delete this log entry?",
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await apiService.deleteAuditLog(id);
+          setLogs((prev) => prev.filter((l) => l._id !== id));
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (err) {
+          console.error("Failed to delete log", err);
+          alert("Failed to delete log");
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
+  };
 
   const fetchAuditLogs = async () => {
     setLoading(true);
@@ -44,6 +104,8 @@ export default function AuditTrail() {
       approve: "bg-status-success/10 text-status-success",
       reject: "bg-status-error/10 text-status-error",
       submit: "bg-status-warning/10 text-status-warning",
+      login: "bg-blue-100 text-blue-700",
+      logout: "bg-gray-100 text-gray-700",
     };
     return (
       <span
@@ -64,6 +126,8 @@ export default function AuditTrail() {
         return <FileText size={16} className="text-green-600" />;
       case "TimeCorrection":
         return <User size={16} className="text-purple-600" />;
+      case "User":
+        return <User size={16} className="text-indigo-600" />;
       default:
         return null;
     }
@@ -85,6 +149,16 @@ export default function AuditTrail() {
         <p className="text-text-secondary mt-1">
           Complete history of all time-related changes
         </p>
+        <div className="flex justify-end">
+          <button
+            onClick={handleClearLogs}
+            disabled={isDeleting || logs.length === 0}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <Trash2 size={16} />
+            Clear Audit Trail
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -106,6 +180,7 @@ export default function AuditTrail() {
                 { value: "TimeEntry", label: "Time Entry" },
                 { value: "Timesheet", label: "Timesheet" },
                 { value: "TimeCorrection", label: "Time Correction" },
+                { value: "User", label: "User" },
               ]}
             />
           </div>
@@ -124,6 +199,8 @@ export default function AuditTrail() {
                 { value: "submit", label: "Submit" },
                 { value: "approve", label: "Approve" },
                 { value: "reject", label: "Reject" },
+                { value: "login", label: "Login" },
+                { value: "logout", label: "Logout" },
               ]}
             />
           </div>
@@ -194,6 +271,16 @@ export default function AuditTrail() {
                 <span className="text-xs text-text-secondary">
                   {new Date(log.createdAt).toLocaleString()}
                 </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteLog(log._id);
+                  }}
+                  className="p-1 text-text-muted hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-2"
+                  title="Delete Log"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
 
               {/* Changes Display */}
@@ -230,13 +317,45 @@ export default function AuditTrail() {
               {/* Metadata Display */}
               {log.metadata && Object.keys(log.metadata).length > 0 && (
                 <div className="mt-2 text-xs text-text-secondary">
-                  <strong>Details:</strong> {JSON.stringify(log.metadata)}
+                  <strong>Details:</strong>{" "}
+                  {log.action === "login" && log.metadata.location ? (
+                    <div className="mt-1 flex items-center gap-2">
+                      <span>
+                        IP: {log.metadata.ip || "Unknown"} • Device:{" "}
+                        {log.metadata.device?.includes("Mozilla")
+                          ? "Web Browser"
+                          : "App"}
+                      </span>
+                      <a
+                        href={`https://www.google.com/maps?q=${log.metadata.location.lat},${log.metadata.location.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-brand-primary hover:underline font-medium ml-2 border border-brand-primary/20 px-2 py-0.5 rounded bg-brand-primary/5 hover:bg-brand-primary/10 transition-colors"
+                      >
+                        <MapPin size={12} />
+                        View in Map
+                      </a>
+                    </div>
+                  ) : (
+                    JSON.stringify(log.metadata)
+                  )}
                 </div>
               )}
             </div>
           ))}
         </div>
       )}
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Delete"
+        isLoading={isDeleting}
+        variant="danger"
+      />
     </div>
   );
 }

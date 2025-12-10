@@ -14,6 +14,7 @@ import LeaveDashboard from "../features/leave/LeaveDashboard";
 import PayrollDashboard from "../features/payroll/PayrollDashboard";
 import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
+import Organization from "../pages/Organization";
 
 export const router = createBrowserRouter([
   {
@@ -164,6 +165,24 @@ export const router = createBrowserRouter([
             ]}
           >
             <ProjectDetails />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "organization",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+              "Accountant",
+            ]}
+          >
+            <Organization />
           </RoleGuard>
         ),
       },

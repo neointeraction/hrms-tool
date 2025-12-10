@@ -14,8 +14,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-table": "^8.21.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.555.0",
     "node": "^20.19.6",
     "react": "^19.2.0",

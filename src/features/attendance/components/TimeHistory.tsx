@@ -156,6 +156,17 @@ export default function TimeHistory() {
                   </p>
                 </div>
               )}
+
+              {entry.completedTasks && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-xs font-semibold text-text-secondary mb-1">
+                    Completed Tasks:
+                  </p>
+                  <p className="text-sm text-text-primary whitespace-pre-wrap">
+                    {entry.completedTasks}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>

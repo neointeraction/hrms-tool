@@ -15,6 +15,11 @@ export interface User {
   avatar?: string;
   department?: string;
   designation?: string;
+  employeeId?: string;
+  doj?: string;
+  pan?: string;
+  bankName?: string;
+  bankAccountNo?: string;
 }
 
 export interface AuthState {

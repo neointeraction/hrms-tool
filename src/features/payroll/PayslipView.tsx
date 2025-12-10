@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { Download, FileText } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { useAuth } from "../../context/AuthContext";
+
+import { generatePayslipPDF } from "../../utils/payslipGenerator";
 
 export default function PayslipView() {
+  const { user } = useAuth();
   const [payslips, setPayslips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,11 +25,8 @@ export default function PayslipView() {
     }
   };
 
-  const handleDownload = (payslip: any) => {
-    // For MVP, we'll create a simple print view or just alert.
-    // In production, backend should generate PDF or we use jsPDF.
-    alert(`Downloading payslip for ${payslip.month} ${payslip.year}`);
-    console.log("Payslip Data:", payslip);
+  const handleDownload = async (slip: any) => {
+    await generatePayslipPDF(slip, user);
   };
 
   if (loading)
@@ -60,13 +61,13 @@ export default function PayslipView() {
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Basic Pay</span>
                 <span className="font-medium">
-                  ${slip.basicPay.toLocaleString()}
+                  ₹{slip.basicPay.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Total Allowances</span>
                 <span className="font-medium text-status-success">
-                  + $
+                  + ₹
                   {(
                     slip.grossSalary -
                     slip.basicPay -
@@ -77,7 +78,7 @@ export default function PayslipView() {
               <div className="flex justify-between text-sm">
                 <span className="text-text-secondary">Deductions</span>
                 <span className="font-medium text-status-error">
-                  - ${slip.totalDeductions.toLocaleString()}
+                  - ₹{slip.totalDeductions.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -87,7 +88,7 @@ export default function PayslipView() {
                 Net Pay
               </span>
               <span className="text-xl font-bold text-brand-primary">
-                ${slip.netSalary.toLocaleString()}
+                ₹{slip.netSalary.toLocaleString()}
               </span>
             </div>
 

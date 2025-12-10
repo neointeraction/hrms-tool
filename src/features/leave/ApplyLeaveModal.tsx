@@ -17,6 +17,7 @@ export default function ApplyLeaveModal({
     startDate: "",
     endDate: "",
     reason: "",
+    isHalfDay: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +27,27 @@ export default function ApplyLeaveModal({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    // Handle Checkbox
+    if (type === "checkbox") {
+      const isChecked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isChecked,
+        // If checking half day, sync end date to start date automatically
+        endDate:
+          name === "isHalfDay" && isChecked ? prev.startDate : prev.endDate,
+      }));
+    } else {
+      setFormData((prev) => {
+        const newData = { ...prev, [name]: value };
+        // If half day is checked, keep endDate synced with startDate
+        if (prev.isHalfDay && name === "startDate") {
+          newData.endDate = value;
+        }
+        return newData;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,8 +101,26 @@ export default function ApplyLeaveModal({
                 { value: "Sick", label: "Sick Leave" },
                 { value: "Paid", label: "Paid Leave" },
                 { value: "Unpaid", label: "Unpaid Leave" },
+                { value: "Floating", label: "Floating Leave" },
               ]}
             />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isHalfDay"
+              name="isHalfDay"
+              checked={formData.isHalfDay}
+              onChange={handleChange}
+              className="w-4 h-4 text-brand-primary border-border rounded focus:ring-brand-primary"
+            />
+            <label
+              htmlFor="isHalfDay"
+              className="text-sm font-medium text-text-primary"
+            >
+              Half Day Leave
+            </label>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -108,7 +147,10 @@ export default function ApplyLeaveModal({
                 value={formData.endDate}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm text-text-primary"
+                disabled={formData.isHalfDay}
+                className={`w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm text-text-primary ${
+                  formData.isHalfDay ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               />
             </div>
           </div>

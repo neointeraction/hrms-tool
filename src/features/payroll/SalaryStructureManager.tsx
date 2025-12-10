@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Search, Save, Plus, Trash2, Users } from "lucide-react";
+import { Search, Save, Plus, Trash2, Users, CheckCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Modal } from "../../components/common/Modal";
 
 export default function SalaryStructureManager() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [structure, setStructure] = useState<any>({
     baseSalary: 0,
     hra: 0,
@@ -62,7 +64,7 @@ export default function SalaryStructureManager() {
         employeeId: selectedEmployee,
         ...structure,
       });
-      alert("Salary structure saved successfully!");
+      setShowSuccessModal(true);
     } catch (err) {
       alert("Failed to save structure");
     } finally {
@@ -114,210 +116,237 @@ export default function SalaryStructureManager() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-bg-card rounded-lg border border-border p-4 h-fit">
-        <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
-          <Search size={18} /> Select Employee
-        </h3>
-        <div className="space-y-2 max-h-[500px] overflow-y-auto">
-          {employees.map((emp) => (
-            <button
-              key={emp._id}
-              onClick={() => setSelectedEmployee(emp._id)}
-              className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
-                selectedEmployee === emp._id
-                  ? "bg-brand-primary text-white"
-                  : "hover:bg-bg-hover text-text-secondary"
-              }`}
-            >
-              <div className="font-medium">
-                {emp.firstName} {emp.lastName}
-              </div>
-              <div
-                className={`text-xs ${
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-bg-card rounded-lg border border-border p-4 h-fit">
+          <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
+            <Search size={18} /> Select Employee
+          </h3>
+          <div className="space-y-2 max-h-[500px] overflow-y-auto">
+            {employees.map((emp) => (
+              <button
+                key={emp._id}
+                onClick={() => setSelectedEmployee(emp._id)}
+                className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
                   selectedEmployee === emp._id
-                    ? "text-white/80"
-                    : "text-text-muted"
+                    ? "bg-brand-primary text-white"
+                    : "hover:bg-bg-hover text-text-secondary"
                 }`}
               >
-                {emp.employeeId} • {emp.designation}
+                <div className="font-medium">
+                  {emp.firstName} {emp.lastName}
+                </div>
+                <div
+                  className={`text-xs ${
+                    selectedEmployee === emp._id
+                      ? "text-white/80"
+                      : "text-text-muted"
+                  }`}
+                >
+                  {emp.employeeId} • {emp.designation}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="md:col-span-2 space-y-6">
+          {selectedEmployee ? (
+            <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6">
+              <div className="flex justify-between items-center border-b border-border pb-4">
+                <h2 className="text-lg font-bold text-text-primary">
+                  Salary Structure
+                </h2>
+                <button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50"
+                >
+                  <Save size={18} /> Save Changes
+                </button>
               </div>
-            </button>
-          ))}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-text-secondary uppercase">
+                    Basic Salary
+                  </label>
+                  <input
+                    type="number"
+                    value={structure.baseSalary}
+                    onChange={(e) =>
+                      updateField("baseSalary", Number(e.target.value))
+                    }
+                    className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-text-secondary uppercase">
+                    HRA
+                  </label>
+                  <input
+                    type="number"
+                    value={structure.hra}
+                    onChange={(e) => updateField("hra", Number(e.target.value))}
+                    className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Allowances */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm font-medium text-text-primary">
+                    Allowances
+                  </label>
+                  <button
+                    onClick={addAllowance}
+                    className="text-brand-primary text-sm flex items-center gap-1 hover:underline"
+                  >
+                    <Plus size={14} /> Add
+                  </button>
+                </div>
+                <div className="space-y-2 bg-bg-main p-3 rounded-lg">
+                  {structure.allowances.map((allowance: any, idx: number) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        value={allowance.name}
+                        onChange={(e) =>
+                          updateAllowance(idx, "name", e.target.value)
+                        }
+                        className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        value={allowance.amount}
+                        onChange={(e) =>
+                          updateAllowance(idx, "amount", Number(e.target.value))
+                        }
+                        className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                      />
+                      <button
+                        onClick={() => removeAllowance(idx)}
+                        className="text-status-error hover:bg-status-error/10 p-1 rounded"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {structure.allowances.length === 0 && (
+                    <p className="text-xs text-text-muted text-center py-2">
+                      No allowances defined
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Deductions */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm font-medium text-text-primary">
+                    Deductions
+                  </label>
+                  <button
+                    onClick={addDeduction}
+                    className="text-brand-primary text-sm flex items-center gap-1 hover:underline"
+                  >
+                    <Plus size={14} /> Add
+                  </button>
+                </div>
+                <div className="space-y-2 bg-bg-main p-3 rounded-lg">
+                  {structure.deductions.map((deduction: any, idx: number) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        value={deduction.name}
+                        onChange={(e) =>
+                          updateDeduction(idx, "name", e.target.value)
+                        }
+                        className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        value={deduction.amount}
+                        onChange={(e) =>
+                          updateDeduction(idx, "amount", Number(e.target.value))
+                        }
+                        className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                      />
+                      <button
+                        onClick={() => removeDeduction(idx)}
+                        className="text-status-error hover:bg-status-error/10 p-1 rounded"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {structure.deductions.length === 0 && (
+                    <p className="text-xs text-text-muted text-center py-2">
+                      No deductions defined
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-brand-primary/5 p-4 rounded-lg flex justify-between items-center">
+                <span className="font-semibold text-text-primary">
+                  Estimated Net Salary
+                </span>
+                <span className="text-xl font-bold text-brand-primary">
+                  {/* Simple Client Side Calc for preview */}₹{" "}
+                  {(
+                    Number(structure.baseSalary) +
+                    Number(structure.hra) +
+                    structure.allowances.reduce(
+                      (a: any, b: any) => a + Number(b.amount),
+                      0
+                    ) -
+                    structure.deductions.reduce(
+                      (a: any, b: any) => a + Number(b.amount),
+                      0
+                    )
+                  ).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full bg-bg-card rounded-lg border border-border p-12 text-text-secondary">
+              <Users size={48} className="mb-4 text-text-muted opacity-50" />
+              <p>Select an employee to manage their salary structure.</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="md:col-span-2 space-y-6">
-        {selectedEmployee ? (
-          <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6">
-            <div className="flex justify-between items-center border-b border-border pb-4">
-              <h2 className="text-lg font-bold text-text-primary">
-                Salary Structure
-              </h2>
-              <button
-                onClick={handleSave}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50"
-              >
-                <Save size={18} /> Save Changes
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-text-secondary uppercase">
-                  Basic Salary
-                </label>
-                <input
-                  type="number"
-                  value={structure.baseSalary}
-                  onChange={(e) =>
-                    updateField("baseSalary", Number(e.target.value))
-                  }
-                  className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-text-secondary uppercase">
-                  HRA
-                </label>
-                <input
-                  type="number"
-                  value={structure.hra}
-                  onChange={(e) => updateField("hra", Number(e.target.value))}
-                  className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
-                />
-              </div>
-            </div>
-
-            {/* Allowances */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-text-primary">
-                  Allowances
-                </label>
-                <button
-                  onClick={addAllowance}
-                  className="text-brand-primary text-sm flex items-center gap-1 hover:underline"
-                >
-                  <Plus size={14} /> Add
-                </button>
-              </div>
-              <div className="space-y-2 bg-bg-main p-3 rounded-lg">
-                {structure.allowances.map((allowance: any, idx: number) => (
-                  <div key={idx} className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={allowance.name}
-                      onChange={(e) =>
-                        updateAllowance(idx, "name", e.target.value)
-                      }
-                      className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Amount"
-                      value={allowance.amount}
-                      onChange={(e) =>
-                        updateAllowance(idx, "amount", Number(e.target.value))
-                      }
-                      className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
-                    />
-                    <button
-                      onClick={() => removeAllowance(idx)}
-                      className="text-status-error hover:bg-status-error/10 p-1 rounded"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
-                {structure.allowances.length === 0 && (
-                  <p className="text-xs text-text-muted text-center py-2">
-                    No allowances defined
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Deductions */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-text-primary">
-                  Deductions
-                </label>
-                <button
-                  onClick={addDeduction}
-                  className="text-brand-primary text-sm flex items-center gap-1 hover:underline"
-                >
-                  <Plus size={14} /> Add
-                </button>
-              </div>
-              <div className="space-y-2 bg-bg-main p-3 rounded-lg">
-                {structure.deductions.map((deduction: any, idx: number) => (
-                  <div key={idx} className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={deduction.name}
-                      onChange={(e) =>
-                        updateDeduction(idx, "name", e.target.value)
-                      }
-                      className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Amount"
-                      value={deduction.amount}
-                      onChange={(e) =>
-                        updateDeduction(idx, "amount", Number(e.target.value))
-                      }
-                      className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
-                    />
-                    <button
-                      onClick={() => removeDeduction(idx)}
-                      className="text-status-error hover:bg-status-error/10 p-1 rounded"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
-                {structure.deductions.length === 0 && (
-                  <p className="text-xs text-text-muted text-center py-2">
-                    No deductions defined
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-brand-primary/5 p-4 rounded-lg flex justify-between items-center">
-              <span className="font-semibold text-text-primary">
-                Estimated Net Salary
-              </span>
-              <span className="text-xl font-bold text-brand-primary">
-                {/* Simple Client Side Calc for preview */}${" "}
-                {(
-                  Number(structure.baseSalary) +
-                  Number(structure.hra) +
-                  structure.allowances.reduce(
-                    (a: any, b: any) => a + Number(b.amount),
-                    0
-                  ) -
-                  structure.deductions.reduce(
-                    (a: any, b: any) => a + Number(b.amount),
-                    0
-                  )
-                ).toLocaleString()}
-              </span>
-            </div>
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+      >
+        <div className="flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-12 h-12 bg-status-success/10 rounded-full flex items-center justify-center text-status-success mb-4">
+            <CheckCircle size={24} />
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full bg-bg-card rounded-lg border border-border p-12 text-text-secondary">
-            <Users size={48} className="mb-4 text-text-muted opacity-50" />
-            <p>Select an employee to manage their salary structure.</p>
-          </div>
-        )}
-      </div>
-    </div>
+          <h3 className="text-lg font-semibold text-text-primary mb-2">
+            Salary Structure Saved!
+          </h3>
+          <p className="text-text-secondary mb-6">
+            The salary details for the selected employee have been successfully
+            updated.
+          </p>
+          <button
+            onClick={() => setShowSuccessModal(false)}
+            className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 }

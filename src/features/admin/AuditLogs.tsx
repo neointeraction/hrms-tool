@@ -168,7 +168,7 @@ export default function AuditLogs() {
                       {log.user}
                     </td>
                     <td
-                      className="px-6 py-4 text-sm text-text-secondary max-w-xs truncate"
+                      className="px-6 py-4 text-sm text-text-secondary max-w-xs whitespace-pre-wrap"
                       title={log.details}
                     >
                       {log.details}
