@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Loader2, ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -9,6 +9,7 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
+import { Loader } from "./Loader";
 
 // Maintaining existing interface for backward compatibility
 export interface Column<T> {
@@ -82,7 +83,7 @@ export function Table<T extends { _id: string } | { id: string }>({
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="animate-spin text-brand-primary" size={32} />
+        <Loader size={32} />
       </div>
     );
   }

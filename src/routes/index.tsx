@@ -134,6 +134,7 @@ export const router = createBrowserRouter([
               "Admin",
               "HR",
               "Accountant",
+              "Project Manager",
               "Employee",
               "Intern",
               "Consultant",

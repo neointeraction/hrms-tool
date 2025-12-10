@@ -54,7 +54,15 @@ export const menuItems: MenuItem[] = [
   {
     to: "/payroll",
     label: "Payroll & Finance",
-    roles: ["Admin", "HR", "Accountant", "Employee", "Intern", "Consultant"],
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
   },
   {
     to: "/projects",

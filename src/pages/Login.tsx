@@ -6,6 +6,7 @@ import {
   getFirstAccessibleRoute,
   getAccessibleMenuItems,
 } from "../utils/navigation";
+import { Loader } from "../components/common/Loader";
 
 export default function Login() {
   const [email, setEmail] = useState("shameer@neointeraction.com"); // Default for demo
@@ -122,11 +123,7 @@ export default function Login() {
               disabled={isLoading}
               className="w-full bg-brand-primary text-white py-3 rounded-lg font-medium hover:bg-brand-secondary transition-colors shadow-lg shadow-brand-primary/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                "Sign In"
-              )}
+              {isLoading ? <Loader size={20} variant="white" /> : "Sign In"}
             </button>
           </form>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Plane, Pill, CalendarDays, Loader2 } from "lucide-react";
+import { Plane, Pill, CalendarDays } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Loader } from "../../components/common/Loader";
 
 interface LeaveStat {
   type: string;
@@ -56,8 +57,8 @@ export default function LeaveBalance() {
 
   if (loading) {
     return (
-      <div className="flex justify-center p-4">
-        <Loader2 className="animate-spin text-brand-primary" />
+      <div className="flex items-center justify-center p-8">
+        <Loader size={24} />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import React, { type ButtonHTMLAttributes } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader } from "./Loader";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "outline" | "ghost";
@@ -46,7 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+      {isLoading && <Loader size={16} className="mr-2" variant="white" />}
       {!isLoading && leftIcon && <span className="mr-2">{leftIcon}</span>}
       {children}
       {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}

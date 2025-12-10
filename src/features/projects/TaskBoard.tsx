@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api.service";
+import { Loader } from "../../components/common/Loader";
 
 interface TaskBoardProps {
   projectId: string;
@@ -41,7 +42,12 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
 
   const columns = ["To Do", "In Progress", "Review", "Done"];
 
-  if (loading) return <div>Loading tasks...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center py-12">
+        <Loader size={32} />
+      </div>
+    );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-full overflow-x-auto">

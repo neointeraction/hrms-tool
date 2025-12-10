@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Download, FileText } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
+import { Loader } from "../../components/common/Loader";
 
 import { generatePayslipPDF } from "../../utils/payslipGenerator";
 
@@ -30,7 +31,11 @@ export default function PayslipView() {
   };
 
   if (loading)
-    return <div className="text-center py-8">Loading payslips...</div>;
+    return (
+      <div className="flex justify-center p-8">
+        <Loader size={32} />
+      </div>
+    );
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

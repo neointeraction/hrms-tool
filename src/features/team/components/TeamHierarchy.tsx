@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
-import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { Avatar } from "../../../components/common/Avatar";
+import { Loader } from "../../../components/common/Loader";
 
 interface Employee {
   _id: string;
@@ -151,7 +152,7 @@ export default function TeamHierarchy() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin text-brand-primary" size={32} />
+        <Loader size={32} />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { Plus, Briefcase, Calendar, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
+import { Loader } from "../../components/common/Loader";
 import CreateProjectModal from "./CreateProjectModal";
 
 export default function ProjectDashboard() {
@@ -49,7 +50,9 @@ export default function ProjectDashboard() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">Loading projects...</div>
+        <div className="flex justify-center py-12">
+          <Loader size={32} />
+        </div>
       ) : projects.length === 0 ? (
         <div className="text-center py-12 bg-bg-card border border-border rounded-lg">
           <Briefcase

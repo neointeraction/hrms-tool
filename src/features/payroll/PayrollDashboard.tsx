@@ -13,7 +13,8 @@ export default function PayrollDashboard() {
     if (
       user?.role === "Employee" ||
       user?.role === "Intern" ||
-      user?.role === "Consultant"
+      user?.role === "Consultant" ||
+      user?.role === "Project Manager"
     ) {
       return "payslips";
     }

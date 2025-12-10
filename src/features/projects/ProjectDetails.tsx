@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Users, DollarSign, Plus } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import TaskBoard from "./TaskBoard";
 import { useAuth } from "../../context/AuthContext";
+import { Loader } from "../../components/common/Loader";
 import CreateTaskModal from "./CreateTaskModal";
 
 export default function ProjectDetails() {
@@ -30,7 +31,12 @@ export default function ProjectDetails() {
     }
   };
 
-  if (loading) return <div>Loading details...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center py-12">
+        <Loader size={32} />
+      </div>
+    );
   if (!project) return <div>Project not found</div>;
 
   const isPM = user?.role === "Project Manager" || user?.role === "Admin";
