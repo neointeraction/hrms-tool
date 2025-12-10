@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const user: User = {
         id: userData.user._id,
         email: userData.user.email,
-        name: userData.user.email.split("@")[0], // Extract name from email for now
+        name: userData.user.name || userData.user.email.split("@")[0],
         role: normalizeRole(
           userData.user.roles[0]?.name || userData.user.roles[0] || "employee"
         ),

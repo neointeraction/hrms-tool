@@ -111,7 +111,7 @@ export default function AttendanceWidget() {
             .padStart(2, "0")}`
         );
       } catch (err) {
-        console.error("Failed to fetch attendance widget data:", err);
+        // console.error("Failed to fetch attendance widget data:", err);
       } finally {
         setLoading(false);
       }

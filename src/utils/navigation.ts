@@ -25,6 +25,11 @@ export const menuItems: MenuItem[] = [
     roles: ["Admin", "HR"],
   },
   {
+    to: "/ai-configuration",
+    label: "AI Chatbot Configuration",
+    roles: ["Admin", "HR"],
+  },
+  {
     to: "/attendance",
     label: "Attendance & Time Tracking",
     roles: ["Employee", "HR", "Project Manager", "Intern", "Consultant"],

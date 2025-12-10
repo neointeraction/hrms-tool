@@ -130,7 +130,7 @@ export default function LeaveWidget() {
             <p className="text-xs font-medium text-text-secondary">
               Total leaves taken this year:
             </p>
-            <p className="text-sm font-bold text-text-primary">
+            <p className="text-xl font-bold text-text-primary">
               {leaveStats.reduce((acc, curr) => acc + (curr.used || 0), 0)}
             </p>
           </div>

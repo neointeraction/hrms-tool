@@ -14,6 +14,7 @@ import LeaveDashboard from "../features/leave/LeaveDashboard";
 import PayrollDashboard from "../features/payroll/PayrollDashboard";
 import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
+import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
 
 export const router = createBrowserRouter([
@@ -50,7 +51,14 @@ export const router = createBrowserRouter([
         index: true,
         element: <Navigate to="/" replace />,
       },
-
+      {
+        path: "ai-configuration",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <QAConfig />
+          </RoleGuard>
+        ),
+      },
       {
         path: "employee-management",
         element: (

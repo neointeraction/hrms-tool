@@ -8,7 +8,6 @@ import {
   X,
   Moon,
   Sun,
-  Bell,
   ChevronRight,
   LogOut,
   LayoutDashboard,
@@ -24,6 +23,7 @@ import { cn } from "../utils/cn";
 import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
 import NotificationDropdown from "../components/layout/NotificationDropdown";
+import ChatWidget from "../features/chat/ChatWidget";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -124,7 +124,7 @@ export default function MainLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-10 w-64 bg-bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen flex flex-col",
+          "fixed inset-y-0 left-0 z-10 w-[280px] bg-bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen flex flex-col",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -261,6 +261,8 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

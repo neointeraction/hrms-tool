@@ -28,7 +28,7 @@ export default function PayrollSummaryWidget() {
           setLatestSlip(sorted[0]);
         }
       } catch (error) {
-        console.error("Failed to fetch payslips for widget", error);
+        // console.error("Failed to fetch payslips for widget", error);
       } finally {
         setLoading(false);
       }

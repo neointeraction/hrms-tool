@@ -6,6 +6,8 @@ import {
   Clock,
   Coffee,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { apiService } from "../../../services/api.service";
@@ -22,6 +24,7 @@ export default function PMDashboard() {
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [projects, setProjects] = useState<any[]>([]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     fetchTeamStatus();
@@ -41,7 +44,7 @@ export default function PMDashboard() {
       const data = await apiService.getTeamStatus();
       setTeamStatus(data.teamStatus || []);
     } catch (error) {
-      console.error("Failed to fetch team status:", error);
+      // console.error("Failed to fetch team status:", error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +64,7 @@ export default function PMDashboard() {
       setPendingApprovalsCount(timesheets.timesheets?.length || 0);
       setPendingLeavesCount(leaves.leaveRequests?.length || 0);
     } catch (error) {
-      console.error("Failed to fetch pending approvals:", error);
+      // console.error("Failed to fetch pending approvals:", error);
     }
   };
 
@@ -70,7 +73,7 @@ export default function PMDashboard() {
       const data = await apiService.getProjects();
       setProjects(data.projects || []);
     } catch (error) {
-      console.error("Failed to fetch projects:", error);
+      // console.error("Failed to fetch projects:", error);
     }
   };
 
@@ -137,156 +140,198 @@ export default function PMDashboard() {
 
         {/* Payroll Summary Widget */}
         <PayrollSummaryWidget />
-      </div>
 
-      {/* Team Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Team Status Card - Live Data */}
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center justify-between mb-4">
+        {/* Team Status Section - Spans 2 cols on large screens to sit next to Payroll */}
+        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Users className="text-brand-primary" size={24} />
+              <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary">
+                <Users size={24} />
+              </div>
               <h2 className="text-lg font-semibold text-text-primary">
-                Team Status
+                Live Team Status
               </h2>
             </div>
-            {loading && (
-              <Loader2 className="w-4 h-4 animate-spin text-brand-primary" />
-            )}
-          </div>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-text-secondary">Working</span>
-              <span className="font-bold text-status-success">
-                {counts.clockedIn}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-text-secondary">On Break</span>
-              <span className="font-bold text-status-warning">
-                {counts.onBreak}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-text-secondary">Off Duty</span>
-              <span className="font-bold text-text-muted">
-                {counts.clockedOut}
-              </span>
-            </div>
-            <div className="pt-3 border-t border-border">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-text-primary">
-                  Total Team
-                </span>
-                <span className="text-lg font-bold text-brand-primary">
-                  {counts.total}
-                </span>
+
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2 text-xs sm:text-sm hidden xl:flex">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                  <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
+                  <span className="text-text-primary font-bold">
+                    {counts.clockedIn}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                  <span className="w-1.5 h-1.5 rounded-full bg-status-warning" />
+                  <span className="text-text-primary font-bold">
+                    {counts.onBreak}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                  <span className="text-text-primary font-bold">
+                    {counts.clockedOut}
+                  </span>
+                </div>
               </div>
+
+              {/* Pagination Controls */}
+              {teamStatus.length > 3 && (
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft size={20} className="text-text-secondary" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setPage((p) =>
+                        Math.min(Math.ceil(teamStatus.length / 3) - 1, p + 1)
+                      )
+                    }
+                    disabled={page >= Math.ceil(teamStatus.length / 3) - 1}
+                    className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight size={20} className="text-text-secondary" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Team Member List */}
-          <div className="mt-4 pt-4 border-t border-border max-h-48 overflow-y-auto">
-            <h3 className="text-sm font-medium text-text-secondary mb-2">
-              Live Team View
-            </h3>
-            {loading ? (
-              <div className="text-center py-4">
-                <Loader2 className="w-6 h-6 animate-spin text-brand-primary mx-auto" />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {teamStatus.map((member) => (
-                  <div
-                    key={member.employeeId}
-                    className="flex justify-between items-center text-sm p-2 bg-bg-main rounded"
-                  >
-                    <div>
-                      <p className="font-medium text-text-primary">
-                        {member.name}
-                      </p>
-                      <p className="text-xs text-text-secondary">
-                        {member.role}
-                      </p>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
+              {teamStatus.slice(page * 3, (page + 1) * 3).map((member) => (
+                <div
+                  key={member.employeeId}
+                  className="bg-bg-main p-3 rounded-lg border border-border hover:border-brand-primary/30 transition-all group animate-in fade-in duration-300"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="w-8 h-8 rounded-full bg-brand-secondary/10 text-brand-secondary flex items-center justify-center font-bold text-xs">
+                      {member.name
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                        .substring(0, 2)}
                     </div>
                     {getStatusBadge(member.status)}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary truncate text-xs">
+                      {member.name}
+                    </h3>
+                    <p className="text-[10px] text-text-secondary truncate">
+                      {member.role || "Member"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {teamStatus.length === 0 && (
+                <div className="col-span-full text-center py-8 text-xs text-text-secondary border border-border border-dashed rounded-lg bg-bg-main/50">
+                  No team members found.
+                </div>
+              )}
+            </div>
+          )}
         </div>
+      </div>
 
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <CheckSquare className="text-status-info" size={24} />
+      {/* Approvals and Projects Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Approvals Widget */}
+        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg">
+              <CheckSquare size={20} />
+            </div>
             <h2 className="text-lg font-semibold text-text-primary">
-              Approvals
+              Pending Approvals
             </h2>
             {totalPending > 0 && (
-              <span className="ml-auto px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
-                {totalPending}
+              <span className="ml-auto px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
+                {totalPending} New
               </span>
             )}
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-4">
             {pendingApprovalsCount > 0 ? (
               <div
                 onClick={() => (window.location.href = "/attendance")}
-                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex justify-between items-center cursor-pointer hover:bg-yellow-100 transition-colors"
+                className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
               >
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Timesheet Approvals
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {pendingApprovalsCount} pending submission
-                    {pendingApprovalsCount > 1 ? "s" : ""}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <Clock size={18} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-text-primary group-hover:text-brand-primary transition-colors">
+                      Timesheets
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {pendingApprovalsCount} submission
+                      {pendingApprovalsCount !== 1 ? "s" : ""}
+                    </p>
+                  </div>
                 </div>
-                <button className="text-xs bg-brand-primary text-white px-3 py-1 rounded-full">
+                <Button size="sm" variant="outline" className="text-xs">
                   Review
-                </button>
+                </Button>
               </div>
             ) : null}
 
             {pendingLeavesCount > 0 ? (
               <div
-                onClick={() => (window.location.href = "/leaves")}
-                className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex justify-between items-center cursor-pointer hover:bg-yellow-100 transition-colors"
+                onClick={() => (window.location.href = "/leave")}
+                className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
               >
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Leave Requests
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {pendingLeavesCount} pending request
-                    {pendingLeavesCount > 1 ? "s" : ""}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                    <Coffee size={18} />
+                  </div>
+                  <div>
+                    <p className="font-medium text-text-primary group-hover:text-brand-primary transition-colors">
+                      Leave Requests
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {pendingLeavesCount} request
+                      {pendingLeavesCount !== 1 ? "s" : ""}
+                    </p>
+                  </div>
                 </div>
-                <button className="text-xs bg-brand-primary text-white px-3 py-1 rounded-full">
+                <Button size="sm" variant="outline" className="text-xs">
                   Review
-                </button>
+                </Button>
               </div>
             ) : null}
 
             {totalPending === 0 && (
-              <div className="p-3 bg-bg-main rounded-lg text-center">
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3">
+                  <CheckSquare size={24} />
+                </div>
+                <p className="text-text-primary font-medium">All caught up!</p>
                 <p className="text-sm text-text-secondary">
-                  No pending approvals
+                  No pending approvals at the moment.
                 </p>
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Projects Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+        {/* Projects Widget */}
+        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <Briefcase className="text-brand-secondary" size={20} />
+              <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                <Briefcase size={20} />
+              </div>
               <h2 className="text-lg font-semibold text-text-primary">
                 Active Projects
               </h2>
@@ -295,14 +340,15 @@ export default function PMDashboard() {
               variant="ghost"
               size="sm"
               onClick={() => (window.location.href = "/projects")}
-              className="text-brand-primary font-medium hover:underline hover:bg-transparent p-0"
+              className="text-brand-primary hover:bg-brand-primary/10"
             >
               View All
             </Button>
           </div>
-          <div className="space-y-6">
+
+          <div className="space-y-4">
             {loading ? (
-              <div className="flex justify-center py-4">
+              <div className="flex justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
               </div>
             ) : projects.filter((p) => p.status === "Active").length > 0 ? (
@@ -310,29 +356,41 @@ export default function PMDashboard() {
                 .filter((p) => p.status === "Active")
                 .slice(0, 3)
                 .map((project) => (
-                  <div key={project._id}>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium text-text-primary">
-                        {project.name}
-                      </span>
-                      <span className="text-status-success text-sm">
+                  <div
+                    key={project._id}
+                    className="p-4 bg-bg-main rounded-xl border border-border hover:border-brand-primary/30 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-semibold text-text-primary text-sm">
+                          {project.name}
+                        </h4>
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {project.client}
+                        </p>
+                      </div>
+                      <span className="px-2 py-0.5 bg-status-success/10 text-status-success text-[10px] font-bold uppercase rounded-full tracking-wider">
                         {project.status}
                       </span>
                     </div>
-                    <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                      {/* Placeholder progress - ideally calculate from tasks */}
-                      <div className="h-full bg-brand-primary w-1/2 rounded-full" />
-                    </div>
-                    <div className="flex justify-between mt-2 text-xs text-text-secondary">
-                      <span>Client: {project.client}</span>
-                      <span>
-                        Due: {new Date(project.endDate).toLocaleDateString()}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand-primary w-2/3 rounded-full" />
+                      </div>
+                      <span className="text-xs font-medium text-text-primary">
+                        66%
                       </span>
+                    </div>
+                    <div className="flex justify-between mt-3 text-xs text-text-muted">
+                      <span>
+                        Due {new Date(project.endDate).toLocaleDateString()}
+                      </span>
+                      <span>Team: 4</span>
                     </div>
                   </div>
                 ))
             ) : (
-              <div className="text-center py-4 text-text-secondary text-sm">
+              <div className="text-center py-8 text-text-secondary text-sm">
                 No active projects found.
               </div>
             )}

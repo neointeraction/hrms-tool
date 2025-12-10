@@ -1,16 +1,29 @@
-import { useState } from "react";
-import { Shield, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Shield, FileText, Bot } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import RoleManagement from "./RoleManagement";
 import AuditLogs from "./AuditLogs";
+import QAConfig from "./QAConfig";
 
-type Tab = "roles" | "audit";
+type Tab = "roles" | "audit" | "ai-config";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("roles");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<Tab>(
+    (searchParams.get("tab") as Tab) || "roles"
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") as Tab;
+    if (tab && tabs.some((t) => t.id === tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const tabs = [
     { id: "roles", label: "Role Management", icon: Shield },
     { id: "audit", label: "Audit Logs", icon: FileText },
+    { id: "ai-config", label: "AI Configuration", icon: Bot },
   ];
 
   return (
@@ -47,6 +60,7 @@ export default function AdminDashboard() {
       <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6">
         {activeTab === "roles" && <RoleManagement />}
         {activeTab === "audit" && <AuditLogs />}
+        {activeTab === "ai-config" && <QAConfig />}
       </div>
     </div>
   );

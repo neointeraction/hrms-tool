@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001/";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001/";
 
-export const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-azure.vercel.app/";
+// export const API_BASE_URL = "https://hrms-backend-azure.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-azure.vercel.app/";
 
 interface RegisterUserData {
   name: string;
@@ -829,6 +829,53 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to reject correction");
+    return response.json();
+  }
+
+  // AI / Chatbot
+  async uploadPolicy(file: File) {
+    const formData = new FormData();
+    formData.append("policyFile", file);
+
+    const token = localStorage.getItem("authToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const uploadResponse = await fetch(`${API_BASE_URL}/ai/upload-policy`, {
+      method: "POST",
+      headers: headers as any,
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      const error = await uploadResponse.json();
+      throw new Error(error.message || "Failed to upload policy");
+    }
+    return uploadResponse.json();
+  }
+
+  async getPolicyStatus() {
+    const response = await fetch(`${API_BASE_URL}/ai/policy-status`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch policy status");
+    return response.json();
+  }
+
+  async chatWithAI(question: string) {
+    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ question }),
+    });
+    return this.handleResponse(response);
+  }
+
+  private handleResponse(response: Response) {
+    if (!response.ok) {
+      return response.json().then((error) => {
+        throw new Error(error.message || "API Error");
+      });
+    }
     return response.json();
   }
 
