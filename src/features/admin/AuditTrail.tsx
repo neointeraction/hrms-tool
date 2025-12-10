@@ -11,6 +11,7 @@ import {
 import { apiService } from "../../services/api.service";
 import { Select } from "../../components/common/Select";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { DatePicker } from "../../components/common/DatePicker";
 
 export default function AuditTrail() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -205,29 +206,22 @@ export default function AuditTrail() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
-              Start Date
-            </label>
-            <input
-              type="date"
+            <DatePicker
+              label="Start Date"
               value={filters.startDate}
               onChange={(e) =>
                 setFilters({ ...filters, startDate: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">
-              End Date
-            </label>
-            <input
-              type="date"
+            <DatePicker
+              label="End Date"
               value={filters.endDate}
               onChange={(e) =>
                 setFilters({ ...filters, endDate: e.target.value })
               }
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
             />
           </div>
         </div>

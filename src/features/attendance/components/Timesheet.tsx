@@ -15,6 +15,8 @@ import { Input } from "../../../components/common/Input";
 import { Select } from "../../../components/common/Select";
 import { Textarea } from "../../../components/common/Textarea";
 import { Table } from "../../../components/common/Table";
+import { DatePicker } from "../../../components/common/DatePicker";
+
 import SubmitConfirmationModal from "./SubmitConfirmationModal";
 
 export default function Timesheet() {
@@ -283,9 +285,8 @@ export default function Timesheet() {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Input
+              <DatePicker
                 label="Date"
-                type="date"
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })
@@ -293,6 +294,7 @@ export default function Timesheet() {
                 required
               />
             </div>
+
             <div>
               {projects.length > 0 ? (
                 <Select

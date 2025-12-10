@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CalendarDays, Plane, Pill, Users, User } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
-import Avatar from "../../../components/ui/Avatar";
+import { Avatar } from "../../../components/common/Avatar";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../../store/useAppStore";
 

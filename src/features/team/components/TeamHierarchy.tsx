@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
-import Avatar from "../../../components/ui/Avatar";
+import { Avatar } from "../../../components/common/Avatar";
 
 interface Employee {
   _id: string;

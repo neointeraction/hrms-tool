@@ -11,7 +11,7 @@ interface AvatarProps {
   fallbackColor?: string;
 }
 
-export default function Avatar({
+export function Avatar({
   src,
   alt,
   name,

@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Users2,
 } from "lucide-react";
+import { DatePicker } from "../components/common/DatePicker";
 
 const TABS = [
   "Basic Info",
@@ -292,13 +293,17 @@ export default function Profile() {
           {label}
         </label>
         {isEditing ? (
-          <input
-            type={type}
-            name={name}
-            value={value}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-          />
+          type === "date" ? (
+            <DatePicker name={name} value={value} onChange={handleChange} />
+          ) : (
+            <input
+              type={type}
+              name={name}
+              value={value}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+            />
+          )
         ) : (
           <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
             {value || "N/A"}
@@ -748,8 +753,7 @@ export default function Profile() {
                                       }
                                       className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                                     />
-                                    <input
-                                      type="date"
+                                    <DatePicker
                                       placeholder="From Date"
                                       value={
                                         exp.fromDate
@@ -766,10 +770,9 @@ export default function Profile() {
                                           e.target.value
                                         )
                                       }
-                                      className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                                     />
-                                    <input
-                                      type="date"
+
+                                    <DatePicker
                                       placeholder="To Date"
                                       value={
                                         exp.toDate
@@ -786,8 +789,8 @@ export default function Profile() {
                                           e.target.value
                                         )
                                       }
-                                      className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                                     />
+
                                     <textarea
                                       placeholder="Description"
                                       value={exp.description || ""}

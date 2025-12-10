@@ -24,7 +24,7 @@ import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
 import NotificationDropdown from "../components/layout/NotificationDropdown";
 import ChatWidget from "../features/chat/ChatWidget";
-import Avatar from "../components/ui/Avatar";
+import { Avatar } from "../components/common/Avatar";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();

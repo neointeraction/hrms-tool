@@ -3,6 +3,7 @@ import { Modal } from "../../components/common/Modal";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { Select } from "../../components/common/Select";
+import { DatePicker } from "../../components/common/DatePicker";
 
 interface AddEditEmployeeProps {
   isOpen: boolean;
@@ -282,11 +283,21 @@ export default function AddEditEmployee({
           disabled={viewMode}
           className="disabled:opacity-60"
         />
+      ) : type === "date" ? (
+        <DatePicker
+          label={label}
+          name={name}
+          value={formData[name]}
+          onChange={handleChange}
+          disabled={viewMode}
+          required={required}
+        />
       ) : (
         <>
           <label className="block text-sm font-medium text-text-secondary mb-1">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
+
           <input
             type={type}
             name={name}
@@ -663,8 +674,7 @@ export default function AddEditEmployee({
                           className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
-                        <input
-                          type="date"
+                        <DatePicker
                           placeholder="From"
                           value={
                             item.fromDate ? item.fromDate.split("T")[0] : ""
@@ -677,11 +687,10 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
-                        <input
-                          type="date"
+
+                        <DatePicker
                           placeholder="To"
                           value={item.toDate ? item.toDate.split("T")[0] : ""}
                           onChange={(e) =>
@@ -692,7 +701,6 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                       </div>
@@ -778,8 +786,7 @@ export default function AddEditEmployee({
                           className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
-                        <input
-                          type="date"
+                        <DatePicker
                           placeholder="Completion Date"
                           value={
                             item.dateOfCompletion
@@ -794,7 +801,6 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
                           disabled={viewMode}
                         />
                       </div>

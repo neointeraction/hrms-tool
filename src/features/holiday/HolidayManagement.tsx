@@ -4,6 +4,8 @@ import { apiService } from "../../services/api.service";
 import { Calendar, Trash2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { Table, type Column } from "../../components/common/Table";
+import { DatePicker } from "../../components/common/DatePicker";
+
 import { useMemo } from "react";
 
 interface Holiday {
@@ -219,9 +221,8 @@ export default function HolidayManagement({
           </div>
           <div className="flex-1 min-w-[150px]">
             <label className="block text-sm font-medium mb-1">Date</label>
-            <input
+            <DatePicker
               required
-              type="date"
               className="w-full p-2 rounded border border-border bg-bg-main"
               value={newHoliday.date}
               onChange={(e) =>
@@ -229,6 +230,7 @@ export default function HolidayManagement({
               }
             />
           </div>
+
           <div className="flex-1 min-w-[150px]">
             <label className="block text-sm font-medium mb-1">Type</label>
             <select

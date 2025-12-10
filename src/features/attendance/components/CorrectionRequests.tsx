@@ -3,6 +3,7 @@ import { Plus, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 import { Select } from "../../../components/common/Select";
+import { DatePicker } from "../../../components/common/DatePicker";
 
 export default function CorrectionRequests() {
   const { user } = useAuth();
@@ -132,20 +133,17 @@ export default function CorrectionRequests() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
+                <DatePicker
+                  label="Date"
                   value={formData.requestedDate}
                   onChange={(e) =>
                     setFormData({ ...formData, requestedDate: e.target.value })
                   }
                   required
                   max={new Date().toISOString().split("T")[0]}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-1">
                   Clock In Time
