@@ -9,8 +9,10 @@ import {
   Trash2,
   Ban,
   CheckCircle,
+  Edit,
 } from "lucide-react";
-import CreateTenantModal from "./CreateTenantModal";
+import CreateTenantModal from "./CreateTenantModal.tsx";
+import EditTenantModal from "./EditTenantModal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 
 interface Tenant {
@@ -38,6 +40,7 @@ const TenantList = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterPlan, setFilterPlan] = useState<string>("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [deleteTenantId, setDeleteTenantId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -122,14 +125,14 @@ const TenantList = () => {
   };
 
   return (
-    <div className="p-6">
+    <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-text-primary">
             Tenant Management
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-text-secondary mt-1">
             Manage all companies and their subscriptions
           </p>
         </div>
@@ -274,6 +277,19 @@ const TenantList = () => {
                   Created {new Date(tenant.createdAt).toLocaleDateString()}
                 </p>
                 <div className="flex items-center gap-2">
+                  {/* Edit Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingTenant(tenant);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-colors text-sm"
+                    title="Edit Tenant"
+                  >
+                    <Edit size={16} />
+                    Edit
+                  </button>
+
                   {/* Suspend/Activate Button */}
                   {tenant.status === "active" ? (
                     <button
@@ -324,6 +340,15 @@ const TenantList = () => {
         <CreateTenantModal
           onClose={() => setShowCreateModal(false)}
           onCreate={loadTenants}
+        />
+      )}
+
+      {/* Edit Tenant Modal */}
+      {editingTenant && (
+        <EditTenantModal
+          tenant={editingTenant}
+          onClose={() => setEditingTenant(null)}
+          onUpdate={loadTenants}
         />
       )}
 

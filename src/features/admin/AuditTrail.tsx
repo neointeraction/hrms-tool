@@ -7,6 +7,9 @@ import {
   FileText,
   MapPin,
   Trash2,
+  Monitor,
+  Smartphone,
+  Globe,
 } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Select } from "../../components/common/Select";
@@ -146,7 +149,7 @@ export default function AuditTrail() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-text-primary">Audit Trail</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Audit Trail</h1>
         <p className="text-text-secondary mt-1">
           Complete history of all time-related changes
         </p>
@@ -312,27 +315,82 @@ export default function AuditTrail() {
               {log.metadata && Object.keys(log.metadata).length > 0 && (
                 <div className="mt-2 text-xs text-text-secondary">
                   <strong>Details:</strong>{" "}
-                  {log.action === "login" && log.metadata.location ? (
-                    <div className="mt-1 flex items-center gap-2">
-                      <span>
-                        IP: {log.metadata.ip || "Unknown"} • Device:{" "}
-                        {log.metadata.device?.includes("Mozilla")
-                          ? "Web Browser"
-                          : "App"}
-                      </span>
-                      <a
-                        href={`https://www.google.com/maps?q=${log.metadata.location.lat},${log.metadata.location.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-brand-primary hover:underline font-medium ml-2 border border-brand-primary/20 px-2 py-0.5 rounded bg-brand-primary/5 hover:bg-brand-primary/10 transition-colors"
-                      >
-                        <MapPin size={12} />
-                        View in Map
-                      </a>
-                    </div>
-                  ) : (
-                    JSON.stringify(log.metadata)
-                  )}
+                  <div className="mt-2 flex flex-col gap-1.5">
+                    {/* Common fields (IP & Device) */}
+                    {(log.metadata.ip || log.metadata.device) && (
+                      <div className="flex flex-wrap gap-4">
+                        {log.metadata.ip && (
+                          <div className="flex items-center gap-1.5 text-xs bg-bg-main px-2 py-1 rounded border border-border">
+                            <Globe size={12} className="text-brand-primary" />
+                            <span className="font-mono text-text-primary">
+                              {log.metadata.ip}
+                            </span>
+                          </div>
+                        )}
+                        {log.metadata.device && (
+                          <div className="flex items-center gap-1.5 text-xs bg-bg-main px-2 py-1 rounded border border-border">
+                            {log.metadata.device
+                              .toLowerCase()
+                              .includes("mobile") ? (
+                              <Smartphone
+                                size={12}
+                                className="text-brand-primary"
+                              />
+                            ) : (
+                              <Monitor
+                                size={12}
+                                className="text-brand-primary"
+                              />
+                            )}
+                            <span
+                              className="truncate max-w-[200px]"
+                              title={log.metadata.device}
+                            >
+                              {log.metadata.device.includes("Mozilla")
+                                ? log.metadata.device.includes("Mac")
+                                  ? "Mac OS"
+                                  : log.metadata.device.includes("Windows")
+                                  ? "Windows"
+                                  : "Web Browser"
+                                : log.metadata.device}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Location Link */}
+                    {log.metadata.location && (
+                      <div className="flex">
+                        <a
+                          href={`https://www.google.com/maps?q=${log.metadata.location.lat},${log.metadata.location.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-brand-primary hover:underline font-medium text-xs bg-brand-primary/5 px-2 py-1 rounded border border-brand-primary/20 hover:bg-brand-primary/10 transition-colors"
+                        >
+                          <MapPin size={12} />
+                          View Location
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Show remaining metadata as JSON if it's not handled above and not empty context */}
+                    {Object.keys(log.metadata).filter(
+                      (k) => !["ip", "device", "location"].includes(k)
+                    ).length > 0 && (
+                      <pre className="text-[10px] bg-bg-main p-2 rounded overflow-auto mt-1 border border-border">
+                        {JSON.stringify(
+                          Object.fromEntries(
+                            Object.entries(log.metadata).filter(
+                              ([k]) => !["ip", "device", "location"].includes(k)
+                            )
+                          ),
+                          null,
+                          2
+                        )}
+                      </pre>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

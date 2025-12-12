@@ -12,6 +12,7 @@ import {
 import { apiService } from "../../services/api.service";
 import AddUserModal from "./components/AddUserModal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Button } from "../../components/common/Button";
 import { Table } from "../../components/common/Table";
 
 interface User {
@@ -163,13 +164,12 @@ export default function UserManagement() {
         <h2 className="text-lg font-semibold text-text-primary">
           User Accounts
         </h2>
-        <button
+        <Button
           onClick={() => setIsAddUserModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
+          leftIcon={<Plus size={18} />}
         >
-          <Plus size={18} />
           Add User
-        </button>
+        </Button>
       </div>
 
       <div className="flex items-center gap-4 bg-bg-main p-2 rounded-lg border border-border">

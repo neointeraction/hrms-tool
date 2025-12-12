@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building, User, Mail, Lock, Globe, Check } from "lucide-react";
+import { PasswordInput } from "../components/common/PasswordInput";
 import { apiService } from "../services/api.service";
 
 const CompanySetup = () => {
@@ -254,42 +255,40 @@ const CompanySetup = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password *
+                <label className="block text-sm font-medium text-text-secondary mb-1">
+                  Password
                 </label>
                 <div className="relative">
                   <Lock
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
                     size={20}
                   />
-                  <input
-                    type="password"
-                    name="password"
+                  <PasswordInput
                     value={formData.password}
                     onChange={handleChange}
+                    name="password"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="pl-10 bg-bg-card"
                     placeholder="••••••••"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password *
+                <label className="block text-sm font-medium text-text-secondary mb-1">
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <Lock
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
                     size={20}
                   />
-                  <input
-                    type="password"
-                    name="confirmPassword"
+                  <PasswordInput
                     value={formData.confirmPassword}
                     onChange={handleChange}
+                    name="confirmPassword"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="pl-10 bg-bg-card"
                     placeholder="••••••••"
                   />
                 </div>

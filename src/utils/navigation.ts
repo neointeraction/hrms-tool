@@ -90,14 +90,37 @@ export const menuItems: MenuItem[] = [
   },
   // Super Admin menu items
   {
+    to: "/superadmin/analytics",
+    label: "Platform Analytics",
+    roles: ["Super Admin"],
+  },
+  {
     to: "/superadmin/tenants",
     label: "Tenant Management",
     roles: ["Super Admin"],
   },
   {
-    to: "/superadmin/analytics",
-    label: "Platform Analytics",
+    to: "/superadmin/users",
+    label: "User Management",
     roles: ["Super Admin"],
+  },
+  {
+    to: "/superadmin/settings",
+    label: "Settings",
+    roles: ["Super Admin"],
+  },
+  {
+    to: "/miscellaneous",
+    label: "Miscellaneous",
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
   },
 ];
 

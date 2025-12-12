@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/common/Modal";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
+import { PasswordInput } from "../../components/common/PasswordInput";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
@@ -19,6 +20,7 @@ const TABS = [
   "Personal",
   "Identity",
   "Contact",
+  "Bank Details",
   "Separation",
   "Additional",
 ];
@@ -80,6 +82,13 @@ export default function AddEditEmployee({
     workExperience: [],
     education: [],
     dependents: [],
+    // Bank Details
+    bankDetails: {
+      accountName: "",
+      accountNumber: "",
+      bankName: "",
+      ifscCode: "",
+    },
   });
 
   useEffect(() => {
@@ -99,6 +108,12 @@ export default function AddEditEmployee({
           dateOfExit: employee.dateOfExit
             ? employee.dateOfExit.split("T")[0]
             : "",
+          bankDetails: employee.bankDetails || {
+            accountName: "",
+            accountNumber: "",
+            bankName: "",
+            ifscCode: "",
+          },
         });
         if (employee.profilePicture) {
           // If storing path like "uploads/..." append backend URL
@@ -146,6 +161,12 @@ export default function AddEditEmployee({
           workExperience: [],
           education: [],
           dependents: [],
+          bankDetails: {
+            accountName: "",
+            accountNumber: "",
+            bankName: "",
+            ifscCode: "",
+          },
         });
         setProfileImage(null);
         setImagePreview(null);
@@ -245,6 +266,8 @@ export default function AddEditEmployee({
         if (Array.isArray(formData[key])) {
           // For arrays, we might need strict JSON stringify or loop
           // Simple array handling:
+          data.append(key, JSON.stringify(formData[key]));
+        } else if (key === "bankDetails") {
           data.append(key, JSON.stringify(formData[key]));
         } else if (formData[key] !== null && formData[key] !== undefined) {
           data.append(key, formData[key]);
@@ -408,14 +431,13 @@ export default function AddEditEmployee({
                     <label className="block text-sm font-medium text-text-secondary mb-1">
                       Password <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
                       required={!employee}
                       placeholder="Enter password for new user"
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary"
+                      className="bg-bg-card"
                     />
                   </div>
                 )}
@@ -595,6 +617,92 @@ export default function AddEditEmployee({
                     disabled={viewMode}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 disabled:bg-bg-main bg-bg-card text-text-primary"
                     rows={2}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Bank Details */}
+            {activeTab === "Bank Details" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    Account Holder Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankDetails?.accountName || ""}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        bankDetails: {
+                          ...prev.bankDetails,
+                          accountName: e.target.value,
+                        },
+                      }))
+                    }
+                    disabled={viewMode}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankDetails?.accountNumber || ""}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        bankDetails: {
+                          ...prev.bankDetails,
+                          accountNumber: e.target.value,
+                        },
+                      }))
+                    }
+                    disabled={viewMode}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankDetails?.bankName || ""}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        bankDetails: {
+                          ...prev.bankDetails,
+                          bankName: e.target.value,
+                        },
+                      }))
+                    }
+                    disabled={viewMode}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    IFSC / SWIFT Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankDetails?.ifscCode || ""}
+                    onChange={(e) =>
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        bankDetails: {
+                          ...prev.bankDetails,
+                          ifscCode: e.target.value,
+                        },
+                      }))
+                    }
+                    disabled={viewMode}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
                   />
                 </div>
               </div>

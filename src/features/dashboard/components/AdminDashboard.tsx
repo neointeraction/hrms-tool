@@ -119,7 +119,12 @@ export default function AdminDashboard() {
       <div>
         <h1 className="text-3xl font-bold text-text-primary">Admin Console</h1>
         <p className="text-text-secondary mt-1">
-          Welcome back, {user?.name}. Here's the system overview.
+          Welcome back, {user?.name}.
+          {user?.tenantId && typeof user.tenantId === "object" && (
+            <span className="ml-1 text-brand-primary font-medium">
+              @ {(user.tenantId as any).companyName}
+            </span>
+          )}
         </p>
       </div>
 

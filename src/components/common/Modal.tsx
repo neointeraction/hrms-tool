@@ -8,6 +8,7 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: string;
+  hideHeader?: boolean;
 }
 
 import { createPortal } from "react-dom";
@@ -19,6 +20,7 @@ export function Modal({
   children,
   footer,
   maxWidth = "max-w-md",
+  hideHeader = false,
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -27,15 +29,17 @@ export function Modal({
       <div
         className={`bg-bg-card rounded-xl shadow-2xl w-full ${maxWidth} mx-4 animate-in fade-in zoom-in-95 duration-300 ease-out border border-border flex flex-col max-h-[90vh]`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-border shrink-0">
-          <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-text-muted hover:text-text-primary p-1 rounded hover:bg-bg-hover transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="flex items-center justify-between p-6 border-b border-border shrink-0">
+            <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
+            <button
+              onClick={onClose}
+              className="text-text-muted hover:text-text-primary p-1 rounded hover:bg-bg-hover transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        )}
 
         <div className="p-6 space-y-4 overflow-y-auto">{children}</div>
 

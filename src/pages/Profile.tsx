@@ -18,8 +18,11 @@ import {
   Trash2,
   GraduationCap,
   Users2,
+  Landmark,
 } from "lucide-react";
+import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
+import { ConfirmationModal } from "../components/common/ConfirmationModal";
 
 const TABS = [
   "Basic Info",
@@ -27,6 +30,7 @@ const TABS = [
   "Personal",
   "Contact",
   "Identity",
+  "Bank Details",
   "Additional",
 ];
 
@@ -85,10 +89,20 @@ export default function Profile() {
     // Additional
     workExperience: [],
     education: [],
+
+    // Bank Details
+    bankDetails: {
+      accountName: "",
+      accountNumber: "",
+      bankName: "",
+      ifscCode: "",
+    },
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Fetch employee data on component mount
   useEffect(() => {
@@ -98,7 +112,9 @@ export default function Profile() {
       try {
         // Get current user's employee record
         const response = await apiService.getCurrentUser();
-        const userId = response.user._id;
+        const userId = response.user.id || response.user._id;
+
+        console.log("Profile: Current User ID:", userId);
 
         // Fetch all employees and find the current user's record
         const employeesResponse: any = await apiService.getEmployees();
@@ -106,10 +122,17 @@ export default function Profile() {
           ? employeesResponse
           : employeesResponse.employees || [];
 
-        setEmployees(allEmployees);
+        console.log("Profile: Total Employees:", allEmployees.length);
 
         const employeeRecord = allEmployees.find(
-          (emp: any) => emp.user?._id === userId || emp.user === userId
+          (emp: any) =>
+            (emp.user?._id || emp.user) === userId ||
+            (emp.user?._id || emp.user)?.toString() === userId?.toString()
+        );
+
+        console.log(
+          "Profile: Found Employee Record:",
+          employeeRecord ? "Yes" : "No"
         );
 
         if (employeeRecord) {
@@ -161,6 +184,12 @@ export default function Profile() {
             personalEmail: employeeRecord.personalEmail || "",
             workExperience: employeeRecord.workExperience || [],
             education: employeeRecord.education || [],
+            bankDetails: employeeRecord.bankDetails || {
+              accountName: "",
+              accountNumber: "",
+              bankName: "",
+              ifscCode: "",
+            },
           });
 
           if (employeeRecord.profilePicture) {
@@ -216,6 +245,8 @@ export default function Profile() {
         const value = (profileData as any)[key];
         if (Array.isArray(value)) {
           formData.append(key, JSON.stringify(value));
+        } else if (key === "bankDetails") {
+          formData.append(key, JSON.stringify(value));
         } else if (value !== null && value !== undefined) {
           formData.append(key, value);
         }
@@ -232,7 +263,7 @@ export default function Profile() {
       // Update global user state (Header, etc.)
       await refreshUser();
 
-      alert("Profile updated successfully!");
+      setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Failed to update profile:", err);
       alert(err.message || "Failed to update profile. Please try again.");
@@ -275,6 +306,16 @@ export default function Profile() {
       [arrayName]: (prev as any)[arrayName].filter(
         (_: any, i: number) => i !== index
       ),
+    }));
+  };
+
+  const handleBankDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      bankDetails: {
+        ...prev.bankDetails,
+        [e.target.name]: e.target.value,
+      },
     }));
   };
 
@@ -367,39 +408,25 @@ export default function Profile() {
               </p>
             </div>
             {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
-              >
-                Edit Profile
-              </button>
+              <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
             ) : (
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={handleCancel}
                   disabled={saving}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  leftIcon={<X size={16} />}
                 >
-                  <X size={16} />
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors flex items-center gap-2 disabled:opacity-50"
+                  isLoading={saving}
+                  leftIcon={!saving && <Save size={16} />}
                 >
-                  {saving ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={16} />
-                      Save Changes
-                    </>
-                  )}
-                </button>
+                  Save Changes
+                </Button>
               </div>
             )}
           </div>
@@ -671,6 +698,99 @@ export default function Profile() {
                       profileData.aadhaar,
                       IdCard
                     )}
+                  </div>
+                )}
+
+                {/* Bank Details */}
+                {activeTab === "Bank Details" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
+                        <User size={16} />
+                        Account Name
+                      </label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          name="accountName"
+                          value={
+                            (profileData as any).bankDetails?.accountName || ""
+                          }
+                          onChange={handleBankDetailChange}
+                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                      ) : (
+                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
+                          {(profileData as any).bankDetails?.accountName ||
+                            "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
+                        <IdCard size={16} />
+                        Account Number
+                      </label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          name="accountNumber"
+                          value={
+                            (profileData as any).bankDetails?.accountNumber ||
+                            ""
+                          }
+                          onChange={handleBankDetailChange}
+                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                      ) : (
+                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
+                          {(profileData as any).bankDetails?.accountNumber ||
+                            "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
+                        <Landmark size={16} />
+                        Bank Name
+                      </label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          name="bankName"
+                          value={
+                            (profileData as any).bankDetails?.bankName || ""
+                          }
+                          onChange={handleBankDetailChange}
+                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                      ) : (
+                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
+                          {(profileData as any).bankDetails?.bankName || "N/A"}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
+                        <Landmark size={16} />
+                        IFSC Code
+                      </label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          name="ifscCode"
+                          value={
+                            (profileData as any).bankDetails?.ifscCode || ""
+                          }
+                          onChange={handleBankDetailChange}
+                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                        />
+                      ) : (
+                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
+                          {(profileData as any).bankDetails?.ifscCode || "N/A"}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -983,6 +1103,17 @@ export default function Profile() {
               </div>
             </div>
           </div>
+
+          <ConfirmationModal
+            isOpen={showSuccessModal}
+            onClose={() => setShowSuccessModal(false)}
+            onConfirm={() => setShowSuccessModal(false)}
+            title="Success"
+            message="Profile updated successfully!"
+            confirmText="OK"
+            variant="info" // Changed from success to info to match type definition
+            showCancel={false}
+          />
         </>
       )}
     </div>

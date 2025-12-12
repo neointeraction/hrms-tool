@@ -51,7 +51,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const response = await apiService.chatWithAI(userMessage.text);
+      const response = await apiService.askAi(userMessage.text);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),

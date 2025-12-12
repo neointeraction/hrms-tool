@@ -7,6 +7,7 @@ import {
   getAccessibleMenuItems,
 } from "../utils/navigation";
 import { Loader } from "../components/common/Loader";
+import { PasswordInput } from "../components/common/PasswordInput";
 
 export default function Login() {
   const [email, setEmail] = useState("shameer@neointeraction.com"); // Default for demo
@@ -102,20 +103,14 @@ export default function Login() {
               <label className="text-sm font-medium text-text-secondary">
                 Password
               </label>
-              <div className="relative">
-                <Lock
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={20}
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all bg-bg-card text-text-primary"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-bg-card"
+                placeholder="••••••••"
+                required
+                icon={Lock}
+              />
             </div>
 
             <button
@@ -142,7 +137,10 @@ export default function Login() {
                 Super Admin
               </button>
               <button
-                onClick={() => setEmail("admin@neointeraction.com")}
+                onClick={() => {
+                  setEmail("admin@neointeraction.com");
+                  setPassword("Welcome@123");
+                }}
                 className="p-2 bg-bg-main rounded hover:bg-bg-hover text-left truncate"
               >
                 admin (Admin)

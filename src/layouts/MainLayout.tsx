@@ -19,6 +19,8 @@ import {
   Network,
   Building2,
   BarChart3,
+  Settings,
+  Grid,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -89,6 +91,16 @@ export default function MainLayout() {
       icon: BarChart3,
       label: "Platform Analytics",
     },
+    {
+      to: "/superadmin/settings",
+      icon: Settings,
+      label: "Settings",
+    },
+    {
+      to: "/miscellaneous",
+      icon: Grid,
+      label: "Miscellaneous",
+    },
   ];
 
   // Get accessible menu items from navigation utility and merge with icons
@@ -103,9 +115,24 @@ export default function MainLayout() {
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    if (path === "/") return "Dashboard";
+
+    // Route-specific breadcrumb mappings
+    const breadcrumbMap: Record<string, string[]> = {
+      "/": ["Dashboard"],
+      "/miscellaneous": ["Miscellaneous"],
+      "/miscellaneous/feedback": ["Miscellaneous", "Feedback"],
+      "/miscellaneous/appreciation": ["Miscellaneous", "Appreciation"],
+      "/miscellaneous/email-automation": ["Miscellaneous", "Email Automation"],
+    };
+
+    // Check if we have a specific mapping
+    if (breadcrumbMap[path]) {
+      return breadcrumbMap[path];
+    }
+
+    // Fallback: try to find in navItems
     const item = navItems.find((item) => item.to === path);
-    return item ? item.label : "Page";
+    return item ? [item.label] : ["Page"];
   };
 
   return (
@@ -188,10 +215,20 @@ export default function MainLayout() {
         <header className="hidden md:flex bg-bg-sidebar border-b border-border h-16 px-8 items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-2 text-text-secondary text-sm">
             <span className="text-text-muted">Home</span>
-            <ChevronRight size={16} />
-            <span className="font-medium text-text-primary">
-              {getBreadcrumbs()}
-            </span>
+            {getBreadcrumbs().map((crumb, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <ChevronRight size={16} />
+                <span
+                  className={
+                    index === getBreadcrumbs().length - 1
+                      ? "font-medium text-text-primary"
+                      : "text-text-muted"
+                  }
+                >
+                  {crumb}
+                </span>
+              </div>
+            ))}
           </div>
 
           <div className="flex items-center gap-4">
@@ -230,16 +267,18 @@ export default function MainLayout() {
                         {user?.designation}
                       </p>
                     </div>
-                    <button
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        navigate("/profile");
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-bg-hover flex items-center gap-2"
-                    >
-                      <UserCircle2 size={16} />
-                      My Profile
-                    </button>
+                    {user?.role !== "Super Admin" && (
+                      <button
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          navigate("/profile");
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-bg-hover flex items-center gap-2"
+                      >
+                        <UserCircle2 size={16} />
+                        My Profile
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         logout();
@@ -264,8 +303,8 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
-      {/* Chat Widget */}
-      <ChatWidget />
+      {/* Chat Widget - Only show for employees (not admins) */}
+      {user?.role !== "Super Admin" && user?.role !== "Admin" && <ChatWidget />}
     </div>
   );
 }

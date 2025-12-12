@@ -18,11 +18,17 @@ import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
+import UserManagement from "../features/superadmin/UserManagement";
+import Settings from "../features/superadmin/Settings";
 import {
   CompanySettings,
   SubscriptionPage,
   UsageDashboard,
 } from "../features/settings";
+import Miscellaneous from "../pages/Miscellaneous";
+import Feedback from "../pages/Feedback";
+import Appreciation from "../pages/Appreciation";
+import EmailAutomation from "../features/email/EmailAutomation";
 
 export const router = createBrowserRouter([
   {
@@ -245,6 +251,83 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard allowedRoles={["Super Admin"]}>
             <Analytics />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/superadmin/users",
+        element: (
+          <RoleGuard allowedRoles={["Super Admin"]}>
+            <UserManagement />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/superadmin/settings",
+        element: (
+          <RoleGuard allowedRoles={["Super Admin"]}>
+            <Settings />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "miscellaneous",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <Miscellaneous />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "miscellaneous/feedback",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <Feedback />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "miscellaneous/appreciation",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <Appreciation />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "miscellaneous/email-automation",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <EmailAutomation />
           </RoleGuard>
         ),
       },

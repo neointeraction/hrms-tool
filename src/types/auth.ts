@@ -16,7 +16,8 @@ export interface User {
   role: Role;
   roles?: Role[];
   avatar?: string;
-  tenantId?: string | null;
+  tenantId?: string | { _id: string; companyName: string } | null;
+  companyName?: string; // Derived field
   isSuperAdmin?: boolean;
   isCompanyAdmin?: boolean;
   department?: string;

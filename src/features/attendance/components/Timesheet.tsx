@@ -16,6 +16,7 @@ import { Select } from "../../../components/common/Select";
 import { Textarea } from "../../../components/common/Textarea";
 import { Table } from "../../../components/common/Table";
 import { DatePicker } from "../../../components/common/DatePicker";
+import { ConfirmationModal } from "../../../components/common/ConfirmationModal";
 
 import SubmitConfirmationModal from "./SubmitConfirmationModal";
 
@@ -25,6 +26,8 @@ export default function Timesheet() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
     project: "",
@@ -177,12 +180,9 @@ export default function Timesheet() {
       const result = await apiService.submitTimesheets(
         weekEnding.toISOString().split("T")[0]
       );
-      // alert(result.message); // Maybe show toast or success message? User just wanted modal for *confirm*.
-      // Replacing alert with nothing or toast would be ideal, but for now just close modal.
-      // Alerting result message is still okay for feedback, or we can rely on UI update.
-      // Let's show alert for success feedback as per previous behavior, but maybe in a better way?
-      // User only asked to replace *confirmation* alert.
-      alert(result.message);
+
+      setSuccessMessage(result.message);
+      setShowSuccessModal(true);
 
       fetchEntries();
       setShowSubmitModal(false);
@@ -517,6 +517,17 @@ export default function Timesheet() {
             .filter((e) => e.status === "draft")
             .reduce((acc, curr) => acc + (curr.hours || 0), 0)
         }
+      />
+
+      <ConfirmationModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onConfirm={() => setShowSuccessModal(false)}
+        title="Success"
+        message={successMessage}
+        confirmText="OK"
+        variant="success"
+        showCancel={false}
       />
     </div>
   );

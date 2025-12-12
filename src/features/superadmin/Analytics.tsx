@@ -38,7 +38,7 @@ const Analytics = () => {
 
   if (loading || !stats) {
     return (
-      <div className="p-6">
+      <div>
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -57,13 +57,13 @@ const Analytics = () => {
   };
 
   return (
-    <div className="p-6">
+    <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-text-primary">
           Platform Analytics
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
+        <p className="text-text-secondary mt-1">
           Overview of platform usage and metrics
         </p>
       </div>

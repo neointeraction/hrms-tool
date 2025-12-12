@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001/";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app/";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -137,6 +137,19 @@ class ApiService {
     return response.json();
   }
 
+  async updateTenant(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/superadmin/tenants/${id}`, {
+      method: "PATCH",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update tenant");
+    }
+    return response.json();
+  }
+
   async deleteTenant(tenantId: string): Promise<any> {
     const response = await fetch(
       `${API_BASE_URL}/superadmin/tenants/${tenantId}`,
@@ -227,6 +240,54 @@ class ApiService {
     return response.json();
   }
 
+  // Super Admin Methods
+  async getAllGlobalUsers(params?: any): Promise<any[]> {
+    const query = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/superadmin/users?${query}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch global users");
+    return response.json();
+  }
+
+  async updateGlobalUserStatus(userId: string, status: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/superadmin/users/${userId}/status`,
+      {
+        method: "PATCH",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ status }),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to update user status");
+    return response.json();
+  }
+
+  async deleteGlobalUser(userId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/superadmin/users/${userId}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || "Failed to delete user");
+    }
+    return response.json();
+  }
+
+  async updateProfile(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update profile");
+    }
+    return response.json();
+  }
+
   // Admin Methods
   async getAllUsers(): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -239,6 +300,45 @@ class ApiService {
       throw new Error(error.message || "Failed to fetch users");
     }
 
+    return response.json();
+  }
+
+  // AI
+  async getAIConfig(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/ai/config`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch AI config");
+    return response.json();
+  }
+
+  // Feedback
+  async getMyFeedbacks(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/feedback/my`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch feedbacks");
+    return response.json();
+  }
+
+  async createFeedback(data: {
+    recipientId: string;
+    message: string;
+  }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/feedback`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to send feedback");
+    }
     return response.json();
   }
 
@@ -965,44 +1065,6 @@ class ApiService {
     return response.json();
   }
 
-  // AI / Chatbot
-  async uploadPolicy(file: File) {
-    const formData = new FormData();
-    formData.append("policyFile", file);
-
-    const token = localStorage.getItem("authToken");
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-    const uploadResponse = await fetch(`${API_BASE_URL}/ai/upload-policy`, {
-      method: "POST",
-      headers: headers as any,
-      body: formData,
-    });
-
-    if (!uploadResponse.ok) {
-      const error = await uploadResponse.json();
-      throw new Error(error.message || "Failed to upload policy");
-    }
-    return uploadResponse.json();
-  }
-
-  async getPolicyStatus() {
-    const response = await fetch(`${API_BASE_URL}/ai/policy-status`, {
-      headers: this.getAuthHeaders(),
-    });
-    if (!response.ok) throw new Error("Failed to fetch policy status");
-    return response.json();
-  }
-
-  async chatWithAI(question: string) {
-    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
-      method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify({ question }),
-    });
-    return this.handleResponse(response);
-  }
-
   private handleResponse(response: Response) {
     if (!response.ok) {
       return response.json().then((error) => {
@@ -1093,6 +1155,222 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to fetch entity audit logs");
+    return response.json();
+  }
+
+  // AI Chatbot
+  async getPolicyStatus(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/ai/policy-status`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch policy status");
+    return response.json();
+  }
+
+  async uploadPolicy(files: File[] | FileList): Promise<any> {
+    const formData = new FormData();
+    // Convert FileList to array if needed
+    const fileArray = Array.from(files);
+
+    fileArray.forEach((file) => {
+      formData.append("policyFiles", file);
+    });
+
+    const headers = this.getAuthHeaders();
+    delete (headers as any)["Content-Type"]; // Let browser set boundary
+
+    const response = await fetch(`${API_BASE_URL}/ai/upload-policy`, {
+      method: "POST",
+      headers: headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to upload policy");
+    }
+    return response.json();
+  }
+
+  async deletePolicy(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/ai/policy/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete policy");
+    }
+
+    return response.json();
+  }
+
+  async askAi(question: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ question }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to get AI response");
+    }
+    return response.json();
+  }
+
+  // Badge & Appreciation
+  async getBadges(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/badges`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch badges");
+    return response.json();
+  }
+
+  async createBadge(data: FormData): Promise<any> {
+    // Note: createBadge expects FormData because of file upload
+    const headers = this.getAuthHeaders();
+    delete (headers as any)["Content-Type"]; // Let browser set boundary
+
+    const response = await fetch(`${API_BASE_URL}/badges`, {
+      method: "POST",
+      headers: headers,
+      body: data,
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create badge");
+    }
+    return response.json();
+  }
+
+  async deleteBadge(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/badges/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete badge");
+    return response.json();
+  }
+
+  async getAppreciations(params?: { recipientId?: string }): Promise<any[]> {
+    const queryParams = params ? `?recipientId=${params.recipientId}` : "";
+    const response = await fetch(`${API_BASE_URL}/appreciation${queryParams}`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch appreciations");
+    return response.json();
+  }
+
+  async createAppreciation(data: {
+    recipientId: string;
+    badgeId: string;
+    message?: string;
+  }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/appreciation`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to send appreciation");
+    }
+    return response.json();
+  }
+  async updateBadge(id: string, formData: FormData) {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(`${API_BASE_URL}/badges/${id}`, {
+      method: "PUT",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update badge");
+    }
+
+    return response.json();
+  }
+
+  async getHRLeaveOverview(filters: any) {
+    const token = localStorage.getItem("hrms_token");
+    const queryParams = new URLSearchParams();
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) queryParams.append(key, filters[key]);
+    });
+
+    const response = await fetch(
+      `${API_BASE_URL}/leave/hr-overview?${queryParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch HR leave overview");
+    }
+
+    return response.json();
+  }
+
+  // Email Automation
+  async getEmailSettings(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/email-automation/settings`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to fetch email settings: ${response.status} ${errorText}`
+      );
+    }
+    return response.json();
+  }
+
+  async updateEmailSettings(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/email-automation/settings`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to update email settings");
+    return response.json();
+  }
+
+  async triggerEmailAutomation(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/email-automation/trigger`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to trigger email automation");
+    return response.json();
+  }
+
+  async getEmailAuditLogs(): Promise<any[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/email-automation/audit-logs`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch audit logs");
     return response.json();
   }
 }

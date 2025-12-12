@@ -4,6 +4,8 @@ import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import PayrollSummaryWidget from "./PayrollSummaryWidget";
+import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
+import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function ContractorDashboard() {
   const { user } = useAuth();
@@ -23,6 +25,8 @@ export default function ContractorDashboard() {
         <LeaveWidget />
         <UpcomingHolidayWidget />
         <PayrollSummaryWidget />
+        <FeedbackWidget />
+        <AppreciationWidget />
       </div>
 
       {/* Work Section */}

@@ -13,11 +13,12 @@ import LeaveApproval from "./LeaveApproval";
 import ApplyLeaveModal from "./ApplyLeaveModal";
 import LeavePolicyList from "./policies/LeavePolicyList";
 import HolidayModal from "../holiday/HolidayModal";
+import HRLeaveOverview from "./HRLeaveOverview";
 
 export default function LeaveDashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<
-    "my-leaves" | "approvals" | "policies"
+    "my-leaves" | "approvals" | "policies" | "overview"
   >("my-leaves");
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function LeaveDashboard() {
     user?.role === "Project Manager";
 
   const canManagePolicies = user?.role === "Admin" || user?.role === "HR";
+  const canViewOverview = user?.role === "Admin" || user?.role === "HR";
 
   return (
     <>
@@ -101,12 +103,26 @@ export default function LeaveDashboard() {
               Policies
             </button>
           )}
+          {canViewOverview && (
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === "overview"
+                  ? "border-brand-primary text-brand-primary"
+                  : "border-transparent text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              <FileText size={18} />
+              Overview
+            </button>
+          )}
         </div>
 
         <div className="mt-4">
           {activeTab === "my-leaves" && <LeaveList />}
           {activeTab === "approvals" && <LeaveApproval />}
           {activeTab === "policies" && <LeavePolicyList />}
+          {activeTab === "overview" && <HRLeaveOverview />}
         </div>
       </div>
 

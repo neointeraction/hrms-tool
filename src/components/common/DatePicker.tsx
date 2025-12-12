@@ -18,6 +18,9 @@ interface DatePickerProps
   helperText?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  showMonthYearPicker?: boolean;
+  dateFormat?: string;
+  renderCustomHeader?: any;
 }
 
 export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
@@ -73,33 +76,84 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
     // Custom header for the date picker
     const CustomHeader = ({
       date,
+      changeYear,
+      changeMonth,
       decreaseMonth,
       increaseMonth,
       prevMonthButtonDisabled,
       nextMonthButtonDisabled,
-    }: any) => (
-      <div className="flex items-center justify-between px-2 py-2">
-        <button
-          onClick={decreaseMonth}
-          disabled={prevMonthButtonDisabled}
-          type="button"
-          className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 transition-colors"
-        >
-          <ChevronLeft size={18} className="text-gray-600" />
-        </button>
-        <span className="text-sm font-semibold text-gray-900">
-          {format(date, "MMMM yyyy")}
-        </span>
-        <button
-          onClick={increaseMonth}
-          disabled={nextMonthButtonDisabled}
-          type="button"
-          className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 transition-colors"
-        >
-          <ChevronRight size={18} className="text-gray-600" />
-        </button>
-      </div>
-    );
+    }: any) => {
+      const years = [];
+      const currentYear = new Date().getFullYear();
+      for (let i = 1950; i <= currentYear + 10; i++) {
+        years.push(i);
+      }
+
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+
+      return (
+        <div className="flex items-center justify-between px-2 py-2">
+          <button
+            onClick={decreaseMonth}
+            disabled={prevMonthButtonDisabled}
+            type="button"
+            className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 transition-colors"
+          >
+            <ChevronLeft size={18} className="text-gray-600" />
+          </button>
+
+          <div className="flex items-center justify-center gap-2">
+            <select
+              value={months[date.getMonth()]}
+              onChange={({ target: { value } }) =>
+                changeMonth(months.indexOf(value))
+              }
+              className="text-sm font-bold text-gray-900 bg-transparent border-none focus:ring-0 focus:outline-none cursor-pointer py-1 pl-1 pr-6 hover:text-brand-primary transition-colors"
+            >
+              {months.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={date.getFullYear()}
+              onChange={({ target: { value } }) => changeYear(parseInt(value))}
+              className="text-sm font-bold text-gray-900 bg-transparent border-none focus:ring-0 focus:outline-none cursor-pointer py-1 pl-1 pr-6 hover:text-brand-primary transition-colors"
+            >
+              {years.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={increaseMonth}
+            disabled={nextMonthButtonDisabled}
+            type="button"
+            className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 transition-colors"
+          >
+            <ChevronRight size={18} className="text-gray-600" />
+          </button>
+        </div>
+      );
+    };
 
     // Custom input component to behave like a Popover trigger
     const ButtonInput = forwardRef(
@@ -147,9 +201,6 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
           </label>
         )}
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted z-10">
-            <CalendarIcon size={16} />
-          </div>
           <ReactDatePicker
             {...(props as any)}
             name={name}
@@ -169,7 +220,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
                   ? "border-status-error focus:ring-status-error"
                   : "border-border focus:ring-brand-primary"
               }
-              pl-10 pr-3
+              pl-3 pr-10
               py-2 text-sm text-text-primary
               focus:outline-none focus:ring-2 focus:border-transparent
               disabled:bg-bg-main disabled:text-text-muted disabled:cursor-not-allowed
@@ -186,6 +237,9 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
             calendarClassName="!border-border !font-sans shadow-lg !rounded-lg !bg-white"
             {...props}
           />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-text-muted z-10">
+            <CalendarIcon size={16} />
+          </div>
         </div>
         {error && <p className="mt-1 text-xs text-status-error">{error}</p>}
         {!error && helperText && (
@@ -197,14 +251,40 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
           }
           .react-datepicker {
             font-family: inherit;
-            border-color: #e5e7eb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            padding: 0.5rem;
           }
           .react-datepicker__header {
             background-color: white;
-            border-bottom: 1px solid #e5e7eb;
-            border-top-left-radius: 0.5rem !important;
-            border-top-right-radius: 0.5rem !important;
+            border-bottom: none;
             padding-top: 0.5rem;
+          }
+          .react-datepicker__month-container {
+            width: 100%;
+          }
+           .react-datepicker__month {
+            margin: 0;
+           }
+          .react-datepicker__month-text {
+            border-radius: 0.5rem !important;
+            padding: 0.5rem !important;
+            width: 5rem !important;
+            margin: 0.2rem;
+            font-weight: 500;
+            color: #374151; /* text-gray-700 */
+          }
+          .react-datepicker__month-text:hover {
+            background-color: #f3f4f6 !important;
+            color: #1f2937 !important;
+          }
+          .react-datepicker__month-text--selected,
+          .react-datepicker__month-text--keyboard-selected {
+            background-color: #4f46e5 !important; /* brand-primary */
+            color: white !important;
+            font-weight: 600;
           }
           .react-datepicker__day-name {
             color: #6b7280;

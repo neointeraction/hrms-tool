@@ -86,3 +86,15 @@
     @apply bg-gray-400 dark:bg-gray-600;
   }
 }
+
+.react-datepicker__navigation--previous {
+  top: 14px !important;
+}
+
+.react-datepicker__navigation--next {
+  top: 14px !important;
+}
+
+.react-datepicker__day-names {
+  margin-bottom: 10px !important;
+}

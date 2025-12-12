@@ -6,6 +6,8 @@ import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
 import { useGreeting } from "../../../hooks/useGreeting";
+import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
+import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
@@ -40,6 +42,8 @@ export default function EmployeeDashboard() {
         <LeaveWidget />
         <UpcomingHolidayWidget />
         <PayrollSummaryWidget />
+        <FeedbackWidget />
+        <AppreciationWidget />
       </div>
     </div>
   );

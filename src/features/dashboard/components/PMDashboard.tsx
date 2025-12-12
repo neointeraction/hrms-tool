@@ -17,6 +17,8 @@ import PayrollSummaryWidget from "./PayrollSummaryWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
 import { useGreeting } from "../../../hooks/useGreeting";
+import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
+import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function PMDashboard() {
   const { user } = useAuth();
@@ -140,10 +142,7 @@ export default function PMDashboard() {
         {/* Upcoming Holiday */}
         <UpcomingHolidayWidget />
 
-        {/* Payroll Summary Widget */}
-        <PayrollSummaryWidget />
-
-        {/* Team Status Section - Spans 2 cols on large screens to sit next to Payroll */}
+        {/* Team Status Section - Spans 2 cols on large screens */}
         <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
@@ -228,7 +227,7 @@ export default function PMDashboard() {
                     <h3 className="font-semibold text-text-primary truncate text-xs">
                       {member.name}
                     </h3>
-                    <p className="text-[10px] text-text-secondary truncate">
+                    <p className="text-xs text-text-secondary truncate">
                       {member.role || "Member"}
                     </p>
                   </div>
@@ -242,6 +241,15 @@ export default function PMDashboard() {
             </div>
           )}
         </div>
+
+        {/* Appreciation Widget (Wall of Fame) */}
+        <AppreciationWidget />
+
+        {/* Payroll Summary Widget */}
+        <PayrollSummaryWidget />
+
+        {/* Feedback Widget */}
+        <FeedbackWidget />
       </div>
 
       {/* Approvals and Projects Row */}

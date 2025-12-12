@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   flexRender,
   createColumnHelper,
   type SortingState,
@@ -27,6 +28,7 @@ interface TableProps<T> {
   emptyMessage?: string;
   onRowClick?: (item: T) => void;
   enableSearch?: boolean; // New prop to optionally disable search
+  pageSize?: number;
 }
 
 export function Table<T extends { _id: string } | { id: string }>({
@@ -36,6 +38,7 @@ export function Table<T extends { _id: string } | { id: string }>({
   emptyMessage = "No data found.",
   onRowClick,
   enableSearch = true,
+  pageSize = 6,
 }: TableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -73,11 +76,17 @@ export function Table<T extends { _id: string } | { id: string }>({
       sorting,
       globalFilter,
     },
+    initialState: {
+      pagination: {
+        pageSize: pageSize,
+      },
+    },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   if (isLoading) {
@@ -107,81 +116,117 @@ export function Table<T extends { _id: string } | { id: string }>({
           </div>
         </div>
       )}
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const originalCol = columns.find(
-                  (c) =>
-                    (c.accessorKey as string) === header.id ||
-                    c.header === header.id
-                );
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const originalCol = columns.find(
+                    (c) =>
+                      (c.accessorKey as string) === header.id ||
+                      c.header === header.id
+                  );
 
-                return (
-                  <th
-                    key={header.id}
-                    className={`px-6 py-4 cursor-pointer select-none group ${
-                      originalCol?.className || ""
-                    }`}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <div className="flex items-center gap-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                      {{
-                        asc: (
-                          <ArrowUpDown
-                            size={14}
-                            className="opacity-100 rotate-180"
-                          />
-                        ),
-                        desc: <ArrowUpDown size={14} className="opacity-100" />,
-                      }[header.column.getIsSorted() as string] ??
-                        (header.column.getCanSort() && (
-                          <ArrowUpDown
-                            size={14}
-                            className="opacity-0 group-hover:opacity-50 transition-opacity"
-                          />
-                        ))}
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="divide-y divide-border">
-          {table.getRowModel().rows.length === 0 ? (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="px-6 py-8 text-center text-text-muted"
-              >
-                {emptyMessage}
-              </td>
-            </tr>
-          ) : (
-            table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className={`hover:bg-bg-hover transition-colors ${
-                  onRowClick ? "cursor-pointer" : ""
-                }`}
-                onClick={() => onRowClick && onRowClick(row.original)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4 text-text-primary">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+                  return (
+                    <th
+                      key={header.id}
+                      className={`px-6 py-4 cursor-pointer select-none group ${
+                        originalCol?.className || ""
+                      }`}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div className="flex items-center gap-1">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {{
+                          asc: (
+                            <ArrowUpDown
+                              size={14}
+                              className="opacity-100 rotate-180"
+                            />
+                          ),
+                          desc: (
+                            <ArrowUpDown size={14} className="opacity-100" />
+                          ),
+                        }[header.column.getIsSorted() as string] ??
+                          (header.column.getCanSort() && (
+                            <ArrowUpDown
+                              size={14}
+                              className="opacity-0 group-hover:opacity-50 transition-opacity"
+                            />
+                          ))}
+                      </div>
+                    </th>
+                  );
+                })}
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-border">
+            {table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-8 text-center text-text-muted"
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className={`hover:bg-bg-hover transition-colors ${
+                    onRowClick ? "cursor-pointer" : ""
+                  }`}
+                  onClick={() => onRowClick && onRowClick(row.original)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-6 py-3 text-text-primary">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
+      {table.getPageCount() > 1 && (
+        <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-bg-main/50">
+          <div className="flex items-center gap-2">
+            <button
+              className="p-1 rounded hover:bg-bg-hover text-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <span className="text-sm text-text-secondary">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </span>
+            <button
+              className="p-1 rounded hover:bg-bg-hover text-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+          <div className="text-sm text-text-muted">
+            Showing {table.getRowModel().rows.length} rows
+          </div>
+        </div>
+      )}
     </div>
   );
 }

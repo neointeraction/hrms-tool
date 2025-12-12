@@ -5,21 +5,18 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { apiService } from "../../services/api.service";
 
 export default function QAConfig() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const [currentPolicy, setCurrentPolicy] = useState<{
-    originalName: string;
-    updatedAt: string;
-    uploadedBy: { name: string };
-  } | null>(null);
+  const [currentPolicies, setCurrentPolicies] = useState<any[]>([]);
 
   useEffect(() => {
     fetchStatus();
@@ -28,8 +25,8 @@ export default function QAConfig() {
   const fetchStatus = async () => {
     try {
       const data = await apiService.getPolicyStatus();
-      if (data.hasPolicy) {
-        setCurrentPolicy(data.policy);
+      if (data.policies) {
+        setCurrentPolicies(data.policies);
       }
     } catch (err) {
       console.error("Failed to fetch policy status", err);
@@ -37,32 +34,57 @@ export default function QAConfig() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.type !== "application/pdf") {
-        setMessage({ type: "error", text: "Only PDF files are allowed" });
-        return;
+    if (e.target.files && e.target.files.length > 0) {
+      // Validate all files are PDF
+      const selectedFiles = e.target.files;
+      for (let i = 0; i < selectedFiles.length; i++) {
+        if (selectedFiles[i].type !== "application/pdf") {
+          setMessage({
+            type: "error",
+            text: "Only PDF files are allowed",
+          });
+          return;
+        }
       }
-      setFile(selectedFile);
+      setFiles(selectedFiles);
       setMessage(null);
     }
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!files || files.length === 0) return;
 
     setLoading(true);
     setMessage(null);
 
     try {
-      await apiService.uploadPolicy(file);
-      setMessage({ type: "success", text: "Policy uploaded successfully!" });
-      setFile(null);
+      await apiService.uploadPolicy(files);
+      setMessage({ type: "success", text: "Policies uploaded successfully!" });
+      setFiles(null);
+      // Reset input value by ID or just refetch.
+      // Easiest is to force re-render or just clear file state which disconnects from uncontrolled input visually?
+      // Actually controlled input for file is tricky. Better to reset form ref if needed.
+      // For now, fetch status is key.
       fetchStatus();
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Upload failed" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to remove this document?"))
+      return;
+    try {
+      await apiService.deletePolicy(id);
+      fetchStatus();
+      setMessage({ type: "success", text: "Document removed successfully" });
+    } catch (err: any) {
+      setMessage({
+        type: "error",
+        text: err.message || "Failed to delete document",
+      });
     }
   };
 
@@ -77,40 +99,54 @@ export default function QAConfig() {
             AI Chatbot Configuration
           </h2>
           <p className="text-text-secondary text-sm">
-            Upload Leave Policy for AI Reference
+            Manage Knowledge Base Documents
           </p>
         </div>
       </div>
 
       <div className="space-y-6">
-        {/* Current Policy Status */}
+        {/* Current Policies List */}
         <div className="bg-bg-main rounded-lg p-4 border border-border">
           <h3 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">
-            Current Policy Document
+            Active Documents ({currentPolicies.length})
           </h3>
-          {currentPolicy ? (
-            <div className="flex items-start gap-3">
-              <CheckCircle
-                className="text-status-success shrink-0 mt-0.5"
-                size={18}
-              />
-              <div>
-                <p className="font-medium text-text-primary">
-                  {currentPolicy.originalName}
-                </p>
-                <p className="text-xs text-text-muted mt-1">
-                  Uploaded by {currentPolicy.uploadedBy?.name} on{" "}
-                  {new Date(currentPolicy.updatedAt).toLocaleDateString()}
-                </p>
-                <div className="mt-2 text-xs bg-status-success/10 text-status-success inline-block px-2 py-1 rounded-full">
-                  Active
+
+          {currentPolicies.length > 0 ? (
+            <div className="space-y-3">
+              {currentPolicies.map((policy) => (
+                <div
+                  key={policy._id}
+                  className="flex items-center justify-between bg-bg-card p-3 rounded-lg border border-border"
+                >
+                  <div className="flex items-start gap-3">
+                    <CheckCircle
+                      className="text-status-success shrink-0 mt-0.5"
+                      size={18}
+                    />
+                    <div>
+                      <p className="font-medium text-text-primary">
+                        {policy.originalName}
+                      </p>
+                      <p className="text-xs text-text-muted mt-1">
+                        Uploaded by {policy.uploadedBy?.name} on{" "}
+                        {new Date(policy.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(policy._id)}
+                    className="p-2 text-text-muted hover:text-status-error hover:bg-status-error/10 rounded-lg transition-colors"
+                    title="Remove Document"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-              </div>
+              ))}
             </div>
           ) : (
             <div className="flex items-center gap-2 text-text-muted italic">
               <AlertCircle size={16} />
-              <p>No active policy document found.</p>
+              <p>No active documents found.</p>
             </div>
           )}
         </div>
@@ -118,12 +154,13 @@ export default function QAConfig() {
         {/* Upload Section */}
         <div>
           <label className="block text-sm font-medium mb-2 text-text-primary">
-            Upload New Policy (PDF Only)
+            Upload New Documents (PDF Only)
           </label>
           <div className="flex gap-4 items-start">
             <div className="flex-1">
               <input
                 type="file"
+                multiple
                 accept="application/pdf"
                 onChange={handleFileChange}
                 className="w-full text-sm text-text-secondary
@@ -135,12 +172,13 @@ export default function QAConfig() {
                   cursor-pointer bg-bg-main rounded-lg border border-border"
               />
               <p className="text-xs text-text-muted mt-2">
-                Uploading a new document will replace the existing one.
+                You can upload multiple documents. New uploads will be added to
+                the knowledge base.
               </p>
             </div>
             <button
               onClick={handleUpload}
-              disabled={!file || loading}
+              disabled={!files || loading}
               className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
             >
               {loading ? (
