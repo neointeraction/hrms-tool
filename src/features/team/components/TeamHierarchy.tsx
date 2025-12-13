@@ -9,7 +9,7 @@ import {
   Mail,
 } from "lucide-react";
 import { Avatar } from "../../../components/common/Avatar";
-import { Loader } from "../../../components/common/Loader";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 interface Employee {
   _id: string;
@@ -182,8 +182,34 @@ export default function TeamHierarchy() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader size={32} />
+      <div className="flex flex-col items-center justify-center h-[600px] bg-bg-card rounded-lg border border-border p-8">
+        {/* Root Node Skeleton */}
+        <div className="flex flex-col items-center mb-8 relative">
+          <div className="flex flex-col items-center p-3 rounded-lg border border-border bg-bg-main w-48 shadow-sm">
+            <Skeleton className="w-12 h-12 rounded-full mb-2" />
+            <Skeleton className="w-32 h-4 mb-2" />
+            <Skeleton className="w-24 h-3" />
+          </div>
+          {/* Vertical Line */}
+          <div className="w-px h-8 bg-border absolute -bottom-8"></div>
+        </div>
+
+        {/* Children Level */}
+        <div className="flex gap-8 relative">
+          {/* Connecting Line */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-[calc(100%-12rem)] h-px bg-border"></div>
+
+          {[1, 2].map((i) => (
+            <div key={i} className="flex flex-col items-center relative">
+              <div className="w-px h-4 bg-border absolute -top-4"></div>
+              <div className="flex flex-col items-center p-3 rounded-lg border border-border bg-bg-main w-48 shadow-sm">
+                <Skeleton className="w-12 h-12 rounded-full mb-2" />
+                <Skeleton className="w-32 h-4 mb-2" />
+                <Skeleton className="w-24 h-3" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -198,129 +224,133 @@ export default function TeamHierarchy() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      {/* Header Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* View Toggle */}
-        <div className="flex border-b border-border w-full md:w-auto overflow-x-auto">
-          <button
-            onClick={() => setView("hierarchy")}
-            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
-              view === "hierarchy"
-                ? "border-b-2 border-brand-primary text-brand-primary"
-                : "border-transparent text-text-secondary hover:text-text-primary"
-            }`}
-          >
-            <Network size={16} />
-            Org Chart
-          </button>
-          <button
-            onClick={() => setView("directory")}
-            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
-              view === "directory"
-                ? "border-b-2 border-brand-primary text-brand-primary"
-                : "border-transparent text-text-secondary hover:text-text-primary"
-            }`}
-          >
-            <LayoutGrid size={16} />
-            Directory
-          </button>
+      {/* Hierarchy Container */}
+      <div className="bg-bg-card rounded-lg shadow-sm border border-border flex flex-col h-full min-h-[600px] overflow-hidden">
+        {/* Tabs Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-border">
+          <div className="flex overflow-x-auto">
+            <button
+              onClick={() => setView("hierarchy")}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${
+                view === "hierarchy"
+                  ? "border-brand-primary text-brand-primary bg-brand-primary/5"
+                  : "border-transparent text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+              }`}
+            >
+              <Network size={16} />
+              Org Chart
+            </button>
+            <button
+              onClick={() => setView("directory")}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${
+                view === "directory"
+                  ? "border-brand-primary text-brand-primary bg-brand-primary/5"
+                  : "border-transparent text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+              }`}
+            >
+              <LayoutGrid size={16} />
+              Directory
+            </button>
+          </div>
+
+          {/* Search (only for directory) */}
+          {view === "directory" && (
+            <div className="pr-2 w-full md:w-auto">
+              <div className="relative w-full md:w-64">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+                  size={16}
+                />
+                <input
+                  type="text"
+                  placeholder="Search employees..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-1.5 bg-bg-secondary border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Search (only for directory) */}
-        {view === "directory" && (
-          <div className="relative w-full md:w-64">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              size={16}
-            />
-            <input
-              type="text"
-              placeholder="Search employees..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Content Area */}
-      <div className="flex-1 min-h-[600px] border border-border rounded-xl bg-bg-card shadow-sm overflow-hidden relative">
-        {view === "hierarchy" ? (
-          <div className="absolute inset-0 overflow-auto p-8 flex justify-center">
-            <div className="min-w-max flex justify-center gap-12">
-              {tree.length > 0 ? (
-                tree.map((root) => <TreeNode key={root._id} node={root} />)
-              ) : (
-                <div className="text-center text-text-secondary mt-12">
-                  No hierarchy data available.
-                </div>
-              )}
+        {/* Content Area */}
+        <div className="flex-1 relative">
+          {view === "hierarchy" ? (
+            <div className="absolute inset-0 overflow-auto p-8 flex justify-center bg-bg-secondary/20">
+              <div className="min-w-max flex justify-center gap-12">
+                {tree.length > 0 ? (
+                  tree.map((root) => <TreeNode key={root._id} node={root} />)
+                ) : (
+                  <div className="text-center text-text-secondary mt-12">
+                    No hierarchy data available.
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="absolute inset-0 overflow-auto p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredEmployees.map((emp) => (
-                <div
-                  key={emp._id}
-                  className="bg-bg-card border border-border rounded-xl p-5 hover:shadow-md transition-shadow group flex flex-col items-center text-center"
-                >
-                  <div className="w-20 h-20 rounded-full mb-3 border-4 border-bg-main relative">
-                    <Avatar
-                      src={
-                        emp.profilePicture
-                          ? `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
-                              "//uploads",
-                              "/uploads"
-                            )
-                          : undefined
-                      }
-                      name={`${emp.firstName} ${emp.lastName}`}
-                      alt={emp.firstName}
-                      className="w-full h-full"
-                      size="lg"
-                    />
-                    {/* Online Status Indicator */}
-                    <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center bg-white">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          emp.isOnline ? "bg-status-success" : "bg-gray-300"
-                        }`}
-                        title={emp.isOnline ? "Online" : "Offline"}
+          ) : (
+            <div className="absolute inset-0 overflow-auto p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredEmployees.map((emp) => (
+                  <div
+                    key={emp._id}
+                    className="bg-bg-card border border-border rounded-xl p-5 hover:shadow-md transition-shadow group flex flex-col items-center text-center"
+                  >
+                    <div className="w-20 h-20 rounded-full mb-3 border-4 border-bg-main relative">
+                      <Avatar
+                        src={
+                          emp.profilePicture
+                            ? `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
+                                "//uploads",
+                                "/uploads"
+                              )
+                            : undefined
+                        }
+                        name={`${emp.firstName} ${emp.lastName}`}
+                        alt={emp.firstName}
+                        className="w-full h-full"
+                        size="lg"
                       />
+                      {/* Online Status Indicator */}
+                      <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center bg-white">
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            emp.isOnline ? "bg-status-success" : "bg-gray-300"
+                          }`}
+                          title={emp.isOnline ? "Online" : "Offline"}
+                        />
+                      </div>
+                    </div>
+
+                    <h3 className="font-bold text-text-primary text-base mb-1">
+                      {emp.firstName} {emp.lastName}
+                    </h3>
+                    <p className="text-brand-primary text-sm font-medium mb-1">
+                      {emp.designation}
+                    </p>
+                    <p className="text-text-secondary text-xs mb-4">
+                      {emp.department || "General"}
+                    </p>
+
+                    <div className="w-full pt-4 border-t border-border flex justify-center gap-4 text-text-muted">
+                      <a
+                        href={`mailto:${emp.email || "#"}`}
+                        className="hover:text-brand-primary transition-colors p-2 hover:bg-brand-primary/5 rounded-full"
+                        title="Email"
+                      >
+                        <Mail size={18} />
+                      </a>
                     </div>
                   </div>
-
-                  <h3 className="font-bold text-text-primary text-base mb-1">
-                    {emp.firstName} {emp.lastName}
-                  </h3>
-                  <p className="text-brand-primary text-sm font-medium mb-1">
-                    {emp.designation}
-                  </p>
-                  <p className="text-text-secondary text-xs mb-4">
-                    {emp.department || "General"}
-                  </p>
-
-                  <div className="w-full pt-4 border-t border-border flex justify-center gap-4 text-text-muted">
-                    <a
-                      href={`mailto:${emp.email || "#"}`}
-                      className="hover:text-brand-primary transition-colors p-2 hover:bg-brand-primary/5 rounded-full"
-                      title="Email"
-                    >
-                      <Mail size={18} />
-                    </a>
+                ))}
+                {filteredEmployees.length === 0 && (
+                  <div className="col-span-full text-center py-12 text-text-secondary">
+                    No employees found matching your search.
                   </div>
-                </div>
-              ))}
-              {filteredEmployees.length === 0 && (
-                <div className="col-span-full text-center py-12 text-text-secondary">
-                  No employees found matching your search.
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

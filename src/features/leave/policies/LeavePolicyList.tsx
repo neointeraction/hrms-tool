@@ -46,19 +46,6 @@ export default function LeavePolicyList() {
       p.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (showForm) {
-    return (
-      <LeavePolicyForm
-        policyId={selectedPolicyId}
-        onBack={() => {
-          setShowForm(false);
-          setSelectedPolicyId(null);
-          fetchPolicies();
-        }}
-      />
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -190,6 +177,18 @@ export default function LeavePolicyList() {
           emptyMessage="No policies found"
         />
       </div>
+
+      <LeavePolicyForm
+        isOpen={showForm}
+        policyId={selectedPolicyId}
+        onClose={() => {
+          setShowForm(false);
+          setSelectedPolicyId(null);
+          // Refresh list if needed, or we can assume list is stale.
+          // ideally we should only refresh on save, but simplified here:
+          fetchPolicies();
+        }}
+      />
     </div>
   );
 }

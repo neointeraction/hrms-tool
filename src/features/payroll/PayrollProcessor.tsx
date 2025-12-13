@@ -3,16 +3,23 @@ import { CheckCircle } from "lucide-react";
 import { Select } from "../../components/common/Select";
 import { apiService } from "../../services/api.service";
 
+import { Skeleton } from "../../components/common/Skeleton";
+
 export default function PayrollProcessor() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [payrolls, setPayrolls] = useState<any[]>([]);
   const [selectedMonth, setSelectedMonth] = useState("June");
   const [selectedYear, setSelectedYear] = useState(2024);
   const [loading, setLoading] = useState(false);
+  const [isListLoading, setIsListLoading] = useState(true);
 
   useEffect(() => {
-    loadPayrollList();
-    loadEmployees(); // To select for calculation
+    const fetchData = async () => {
+      setIsListLoading(true);
+      await Promise.all([loadPayrollList(), loadEmployees()]);
+      setIsListLoading(false);
+    };
+    fetchData();
   }, [selectedMonth, selectedYear]);
 
   const loadPayrollList = async () => {
@@ -105,6 +112,7 @@ export default function PayrollProcessor() {
       {/* Main Action Area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* List of Employees to Process */}
+        {/* List of Employees to Process */}
         <div>
           <h3 className="font-semibold mb-4 text-text-primary">
             Run Payroll Calculation
@@ -118,38 +126,50 @@ export default function PayrollProcessor() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {employees.map((emp) => {
-                  const isProcessed = payrolls.some(
-                    (p) => p.employee._id === emp._id
-                  );
-                  return (
-                    <tr key={emp._id}>
-                      <td className="p-3">
-                        <div className="font-medium">
-                          {emp.firstName} {emp.lastName}
-                        </div>
-                        <div className="text-xs text-text-muted">
-                          {emp.employeeId}
-                        </div>
-                      </td>
-                      <td className="p-3 text-right">
-                        {isProcessed ? (
-                          <span className="text-xs text-status-success flex items-center justify-end gap-1">
-                            <CheckCircle size={14} /> Processed
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleCalculate(emp._id)}
-                            disabled={loading}
-                            className="px-3 py-1 bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 rounded-md text-xs font-medium"
-                          >
-                            Calculate
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {isListLoading
+                  ? [1, 2, 3, 4, 5].map((i) => (
+                      <tr key={i}>
+                        <td className="p-3">
+                          <Skeleton className="h-4 w-32 mb-1" />
+                          <Skeleton className="h-3 w-16" />
+                        </td>
+                        <td className="p-3 text-right flex justify-end">
+                          <Skeleton className="h-6 w-20" />
+                        </td>
+                      </tr>
+                    ))
+                  : employees.map((emp) => {
+                      const isProcessed = payrolls.some(
+                        (p) => p.employee._id === emp._id
+                      );
+                      return (
+                        <tr key={emp._id}>
+                          <td className="p-3">
+                            <div className="font-medium">
+                              {emp.firstName} {emp.lastName}
+                            </div>
+                            <div className="text-xs text-text-muted">
+                              {emp.employeeId}
+                            </div>
+                          </td>
+                          <td className="p-3 text-right">
+                            {isProcessed ? (
+                              <span className="text-xs text-status-success flex items-center justify-end gap-1">
+                                <CheckCircle size={14} /> Processed
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => handleCalculate(emp._id)}
+                                disabled={loading}
+                                className="px-3 py-1 bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 rounded-md text-xs font-medium"
+                              >
+                                Calculate
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
               </tbody>
             </table>
           </div>
@@ -158,89 +178,121 @@ export default function PayrollProcessor() {
         {/* Processed Payrolls */}
         <div>
           <h3 className="font-semibold mb-4 text-text-primary">
-            Processed Records ({payrolls.length})
+            Processed Records ({isListLoading ? "..." : payrolls.length})
           </h3>
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
-            {payrolls.length === 0 && (
-              <div className="text-text-muted text-sm italic">
-                No records generated for this period.
-              </div>
+            {isListLoading ? (
+              [1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="border border-border rounded-lg p-4 space-y-3"
+                >
+                  <div className="flex justify-between">
+                    <div>
+                      <Skeleton className="h-4 w-32 mb-1" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-5 w-16 rounded" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <div className="space-y-1 text-right items-end flex flex-col">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                {payrolls.length === 0 && (
+                  <div className="text-text-muted text-sm italic">
+                    No records generated for this period.
+                  </div>
+                )}
+                {payrolls.map((payroll) => (
+                  <div
+                    key={payroll._id}
+                    className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">
+                          {payroll.employee.firstName}{" "}
+                          {payroll.employee.lastName}
+                        </div>
+                        <div className="text-xs text-text-muted">
+                          {payroll.employee.employeeId}
+                        </div>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-bold 
+                                      ${
+                                        payroll.status === "Paid"
+                                          ? "bg-status-success/10 text-status-success"
+                                          : payroll.status === "Approved"
+                                          ? "bg-brand-primary/10 text-brand-primary"
+                                          : "bg-status-warning/10 text-status-warning"
+                                      }`}
+                      >
+                        {payroll.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                      <div>
+                        <span className="text-text-secondary block text-xs">
+                          Gross Salary
+                        </span>
+                        <span className="font-medium">
+                          ₹{payroll.grossSalary.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-text-secondary block text-xs">
+                          Net Payable
+                        </span>
+                        <span className="font-bold text-brand-primary">
+                          ₹{payroll.netSalary.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 justify-end border-t border-border pt-2">
+                      {payroll.status === "Draft" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(payroll._id, "Approved")
+                          }
+                          className="px-3 py-1 bg-brand-primary text-white rounded text-xs hover:bg-brand-primary/90"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {payroll.status === "Approved" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(payroll._id, "Paid")
+                          }
+                          className="px-3 py-1 bg-status-success text-white rounded text-xs hover:bg-status-success/90"
+                        >
+                          Mark as Paid
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleCalculate(payroll.employee._id)}
+                        className="px-3 py-1 border border-border text-text-secondary rounded text-xs hover:bg-bg-hover"
+                      >
+                        Recalculate
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
-            {payrolls.map((payroll) => (
-              <div
-                key={payroll._id}
-                className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <div className="font-medium">
-                      {payroll.employee.firstName} {payroll.employee.lastName}
-                    </div>
-                    <div className="text-xs text-text-muted">
-                      {payroll.employee.employeeId}
-                    </div>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-bold 
-                                   ${
-                                     payroll.status === "Paid"
-                                       ? "bg-status-success/10 text-status-success"
-                                       : payroll.status === "Approved"
-                                       ? "bg-brand-primary/10 text-brand-primary"
-                                       : "bg-status-warning/10 text-status-warning"
-                                   }`}
-                  >
-                    {payroll.status}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                  <div>
-                    <span className="text-text-secondary block text-xs">
-                      Gross Salary
-                    </span>
-                    <span className="font-medium">
-                      ₹{payroll.grossSalary.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-text-secondary block text-xs">
-                      Net Payable
-                    </span>
-                    <span className="font-bold text-brand-primary">
-                      ₹{payroll.netSalary.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 justify-end border-t border-border pt-2">
-                  {payroll.status === "Draft" && (
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate(payroll._id, "Approved")
-                      }
-                      className="px-3 py-1 bg-brand-primary text-white rounded text-xs hover:bg-brand-primary/90"
-                    >
-                      Approve
-                    </button>
-                  )}
-                  {payroll.status === "Approved" && (
-                    <button
-                      onClick={() => handleStatusUpdate(payroll._id, "Paid")}
-                      className="px-3 py-1 bg-status-success text-white rounded text-xs hover:bg-status-success/90"
-                    >
-                      Mark as Paid
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleCalculate(payroll.employee._id)}
-                    className="px-3 py-1 border border-border text-text-secondary rounded text-xs hover:bg-bg-hover"
-                  >
-                    Recalculate
-                  </button>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

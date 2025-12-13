@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { CheckCircle, XCircle, Loader2, Clock } from "lucide-react";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -49,8 +50,29 @@ export default function PendingApprovals() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+      <div className="space-y-4">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="border border-border rounded-lg p-4 bg-bg-card"
+          >
+            <div className="flex justify-between mb-4">
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-16 w-full rounded" />
+              <Skeleton className="h-16 w-full rounded" />
+            </div>
+            <div className="flex gap-2 mt-4">
+              <Skeleton className="h-9 w-24 rounded" />
+              <Skeleton className="h-9 w-24 rounded" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

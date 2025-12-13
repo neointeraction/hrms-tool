@@ -4,6 +4,7 @@ import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Avatar } from "../../../components/common/Avatar";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../../../store/useAppStore";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 export default function LeaveWidget() {
   const navigate = useNavigate();
@@ -54,6 +55,19 @@ export default function LeaveWidget() {
   const visibleEmployees = employeesOnLeave.slice(0, 4);
   const remainingCount = employeesOnLeave.length - visibleEmployees.length;
 
+  const getIcon = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes("casual"))
+      return <Plane className="text-blue-600" size={14} />;
+    if (t.includes("sick") || t.includes("medical"))
+      return <Pill className="text-red-600" size={14} />;
+    if (t.includes("floating"))
+      return <CalendarDays className="text-purple-600" size={14} />;
+    if (t.includes("maternity") || t.includes("paternity"))
+      return <Users className="text-pink-600" size={14} />;
+    return <CalendarDays className="text-gray-600" size={14} />;
+  };
+
   return (
     <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border flex flex-col h-full min-h-[200px] transition-all duration-300">
       <div className="flex items-center justify-between mb-6">
@@ -90,26 +104,30 @@ export default function LeaveWidget() {
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             {loading ? (
-              <div className="col-span-3 text-sm text-text-secondary text-center py-4">
-                Loading...
-              </div>
+              <>
+                <div className="flex flex-col items-center justify-center p-3 pb-0 bg-bg-main rounded-lg text-center h-[72px]">
+                  <Skeleton className="h-4 w-4 rounded mb-2" />
+                  <Skeleton className="h-3 w-12 mb-1" />
+                  <Skeleton className="h-5 w-8" />
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 pb-0 bg-bg-main rounded-lg text-center h-[72px]">
+                  <Skeleton className="h-4 w-4 rounded mb-2" />
+                  <Skeleton className="h-3 w-12 mb-1" />
+                  <Skeleton className="h-5 w-8" />
+                </div>
+                <div className="flex flex-col items-center justify-center p-3 pb-0 bg-bg-main rounded-lg text-center h-[72px]">
+                  <Skeleton className="h-4 w-4 rounded mb-2" />
+                  <Skeleton className="h-3 w-12 mb-1" />
+                  <Skeleton className="h-5 w-8" />
+                </div>
+              </>
             ) : leaveStats.length > 0 ? (
               leaveStats.map((stat) => (
                 <div
                   key={stat.type}
                   className="flex flex-col items-center justify-center p-3 pb-0 bg-bg-main rounded-lg text-center"
                 >
-                  <div className="mb-2">
-                    {stat.type === "Casual" && (
-                      <Plane className="text-blue-600" size={14} />
-                    )}
-                    {stat.type === "Sick" && (
-                      <Pill className="text-red-600" size={14} />
-                    )}
-                    {stat.type === "Floating" && (
-                      <CalendarDays className="text-purple-600" size={14} />
-                    )}
-                  </div>
+                  <div className="mb-2">{getIcon(stat.type)}</div>
                   <div>
                     <p className="text-xs text-text-secondary truncate w-full">
                       {stat.type}

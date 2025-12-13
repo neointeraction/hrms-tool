@@ -29,6 +29,10 @@ import Miscellaneous from "../pages/Miscellaneous";
 import Feedback from "../pages/Feedback";
 import Appreciation from "../pages/Appreciation";
 import EmailAutomation from "../features/email/EmailAutomation";
+import AssetCategories from "../features/assets/pages/AssetCategories";
+import AssetInventory from "../features/assets/pages/AssetInventory";
+import MyAssets from "../features/assets/pages/MyAssets";
+import AssetDashboard from "../features/assets/pages/AssetDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -330,6 +334,34 @@ export const router = createBrowserRouter([
             <EmailAutomation />
           </RoleGuard>
         ),
+      },
+      {
+        path: "miscellaneous/asset-categories",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <AssetCategories />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "assets",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <AssetDashboard />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "assets/inventory",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <AssetInventory />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "my-assets",
+        element: <MyAssets />,
       },
     ],
   },

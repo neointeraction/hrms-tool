@@ -10,7 +10,7 @@ import {
   createColumnHelper,
   type SortingState,
 } from "@tanstack/react-table";
-import { Loader } from "./Loader";
+import { Skeleton } from "./Skeleton";
 
 // Maintaining existing interface for backward compatibility
 export interface Column<T> {
@@ -91,8 +91,36 @@ export function Table<T extends { _id: string } | { id: string }>({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader size={32} />
+      <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+        {enableSearch && (
+          <div className="p-4 border-b border-border">
+            <Skeleton className="h-9 w-full max-w-sm rounded-lg" />
+          </div>
+        )}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-bg-main">
+              <tr className="border-b border-border">
+                {columns.map((_, i) => (
+                  <th key={i} className="px-6 py-4">
+                    <Skeleton className="h-4 w-24" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i}>
+                  {columns.map((_, j) => (
+                    <td key={j} className="px-6 py-3">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

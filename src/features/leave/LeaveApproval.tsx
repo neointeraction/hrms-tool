@@ -4,6 +4,7 @@ import { Check, X, User, AlertCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Button } from "../../components/common/Button";
 import { Textarea } from "../../components/common/Textarea";
+import { Skeleton } from "../../components/common/Skeleton";
 
 interface LeaveRequest {
   _id: string;
@@ -92,8 +93,39 @@ export default function LeaveApproval() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="bg-white rounded-lg border border-border p-4 shadow-sm flex flex-col h-[280px]"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+              <Skeleton className="h-5 w-16 rounded" />
+            </div>
+            <div className="space-y-3 mb-6 flex-1">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-20 w-full rounded" />
+            </div>
+            <div className="flex gap-3 mt-auto">
+              <Skeleton className="h-10 flex-1 rounded-lg" />
+              <Skeleton className="h-10 flex-1 rounded-lg" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

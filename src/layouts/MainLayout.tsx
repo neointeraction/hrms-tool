@@ -20,6 +20,7 @@ import {
   Building2,
   BarChart3,
   Settings,
+  Package,
   Grid,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
@@ -101,6 +102,16 @@ export default function MainLayout() {
       icon: Grid,
       label: "Miscellaneous",
     },
+    {
+      to: "/assets",
+      icon: Package,
+      label: "Asset Management",
+    },
+    {
+      to: "/my-assets",
+      icon: Package,
+      label: "My Assets",
+    },
   ];
 
   // Get accessible menu items from navigation utility and merge with icons
@@ -123,6 +134,10 @@ export default function MainLayout() {
       "/miscellaneous/feedback": ["Miscellaneous", "Feedback"],
       "/miscellaneous/appreciation": ["Miscellaneous", "Appreciation"],
       "/miscellaneous/email-automation": ["Miscellaneous", "Email Automation"],
+      "/miscellaneous/asset-categories": ["Miscellaneous", "Asset Categories"],
+      "/assets": ["Asset Management", "Dashboard"],
+      "/assets/inventory": ["Asset Management", "Inventory"],
+      "/my-assets": ["My Assets"],
     };
 
     // Check if we have a specific mapping

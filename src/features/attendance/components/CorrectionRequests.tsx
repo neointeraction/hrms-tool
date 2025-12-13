@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Plus, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
+import { Plus, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 import { Select } from "../../../components/common/Select";
@@ -82,8 +83,29 @@ export default function CorrectionRequests() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center mb-4">
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-32 rounded-lg" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="bg-bg-main border border-border rounded-lg p-4"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-5 w-24 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-48 mb-2" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

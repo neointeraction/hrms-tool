@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Loader2 } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 import { DatePicker } from "../../../components/common/DatePicker";
 
@@ -41,8 +42,18 @@ export default function TimeHistory() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+      <div className="space-y-6">
+        <div className="bg-bg-main border border-border rounded-lg p-4">
+          <Skeleton className="h-6 w-24 mb-3" />
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-[200px] w-full rounded-lg" />
+          <Skeleton className="h-[200px] w-full rounded-lg" />
+        </div>
       </div>
     );
   }

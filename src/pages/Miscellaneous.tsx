@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { MessageSquarePlus, Award, Mail } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Miscellaneous() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6">
@@ -47,22 +49,26 @@ export default function Miscellaneous() {
         </div>
 
         {/* Email Automation - HR Only (RoleGuard handles access) */}
-        <div
-          onClick={() => navigate("/miscellaneous/email-automation")}
-          className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
-              <Mail className="text-brand-primary" size={24} />
+        {(user?.role === "HR" ||
+          user?.role === "Admin" ||
+          user?.isSuperAdmin) && (
+          <div
+            onClick={() => navigate("/miscellaneous/email-automation")}
+            className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
+                <Mail className="text-brand-primary" size={24} />
+              </div>
+              <h3 className="text-lg font-semibold text-text-primary">
+                Email Automation
+              </h3>
             </div>
-            <h3 className="text-lg font-semibold text-text-primary">
-              Email Automation
-            </h3>
+            <p className="text-text-secondary text-sm">
+              Configure automated Birthday and Anniversary emails.
+            </p>
           </div>
-          <p className="text-text-secondary text-sm">
-            Configure automated Birthday and Anniversary emails.
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

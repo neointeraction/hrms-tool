@@ -1,26 +1,98 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { ArrowLeft, Plus, CheckCircle, Save } from "lucide-react";
+import { Save, Info } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
 import { Input } from "../../../components/common/Input";
-import { Select } from "../../../components/common/Select";
 import { Textarea } from "../../../components/common/Textarea";
+import { Modal } from "../../../components/common/Modal";
+import { Checkbox } from "../../../components/common/Checkbox";
+
+// --- Simple Toggle Switch Component ---
+interface ToggleProps {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  helpText?: string;
+  className?: string;
+}
+
+const Toggle = ({
+  label,
+  checked,
+  onChange,
+  helpText,
+  className = "",
+}: ToggleProps) => (
+  <div className={`flex items-center justify-between ${className}`}>
+    <div className="flex flex-col">
+      <span className="text-sm font-medium text-text-primary">{label}</span>
+      {helpText && (
+        <span className="text-xs text-text-secondary mt-0.5">{helpText}</span>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+        checked ? "bg-brand-primary" : "bg-gray-200"
+      }`}
+      role="switch"
+      aria-checked={checked}
+    >
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  </div>
+);
+
+// --- Checkbox Group Component ---
+const CheckboxGroup = ({
+  options,
+  values,
+  onChange,
+}: {
+  options: string[];
+  values: string[];
+  onChange: (values: string[]) => void;
+}) => {
+  const toggleOption = (option: string) => {
+    if (values.includes(option)) {
+      onChange(values.filter((v) => v !== option));
+    } else {
+      onChange([...values, option]);
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {options.map((option) => (
+        <Checkbox
+          key={option}
+          label={option}
+          checked={values.includes(option)}
+          onChange={() => toggleOption(option)}
+        />
+      ))}
+    </div>
+  );
+};
 
 interface LeavePolicyFormProps {
   policyId: string | null;
-  onBack: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
-
-const steps = ["Basic Info", "Allocation", "Eligibility", "Rules", "Review"];
 
 export default function LeavePolicyForm({
   policyId,
-  onBack,
+  isOpen,
+  onClose,
 }: LeavePolicyFormProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [msg, setMsg] = useState("");
-
   const {
     register,
     control,
@@ -28,403 +100,463 @@ export default function LeavePolicyForm({
     reset,
     watch,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm({
     defaultValues: {
       name: "",
-      type: "Annual",
-      category: "Paid",
+      shortCode: "",
       description: "",
-      allocation: {
-        cycle: "Yearly",
-        count: 12,
-        proRata: false,
-        carryForward: false,
-        maxCarryForward: 0,
-        encashment: false,
-        maxEncashment: 0,
-      },
-      eligibility: {
-        applyTo: [], // Departments
-        minTenure: 0,
-        gender: "All",
-      },
-      rules: {
-        minNotice: 0,
-        maxConsecutive: 30,
-        requiresApproval: true,
-      },
-      status: "Active",
+      status: "Active", // Active, Inactive
+
+      // Accrual
+      totalLeaves: 12,
+      accrualType: "Monthly", // Yearly, Monthly, Pro-rata
+      allowCarryForward: false,
+      maxCarryForward: 0,
+      allowHalfDay: false,
+      allowNegative: false, // New field, assuming backend support added
+      isPaid: true,
+
+      // Applicability & Approval
+      employeeTypes: ["Permanent"], // Array of strings
+      requiresApproval: true,
+      minNotice: 0,
+      docRequired: false,
+      docRequiredAfter: 3,
+      visibleToEmployees: true, // Assuming backend support added
     },
   });
 
+  const watchedValues = watch();
+
   useEffect(() => {
-    if (policyId) {
+    if (policyId && isOpen) {
       apiService.getLeavePolicy(policyId).then((res) => {
-        if (res.policy) reset(res.policy);
+        if (res.policy) {
+          const p = res.policy;
+          // Map API response to Form State
+          reset({
+            name: p.name,
+            shortCode: p.shortCode || "",
+            description: p.description || "",
+            status: p.status,
+
+            totalLeaves:
+              p.allocation?.cycle === "Monthly"
+                ? p.allocation.count * 12
+                : p.allocation?.count || 0,
+            accrualType: p.allocation?.proRata
+              ? "Pro-rata"
+              : p.allocation?.cycle || "Yearly",
+            allowCarryForward: p.allocation?.carryForward || false,
+            maxCarryForward: p.allocation?.maxCarryForward || 0,
+            allowHalfDay: p.rules?.allowHalfDay || false,
+            allowNegative: p.rules?.allowNegative || false,
+            isPaid: p.category === "Paid",
+
+            employeeTypes: p.eligibility?.employeeTypes || [],
+            requiresApproval: p.rules?.requiresApproval || false,
+            minNotice: p.rules?.minNotice || 0,
+            docRequired: p.docs?.mandatory || false,
+            docRequiredAfter: p.docs?.requiredAfter || 0,
+            visibleToEmployees: p.visibleToEmployees ?? true,
+          });
+        }
+      });
+    } else if (!policyId && isOpen) {
+      reset({
+        name: "",
+        shortCode: "",
+        description: "",
+        status: "Active",
+        totalLeaves: 12,
+        accrualType: "Monthly",
+        allowCarryForward: false,
+        maxCarryForward: 0,
+        allowHalfDay: false,
+        allowNegative: false,
+        isPaid: true,
+        employeeTypes: ["Permanent"],
+        requiresApproval: true,
+        minNotice: 0,
+        docRequired: false,
+        docRequiredAfter: 3,
+        visibleToEmployees: true,
       });
     }
-  }, [policyId, reset]);
+  }, [policyId, isOpen, reset]);
 
   const onSubmit = async (data: any) => {
     try {
+      // Map Form Data to API Payload
+      const payload = {
+        name: data.name,
+        shortCode: data.shortCode,
+        description: data.description,
+        status: data.status,
+        visibleToEmployees: data.visibleToEmployees,
+
+        type: "Custom", // Or map based on name? Maintaining 'Custom' or existing logic
+        category: data.isPaid ? "Paid" : "Unpaid",
+
+        allocation: {
+          cycle: data.accrualType === "Monthly" ? "Monthly" : "Yearly",
+          count:
+            data.accrualType === "Monthly"
+              ? data.totalLeaves / 12
+              : data.totalLeaves,
+          proRata: data.accrualType === "Pro-rata",
+          carryForward: data.allowCarryForward,
+          maxCarryForward: data.allowCarryForward ? data.maxCarryForward : 0,
+          encashment: false, // Hidden in new form
+          maxEncashment: 0,
+        },
+
+        eligibility: {
+          employeeTypes: data.employeeTypes,
+          gender: "All", // Hidden default
+          minTenure: 0, // Hidden default
+        },
+
+        rules: {
+          minNotice: data.minNotice,
+          maxConsecutive: 30, // Hidden default
+          requiresApproval: data.requiresApproval,
+          allowHalfDay: data.allowHalfDay,
+          allowNegative: data.allowNegative,
+        },
+
+        docs: {
+          mandatory: data.docRequired,
+          requiredAfter: data.docRequired ? data.docRequiredAfter : 0,
+        },
+      };
+
       if (policyId) {
-        await apiService.updateLeavePolicy(policyId, data);
-        setMsg("Policy updated successfully");
+        await apiService.updateLeavePolicy(policyId, payload);
       } else {
-        await apiService.createLeavePolicy(data);
-        setMsg("Policy created successfully");
+        await apiService.createLeavePolicy(payload);
       }
-      setTimeout(onBack, 1500);
+      onClose();
     } catch (error: any) {
       alert("Failed to save policy: " + error.message);
     }
   };
 
-  const nextStep = () =>
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  // Live Summary Text Calculation
+  const getSummary = () => {
+    const parts = [];
+    parts.push(`${watchedValues.totalLeaves} leaves/year`);
+
+    if (watchedValues.accrualType === "Monthly") {
+      parts.push("credited monthly");
+    } else if (watchedValues.accrualType === "Pro-rata") {
+      parts.push("pro-rata accrual");
+    } else {
+      parts.push("credited yearly");
+    }
+
+    if (watchedValues.allowHalfDay) parts.push("half-day");
+    if (watchedValues.requiresApproval) parts.push("approval req.");
+
+    return parts.join(", ");
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          leftIcon={<ArrowLeft size={16} />}
-        >
-          Back
-        </Button>
-        <h2 className="text-2xl font-bold text-text-primary">
-          {policyId ? "Edit Leave Policy" : "Create Leave Policy"}
-        </h2>
-      </div>
-
-      {/* Progress Steps */}
-      <div className="flex justify-between items-center px-8">
-        {steps.map((step, index) => (
-          <div key={step} className="flex flex-col items-center relative z-10">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
-                index <= currentStep
-                  ? "bg-brand-primary text-white"
-                  : "bg-surface-highlight text-text-secondary"
-              }`}
-            >
-              {index + 1}
-            </div>
-            <span
-              className={`text-xs mt-2 font-medium ${
-                index <= currentStep
-                  ? "text-text-primary"
-                  : "text-text-secondary"
-              }`}
-            >
-              {step}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={policyId ? "Edit Leave Policy" : "Create Leave Policy"}
+      maxWidth="max-w-2xl"
+      footer={
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center w-full">
+          <div className="flex flex-col text-left w-full sm:w-auto">
+            <span className="text-xs uppercase tracking-wider text-text-secondary font-semibold">
+              Summary
+            </span>
+            <span className="text-sm font-medium text-text-primary">
+              {getSummary().charAt(0).toUpperCase() + getSummary().slice(1)}
             </span>
           </div>
-        ))}
-        {/* Simple visualization provided by layout, connecting lines assumed via css or ignored for simplicity */}
-      </div>
+          <div className="flex gap-3 w-full sm:w-auto justify-end">
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              isLoading={isSubmitting}
+              leftIcon={<Save size={16} />}
+            >
+              Save
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Section 1: Leave Details */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 border-b border-border pb-2">
+            <div className="h-5 w-1 bg-brand-primary rounded-full"></div>
+            <h3 className="font-semibold text-base text-text-primary">
+              Leave Details
+            </h3>
+          </div>
 
-      <div className="bg-bg-panel border border-border rounded-lg p-6 shadow-sm">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Step 1: Basic Info */}
-          {currentStep === 0 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-semibold text-text-primary">
-                Basic Information
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Policy Name"
-                  {...register("name", { required: "Name is required" })}
-                  error={errors.name?.message}
-                />
-                <Controller
-                  name="type"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      label="Leave Type"
-                      options={[
-                        { value: "Annual", label: "Annual" },
-                        { value: "Sick", label: "Sick" },
-                        { value: "Casual", label: "Casual" },
-                        { value: "Maternity", label: "Maternity" },
-                        { value: "Paternity", label: "Paternity" },
-                        { value: "Unpaid", label: "Unpaid" },
-                        { value: "Custom", label: "Custom" },
-                      ]}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Leave Name"
+              placeholder="e.g. Casual Leave"
+              {...register("name", { required: "Name is required" })}
+              error={errors.name?.message}
+            />
+            <Input
+              label="Short Code"
+              placeholder="e.g. CL"
+              {...register("shortCode")}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-text-primary">
+              Description
+            </label>
+            <Textarea
+              placeholder="Brief description visible to employees..."
+              rows={2}
+              {...register("description")}
+            />
+          </div>
+
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Toggle
+                label="Is it Active?"
+                checked={field.value === "Active"}
+                onChange={(val) => field.onChange(val ? "Active" : "Inactive")}
+              />
+            )}
+          />
+        </div>
+
+        {/* Section 2: Accrual & Usage Rules */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 border-b border-border pb-2">
+            <div className="h-5 w-1 bg-brand-primary rounded-full"></div>
+            <h3 className="font-semibold text-base text-text-primary">
+              Accrual & Usage
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 items-end">
+            <Input
+              label="Total Leaves / Year"
+              type="number"
+              {...register("totalLeaves", { valueAsNumber: true, min: 0 })}
+            />
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-text-primary">
+                Accrual Type
+              </label>
+              <div className="flex bg-bg-main p-1 rounded-md border border-border">
+                {["Yearly", "Monthly", "Pro-rata"].map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setValue("accrualType", type)}
+                    className={`flex-1 text-xs py-1.5 rounded-sm transition-all ${
+                      watch("accrualType") === type
+                        ? "bg-white shadow text-brand-primary font-medium"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  name="category"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      label="Category"
-                      options={[
-                        { value: "Paid", label: "Paid" },
-                        { value: "Unpaid", label: "Unpaid" },
-                        { value: "Restricted", label: "Restricted" },
-                        { value: "Comp-Off", label: "Comp-Off" },
-                      ]}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      label="Status"
-                      options={[
-                        { value: "Active", label: "Active" },
-                        { value: "Inactive", label: "Inactive" },
-                        { value: "Draft", label: "Draft" },
-                      ]}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-              <Textarea label="Description" {...register("description")} />
+            </div>
+          </div>
+
+          {watch("accrualType") === "Monthly" && (
+            <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded text-xs flex items-center gap-2">
+              <Info size={14} />
+              <span>
+                {(watch("totalLeaves") / 12).toFixed(1)} days credited per month
+              </span>
             </div>
           )}
 
-          {/* Step 2: Allocation */}
-          {currentStep === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-semibold text-text-primary">
-                Allocation Rules
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  name="allocation.cycle"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      label="Cycle"
-                      options={[
-                        { value: "Yearly", label: "Yearly" },
-                        { value: "Monthly", label: "Monthly" },
-                        { value: "Quarterly", label: "Quarterly" },
-                      ]}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-                <Input
-                  label="Leave Count"
-                  type="number"
-                  {...register("allocation.count", { valueAsNumber: true })}
-                />
-              </div>
-
-              <div className="flex flex-col gap-4 p-4 bg-bg-main rounded-md border border-border">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...register("allocation.proRata")}
-                    className="rounded border-gray-300"
+          <div className="bg-bg-main rounded-md p-4 space-y-3 border border-border">
+            <div className="flex justify-between items-center gap-4">
+              <Controller
+                name="allowCarryForward"
+                control={control}
+                render={({ field }) => (
+                  <Toggle
+                    label="Carry Forward"
+                    checked={field.value || false}
+                    onChange={field.onChange}
+                    className="flex-1"
                   />
-                  <span className="text-sm font-medium">
-                    Pro-rated for new joiners
-                  </span>
-                </label>
-
-                <div className="flex-col space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      {...register("allocation.carryForward")}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium">
-                      Carry Forward Allowed
-                    </span>
-                  </label>
-                  {watch("allocation.carryForward") && (
-                    <Input
-                      label="Max Carry Forward Days"
-                      type="number"
-                      className="ml-6 w-1/2"
-                      {...register("allocation.maxCarryForward", {
-                        valueAsNumber: true,
-                      })}
-                    />
-                  )}
-                </div>
-
-                <div className="flex-col space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      {...register("allocation.encashment")}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm font-medium">
-                      Encashment Allowed
-                    </span>
-                  </label>
-                  {watch("allocation.encashment") && (
-                    <Input
-                      label="Max Encashable Days"
-                      type="number"
-                      className="ml-6 w-1/2"
-                      {...register("allocation.maxEncashment", {
-                        valueAsNumber: true,
-                      })}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Eligibility - Simplified for prototype */}
-          {currentStep === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-semibold text-text-primary">
-                Eligibility
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  name="eligibility.gender"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      label="Gender"
-                      options={["All", "Male", "Female", "Other"].map((g) => ({
-                        value: g,
-                        label: g,
-                      }))}
-                      value={field.value || ""}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-                <Input
-                  label="Minimum Tenure (Months)"
-                  type="number"
-                  {...register("eligibility.minTenure", {
-                    valueAsNumber: true,
-                  })}
-                />
-              </div>
-              <div className="p-4 bg-yellow-50 text-yellow-800 rounded border border-yellow-200 text-sm">
-                Note: Department and Location restrictions can be added in
-                advanced settings.
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Rules */}
-          {currentStep === 3 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-              <h3 className="text-lg font-semibold text-text-primary">
-                Application Rules
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Minimum Notice Period (Days)"
-                  type="number"
-                  {...register("rules.minNotice", { valueAsNumber: true })}
-                />
-                <Input
-                  label="Max Consecutive Days"
-                  type="number"
-                  {...register("rules.maxConsecutive", { valueAsNumber: true })}
-                />
-              </div>
-              <div className="p-4 bg-bg-main rounded-md border border-border">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    {...register("rules.requiresApproval")}
-                    className="rounded border-gray-300"
+                )}
+              />
+              {watch("allowCarryForward") && (
+                <div className="w-24">
+                  <Input
+                    placeholder="Max Days"
+                    type="number"
+                    className="h-8 text-sm"
+                    {...register("maxCarryForward", { valueAsNumber: true })}
                   />
-                  <span className="text-sm font-medium">
-                    Requires Manager Approval
-                  </span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: Review */}
-          {currentStep === 4 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-              <div className="flex items-center justify-center flex-col text-center space-y-2">
-                <CheckCircle className="text-green-500 w-12 h-12" />
-                <h3 className="text-xl font-bold">Ready to Publish?</h3>
-                <p className="text-text-secondary max-w-sm">
-                  Review your settings below. Once published, this policy will
-                  be available to eligible employees.
-                </p>
-              </div>
-
-              <div className="bg-bg-main p-4 rounded-lg text-sm space-y-1">
-                <p>
-                  <span className="font-semibold">Name:</span> {watch("name")}
-                </p>
-                <p>
-                  <span className="font-semibold">Type:</span> {watch("type")} (
-                  {watch("category")})
-                </p>
-                <p>
-                  <span className="font-semibold">Count:</span>{" "}
-                  {watch("allocation.count")} / {watch("allocation.cycle")}
-                </p>
-              </div>
-
-              {msg && (
-                <div className="p-3 bg-green-100 text-green-700 rounded text-center font-medium">
-                  {msg}
                 </div>
               )}
             </div>
-          )}
 
-          <div className="flex justify-between pt-4 border-t border-border mt-6">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-            >
-              Previous
-            </Button>
+            <hr className="border-border/50" />
 
-            {currentStep < steps.length - 1 ? (
-              <Button
-                type="button"
-                onClick={nextStep}
-                rightIcon={<Plus size={16} />}
-              >
-                Next Step
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
-                leftIcon={<Save size={16} />}
-              >
-                {policyId ? "Update Policy" : "Publish Policy"}
-              </Button>
-            )}
+            <Controller
+              name="allowHalfDay"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  label="Allow Half Day"
+                  checked={field.value || false}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            <Controller
+              name="allowNegative"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  label="Allow Negative Balance"
+                  checked={field.value || false}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            <Controller
+              name="isPaid"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  label="Paid Leave"
+                  checked={field.value || false}
+                  onChange={field.onChange}
+                  helpText={field.value ? "Salary is paid" : "Loss of Pay"}
+                />
+              )}
+            />
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        {/* Section 3: Applicability & Approval */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 border-b border-border pb-2">
+            <div className="h-5 w-1 bg-brand-primary rounded-full"></div>
+            <h3 className="font-semibold text-base text-text-primary">
+              Applicability & Approval
+            </h3>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">
+              Applicable Employee Types
+            </label>
+            <Controller
+              name="employeeTypes"
+              control={control}
+              render={({ field }) => (
+                <CheckboxGroup
+                  options={[
+                    "Permanent",
+                    "Contract",
+                    "Intern",
+                    "Freelancer",
+                    "Part-Time",
+                  ]}
+                  values={field.value || []}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+
+          <div className="bg-bg-main rounded-md p-4 space-y-3 border border-border">
+            <Controller
+              name="requiresApproval"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  label="Approval Required"
+                  checked={field.value || false}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            <Input
+              label="Min Notice Period (Days)"
+              type="number"
+              {...register("minNotice", { valueAsNumber: true })}
+            />
+
+            <hr className="border-border/50" />
+
+            <div className="flex justify-between items-center gap-4">
+              <Controller
+                name="docRequired"
+                control={control}
+                render={({ field }) => (
+                  <Toggle
+                    label="Document Required"
+                    checked={field.value || false}
+                    onChange={field.onChange}
+                    className="flex-1"
+                  />
+                )}
+              />
+
+              {watch("docRequired") && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-secondary whitespace-nowrap">
+                    After days:
+                  </span>
+                  <div className="w-20">
+                    <Input
+                      type="number"
+                      className="h-8 text-sm"
+                      {...register("docRequiredAfter", { valueAsNumber: true })}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <hr className="border-border/50" />
+
+            <Controller
+              name="visibleToEmployees"
+              control={control}
+              render={({ field }) => (
+                <Toggle
+                  label="Visible to Employees"
+                  checked={field.value || false}
+                  onChange={field.onChange}
+                  helpText={
+                    !field.value ? "Hidden from employee dashboard" : ""
+                  }
+                />
+              )}
+            />
+          </div>
+        </div>
+      </form>
+    </Modal>
   );
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, MoreVertical, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Search, MoreVertical, AlertCircle } from "lucide-react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import { apiService } from "../../../services/api.service";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 interface Employee {
   _id: string;
@@ -83,8 +84,43 @@ export default function EmployeeProfiles() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="animate-spin text-brand-primary" size={32} />
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-border text-text-secondary text-sm">
+                <th className="py-3 px-4 font-medium">Email</th>
+                <th className="py-3 px-4 font-medium">Employee ID</th>
+                <th className="py-3 px-4 font-medium">Department</th>
+                <th className="py-3 px-4 font-medium">Role</th>
+                <th className="py-3 px-4 font-medium">Join Date</th>
+                <th className="py-3 px-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i} className="border-b border-border">
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-4 w-48" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-4 w-24" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-4 w-32" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-6 w-20 rounded" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-4 w-24" />
+                  </td>
+                  <td className="py-3 px-4">
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="overflow-x-auto">

@@ -25,6 +25,22 @@ export const menuItems: MenuItem[] = [
     roles: ["Admin", "HR"],
   },
   {
+    to: "/assets",
+    label: "Asset Management",
+    roles: ["Admin", "HR"],
+  },
+  {
+    to: "/my-assets",
+    label: "My Assets",
+    roles: [
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
+  },
+  {
     to: "/ai-configuration",
     label: "AI Chatbot Configuration",
     roles: ["Admin", "HR"],

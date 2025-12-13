@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Select } from "../../components/common/Select";
@@ -15,12 +15,13 @@ export default function ApplyLeaveModal({
   onClose,
 }: ApplyLeaveModalProps) {
   const [formData, setFormData] = useState({
-    type: "Casual",
+    type: "",
     startDate: "",
     endDate: "",
     reason: "",
     isHalfDay: false,
   });
+  const [leaveTypes, setLeaveTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,6 +52,34 @@ export default function ApplyLeaveModal({
       });
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log("DEBUG: Fetching leave stats...");
+      apiService.getLeaveStats().then((data) => {
+        console.log("DEBUG: getLeaveStats response:", data);
+        // Correctly handling backend response which returns { stats: [{ type: '...' }] }
+        if (data && data.stats) {
+          const types = data.stats.map((s: any) => s.type);
+          console.log("DEBUG: Extracted Leave Types:", types);
+          setLeaveTypes(types);
+          // Set default type if not already set or invalid
+          if (types.length > 0 && !types.includes(formData.type)) {
+            setFormData((prev) => ({ ...prev, type: types[0] }));
+          }
+        } else if (data && data.leavePolicy) {
+          // Fallback for older backend format if any
+          const types = Object.keys(data.leavePolicy);
+          setLeaveTypes(types);
+          if (types.length > 0 && !types.includes(formData.type)) {
+            setFormData((prev) => ({ ...prev, type: types[0] }));
+          }
+        } else {
+          console.log("DEBUG: No stats or leavePolicy in data", data);
+        }
+      });
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,13 +139,10 @@ export default function ApplyLeaveModal({
             onChange={(value) =>
               setFormData({ ...formData, type: value as string })
             }
-            options={[
-              { value: "Casual", label: "Casual Leave" },
-              { value: "Sick", label: "Sick Leave" },
-              { value: "Paid", label: "Paid Leave" },
-              { value: "Unpaid", label: "Unpaid Leave" },
-              { value: "Floating", label: "Floating Leave" },
-            ]}
+            options={leaveTypes.map((type) => ({
+              value: type,
+              label: type,
+            }))}
           />
         </div>
 

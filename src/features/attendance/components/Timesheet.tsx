@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import {
   Plus,
   Trash2,
-  Loader2,
   Save,
   Send,
   CheckCircle,
   XCircle,
   AlertCircle,
+  Download,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
@@ -17,6 +17,7 @@ import { Textarea } from "../../../components/common/Textarea";
 import { Table } from "../../../components/common/Table";
 import { DatePicker } from "../../../components/common/DatePicker";
 import { ConfirmationModal } from "../../../components/common/ConfirmationModal";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 import SubmitConfirmationModal from "./SubmitConfirmationModal";
 
@@ -193,6 +194,59 @@ export default function Timesheet() {
     }
   };
 
+  const handleExport = () => {
+    if (entries.length === 0) {
+      alert("No entries to export");
+      return;
+    }
+
+    // Define headers
+    const headers = [
+      "Date",
+      "Project",
+      "Task",
+      "Description",
+      "Start Time",
+      "End Time",
+      "Hours",
+      "Status",
+      "Review Comments",
+    ];
+
+    // Map entries to rows
+    const rows = entries.map((entry) => [
+      new Date(entry.date).toLocaleDateString(),
+      entry.project,
+      entry.task,
+      `"${(entry.description || "").replace(/"/g, '""')}"`, // Escape quotes
+      entry.startTime,
+      entry.endTime,
+      entry.hours,
+      entry.status,
+      `"${(entry.reviewComments || "").replace(/"/g, '""')}"`,
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `timesheet_export_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "draft":
@@ -238,8 +292,33 @@ export default function Timesheet() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+
+        {/* List Skeleton */}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <div className="p-4 space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -257,6 +336,15 @@ export default function Timesheet() {
           </p>
         </div>
         <div className="flex gap-2">
+          {entries.length > 0 && (
+            <Button
+              variant="secondary"
+              onClick={handleExport}
+              leftIcon={<Download size={18} />}
+            >
+              Export CSV
+            </Button>
+          )}
           {hasDraftEntries && (
             <Button
               className="bg-green-600 hover:bg-green-700"

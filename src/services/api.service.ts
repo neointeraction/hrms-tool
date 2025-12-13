@@ -482,6 +482,398 @@ class ApiService {
     return response.json();
   }
 
+  // Asset Categories
+  async getAssetCategories(includeInactive = false): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-categories?includeInactive=${includeInactive}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch asset categories");
+    }
+
+    return response.json();
+  }
+
+  async createAssetCategory(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asset-categories`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create asset category");
+    }
+
+    return response.json();
+  }
+
+  async updateAssetCategory(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asset-categories/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update asset category");
+    }
+
+    return response.json();
+  }
+
+  async deleteAssetCategory(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asset-categories/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete asset category");
+    }
+
+    return response.json();
+  }
+
+  async toggleAssetCategoryStatus(id: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-categories/${id}/toggle-status`,
+      {
+        method: "PATCH",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(
+        error.message || "Failed to toggle asset category status"
+      );
+    }
+
+    return response.json();
+  }
+
+  // Assets
+  async getAssets(params?: any): Promise<any> {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+    const response = await fetch(`${API_BASE_URL}/assets${queryString}`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch assets");
+    }
+
+    return response.json();
+  }
+
+  async createAsset(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/assets`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create asset");
+    }
+
+    return response.json();
+  }
+
+  async updateAsset(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update asset");
+    }
+
+    return response.json();
+  }
+
+  async deleteAsset(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete asset");
+    }
+
+    return response.json();
+  }
+
+  async getAssetStats(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/assets/stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch asset statistics");
+    }
+
+    return response.json();
+  }
+
+  async uploadAssetInvoice(id: string, file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append("invoice", file);
+
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/assets/${id}/upload-invoice`,
+      {
+        method: "POST",
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to upload invoice");
+    }
+
+    return response.json();
+  }
+
+  async disposeAsset(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/assets/${id}/dispose`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to dispose asset");
+    }
+
+    return response.json();
+  }
+
+  // Asset Assignments
+  async assignAsset(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asset-assignments/assign`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to assign asset");
+    }
+
+    return response.json();
+  }
+
+  async acknowledgeAsset(assignmentId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-assignments/${assignmentId}/acknowledge`,
+      {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to acknowledge asset");
+    }
+
+    return response.json();
+  }
+
+  async returnAsset(assignmentId: string, data: any): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-assignments/${assignmentId}/return`,
+      {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to return asset");
+    }
+
+    return response.json();
+  }
+
+  async getMyAssets(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/asset-assignments/employee`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch assigned assets");
+    }
+
+    return response.json();
+  }
+
+  async getAssetAssignments(params?: any): Promise<any> {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+    const response = await fetch(
+      `${API_BASE_URL}/asset-assignments${queryString}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch asset assignments");
+    }
+
+    return response.json();
+  }
+
+  // Asset Incidents
+  async reportAssetIncident(data: any, photos?: File[]): Promise<any> {
+    const formData = new FormData();
+
+    // Append data fields
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== undefined && data[key] !== null) {
+        formData.append(key, data[key]);
+      }
+    });
+
+    // Append photos
+    if (photos && photos.length > 0) {
+      photos.forEach((photo) => {
+        formData.append("photos", photo);
+      });
+    }
+
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(`${API_BASE_URL}/asset-incidents/report`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to report incident");
+    }
+
+    return response.json();
+  }
+
+  async getAssetIncidents(params?: any): Promise<any> {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+    const response = await fetch(
+      `${API_BASE_URL}/asset-incidents${queryString}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch incidents");
+    }
+
+    return response.json();
+  }
+
+  async resolveAssetIncident(id: string, data: any): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-incidents/${id}/resolve`,
+      {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to resolve incident");
+    }
+
+    return response.json();
+  }
+
+  // Asset History
+  async getAssetHistory(assetId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-history/asset/${assetId}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch asset history");
+    }
+
+    return response.json();
+  }
+
+  async getAllAssetHistory(params?: any): Promise<any> {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+    const response = await fetch(
+      `${API_BASE_URL}/asset-history${queryString}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch history logs");
+    }
+
+    return response.json();
+  }
+
   // Leave Policies
   async getLeavePolicies(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/leave-policies`, {

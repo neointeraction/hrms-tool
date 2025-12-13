@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Clock, Coffee, LogIn, LogOut, Loader2 } from "lucide-react";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 
 export default function ClockInOut() {
@@ -113,8 +114,11 @@ export default function ClockInOut() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+      <div className="max-w-2xl mx-auto space-y-6">
+        <Skeleton className="h-[200px] w-full rounded-lg" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-14 w-full rounded-lg col-span-2" />
+        </div>
       </div>
     );
   }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Download, FileText } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
-import { Loader } from "../../components/common/Loader";
+import { Skeleton } from "../../components/common/Skeleton";
 
 import { generatePayslipPDF } from "../../utils/payslipGenerator";
 
@@ -32,8 +32,40 @@ export default function PayslipView() {
 
   if (loading)
     return (
-      <div className="flex justify-center p-8">
-        <Loader size={32} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="bg-bg-card border border-border rounded-lg p-6 space-y-4"
+          >
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <Skeleton className="h-10 w-10 rounded-full" />
+            </div>
+            <div className="space-y-3 border-b border-border pb-4">
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-6 w-32" />
+            </div>
+            <Skeleton className="h-9 w-full rounded-lg" />
+          </div>
+        ))}
       </div>
     );
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, User, MessageSquare } from "lucide-react";
+import { Bot, X, Send, User, MessagesSquare } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
 
@@ -203,7 +203,7 @@ export default function ChatWidget() {
           onClick={() => setIsOpen(true)}
           className="bg-brand-primary hover:bg-brand-secondary text-white h-14 w-14 rounded-full shadow-lg transition-all duration-200 hover:scale-110 flex items-center justify-center"
         >
-          <MessageSquare size={28} />
+          <MessagesSquare size={22} />
         </button>
       )}
     </div>

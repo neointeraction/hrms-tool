@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 
 export default function AttendanceWidget() {
@@ -124,9 +125,9 @@ export default function AttendanceWidget() {
 
   if (loading) {
     return (
-      <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border animate-pulse">
-        <div className="h-6 w-1/3 bg-gray-200 rounded mb-4"></div>
-        <div className="h-20 w-full bg-gray-200 rounded"></div>
+      <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+        <Skeleton className="h-6 w-1/3 rounded mb-4" />
+        <Skeleton className="h-20 w-full rounded" />
       </div>
     );
   }

@@ -5,7 +5,6 @@ import {
   Briefcase,
   Clock,
   Coffee,
-  Loader2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -19,6 +18,7 @@ import LeaveWidget from "./LeaveWidget";
 import { useGreeting } from "../../../hooks/useGreeting";
 import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 export default function PMDashboard() {
   const { user } = useAuth();
@@ -203,8 +203,22 @@ export default function PMDashboard() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-bg-main p-3 rounded-lg border border-border h-[90px]"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <Skeleton className="w-8 h-8 rounded-full" />
+                    <Skeleton className="w-16 h-5 rounded-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-16 h-3" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
@@ -358,9 +372,21 @@ export default function PMDashboard() {
 
           <div className="space-y-4">
             {loading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
-              </div>
+              [1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="p-4 bg-bg-main rounded-xl border border-border h-[100px]"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="space-y-1">
+                      <Skeleton className="w-32 h-4" />
+                      <Skeleton className="w-20 h-3" />
+                    </div>
+                    <Skeleton className="w-16 h-5 rounded-full" />
+                  </div>
+                  <Skeleton className="w-full h-8" />
+                </div>
+              ))
             ) : projects.filter((p) => p.status === "Active").length > 0 ? (
               projects
                 .filter((p) => p.status === "Active")
