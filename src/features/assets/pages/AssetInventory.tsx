@@ -36,7 +36,7 @@ export default function AssetInventory() {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  // const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Disposal state
   const [disposeModalId, setDisposeModalId] = useState<string | null>(null);
@@ -164,6 +164,7 @@ export default function AssetInventory() {
     setIsModalOpen(true);
   };
 
+  /*
   const handleDelete = async (id: string) => {
     try {
       await apiService.deleteAsset(id);
@@ -173,6 +174,7 @@ export default function AssetInventory() {
       setError(err.message);
     }
   };
+  */
 
   const handleDispose = async () => {
     if (!disposeModalId) return;

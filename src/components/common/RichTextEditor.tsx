@@ -28,7 +28,6 @@ interface RichTextEditorProps {
 export default function RichTextEditor({
   value,
   onChange,
-  placeholder = "Start typing...",
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [

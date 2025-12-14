@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Award, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Button } from "../common/Button";

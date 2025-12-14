@@ -42,7 +42,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [employeeId, setEmployeeId] = useState<string | null>(null);
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees] = useState<any[]>([]);
 
   const [profileData, setProfileData] = useState({
     // Basic

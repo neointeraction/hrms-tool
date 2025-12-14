@@ -7,11 +7,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import AttendanceWidget from "./AttendanceWidget";
-import LeaveWidget from "./LeaveWidget";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
-import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
-import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function AccountantDashboard() {
   const { user } = useAuth();

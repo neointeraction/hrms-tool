@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquareQuote, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Button } from "../common/Button";

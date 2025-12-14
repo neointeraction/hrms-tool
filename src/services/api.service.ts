@@ -1462,15 +1462,6 @@ class ApiService {
     return response.json();
   }
 
-  private handleResponse(response: Response) {
-    if (!response.ok) {
-      return response.json().then((error) => {
-        throw new Error(error.message || "API Error");
-      });
-    }
-    return response.json();
-  }
-
   async getTeamStatus(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/attendance/team-status`, {
       headers: this.getAuthHeaders(),
