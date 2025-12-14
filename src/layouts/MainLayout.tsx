@@ -4,6 +4,7 @@ import {
   Users,
   User,
   UserCircle2,
+  Shield,
   Menu,
   X,
   Moon,
@@ -22,6 +23,7 @@ import {
   Settings,
   Package,
   Grid,
+  Hash,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -29,11 +31,14 @@ import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
 import NotificationDropdown from "../components/layout/NotificationDropdown";
 import ChatWidget from "../features/chat/ChatWidget";
+import { Tooltip } from "../components/common/Tooltip";
 import { Avatar } from "../components/common/Avatar";
+import { useNotification } from "../context/NotificationContext";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadSocialCount, clearSocialNotifications } = useNotification();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
@@ -51,6 +56,11 @@ export default function MainLayout() {
       to: "/employee-management",
       icon: Users,
       label: "Employee Management",
+    },
+    {
+      to: "/roles",
+      icon: Shield,
+      label: "Role Management",
     },
     {
       to: "/attendance",
@@ -81,6 +91,11 @@ export default function MainLayout() {
       to: "/organization",
       icon: Network,
       label: "Hierarchy",
+    },
+    {
+      to: "/social",
+      icon: Hash,
+      label: "Social Wall",
     },
     {
       to: "/superadmin/tenants",
@@ -116,13 +131,97 @@ export default function MainLayout() {
 
   // Get accessible menu items from navigation utility and merge with icons
   const accessibleRoutes = user ? getAccessibleMenuItems(user.role) : [];
-  const navItems = accessibleRoutes.map((route) => {
-    const navItem = allNavItems.find((item) => item.to === route.to);
-    return {
-      ...route,
-      icon: navItem?.icon || User,
-    };
+
+  // Filter routes based on tenant feature toggles
+  const tenantLimits =
+    user?.tenantId &&
+    typeof user.tenantId === "object" &&
+    "limits" in user.tenantId
+      ? user.tenantId.limits
+      : null;
+
+  const enabledModules = tenantLimits?.enabledModules;
+
+  // Map routes to module names (key must match module names in backend/EditTenantModal)
+  // Map routes to module names (key must match module names in backend/EditTenantModal)
+  const routeModuleMap: Record<string, string> = {
+    "/attendance": "attendance",
+    "/leave": "leave",
+    "/payroll": "payroll",
+    "/projects": "projects",
+    "/social": "social",
+    "/assets": "assets",
+    "/my-assets": "assets",
+    "/employees": "employees",
+    "/employee-management": "employees",
+    "/roles": "roles",
+    "/audit": "audit",
+    "/organization": "organization",
+    "/miscellaneous/feedback": "feedback",
+    "/miscellaneous/appreciation": "social", // Mapping legacy path to 'social' key
+    "/miscellaneous/email-automation": "email_automation",
+    "/tasks": "tasks",
+    "/ai-configuration": "ai_chatbot",
+  };
+
+  const filteredRoutes = accessibleRoutes.filter((route) => {
+    // If user is Super Admin, show everything (or handled by RoleGuard/getAccessibleMenuItems already)
+    if (user?.role === "Super Admin") return true;
+
+    // If no limits defined for tenant (e.g. legacy), default to show (or hide? safe default is show for backward compat)
+    if (!enabledModules) return true;
+
+    // specific check for social wall if it's the route
+    if (route.to === "/social" && !enabledModules.includes("social"))
+      return false;
+
+    const module = routeModuleMap[route.to];
+    if (module && !enabledModules.includes(module)) {
+      return false;
+    }
+    // Check for Role-based module access
+    // If not Super Admin, and user has accessibleModules defined, we enforce it.
+    if ((user?.role as string) !== "Super Admin" && user?.accessibleModules) {
+      // console.log(
+      //   "Filtering route:",
+      //   route.to,
+      //   "User Modules:",
+      //   user.accessibleModules
+      // );
+
+      // Social wall check
+      if (route.to === "/social" && !user.accessibleModules.includes("social"))
+        return false;
+
+      const module = routeModuleMap[route.to];
+
+      // Exemption: "Admin" role or "Company Admin" should ALWAYS have access to Role Management and Employee Management
+      // to prevent lockouts and allow bootstrapping permissions.
+      if (
+        (user.role === "Admin" || user.isCompanyAdmin) &&
+        (module === "roles" || module === "employees")
+      ) {
+        return true;
+      }
+
+      if (module && !user.accessibleModules.includes(module)) {
+        // console.log("Hiding route:", route.to, "Module:", module);
+        return false;
+      }
+    }
+
+    return true;
   });
+
+  const navItems = filteredRoutes
+    .filter((route) => route.to !== "/social") // Social wall is handled separately in header usually, but we check availability above
+    .map((route) => {
+      const navItem = allNavItems.find((item) => item.to === route.to);
+      return {
+        ...route,
+        icon: navItem?.icon || User,
+      };
+    });
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
@@ -138,6 +237,7 @@ export default function MainLayout() {
       "/assets": ["Asset Management", "Dashboard"],
       "/assets/inventory": ["Asset Management", "Inventory"],
       "/my-assets": ["My Assets"],
+      "/social": ["Social Wall"],
     };
 
     // Check if we have a specific mapping
@@ -161,6 +261,24 @@ export default function MainLayout() {
           <span className="font-bold text-xl text-brand-primary">HRMS</span>
         </div>
         <div className="flex items-center gap-2">
+          {accessibleRoutes.some((r) => r.to === "/social") &&
+            (!user?.tenantId ||
+              typeof user.tenantId === "string" ||
+              !user.tenantId.limits ||
+              user.tenantId.limits?.enabledModules?.includes("social")) && (
+              <button
+                onClick={() => {
+                  clearSocialNotifications();
+                  navigate("/social");
+                }}
+                className="p-1 text-text-secondary relative"
+              >
+                <Hash size={20} />
+                {unreadSocialCount > 0 && (
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                )}
+              </button>
+            )}
           <NotificationDropdown />
           <Avatar
             src={user?.avatar}
@@ -247,25 +365,50 @@ export default function MainLayout() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Social Wall Link - Only if accessible and enabled */}
+            {accessibleRoutes.some((r) => r.to === "/social") &&
+              (!user?.tenantId ||
+                typeof user.tenantId === "string" ||
+                !user.tenantId.limits ||
+                user.tenantId.limits?.enabledModules?.includes("social")) && (
+                <Tooltip content="Social Wall">
+                  <button
+                    onClick={() => {
+                      clearSocialNotifications();
+                      navigate("/social");
+                    }}
+                    className="relative p-2 text-text-secondary hover:text-brand-primary hover:bg-bg-hover rounded-full transition-colors"
+                  >
+                    <Hash size={20} />
+                    {unreadSocialCount > 0 && (
+                      <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                    )}
+                  </button>
+                </Tooltip>
+              )}
             <NotificationDropdown />
             <div className="relative">
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity"
-              >
-                <div className="text-right hidden md:block">
-                  <p className="text-sm font-medium text-text-primary">
-                    {user?.name}
-                  </p>
-                  <p className="text-xs text-text-muted">{user?.designation}</p>
-                </div>
-                <Avatar
-                  src={user?.avatar}
-                  name={user?.name}
-                  alt={user?.name}
-                  size="md"
-                />
-              </button>
+              <Tooltip content="User Profile">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity"
+                >
+                  <div className="text-right hidden md:block">
+                    <p className="text-sm font-medium text-text-primary">
+                      {user?.name}
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      {user?.designation}
+                    </p>
+                  </div>
+                  <Avatar
+                    src={user?.avatar}
+                    name={user?.name}
+                    alt={user?.name}
+                    size="md"
+                  />
+                </button>
+              </Tooltip>
 
               {isProfileOpen && (
                 <>

@@ -3,6 +3,7 @@ import { Plus, Edit2, Eye, Trash2, Lock, UserX, UserCheck } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Button } from "../../components/common/Button";
 import AddEditEmployee from "./AddEditEmployee";
 
 export default function EmployeeManagement() {
@@ -140,13 +141,9 @@ export default function EmployeeManagement() {
             Manage detailed employee records
           </p>
         </div>
-        <button
-          onClick={handleAddEmployee}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
-        >
-          <Plus size={20} />
+        <Button onClick={handleAddEmployee} leftIcon={<Plus size={20} />}>
           Add Employee
-        </button>
+        </Button>
       </div>
 
       {error && (

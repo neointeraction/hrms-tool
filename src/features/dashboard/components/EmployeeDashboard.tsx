@@ -38,12 +38,50 @@ export default function EmployeeDashboard() {
 
       {/* Summary Section */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-        <AttendanceWidget />
-        <LeaveWidget />
-        <UpcomingHolidayWidget />
-        <PayrollSummaryWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("attendance") &&
+            user.accessibleModules?.includes("attendance"))) && (
+          <AttendanceWidget />
+        )}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("leave") &&
+            user.accessibleModules?.includes("leave"))) && <LeaveWidget />}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("leave") &&
+            user.accessibleModules?.includes("leave"))) && (
+          <UpcomingHolidayWidget />
+        )}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("payroll") &&
+            user.accessibleModules?.includes("payroll"))) && (
+          <PayrollSummaryWidget />
+        )}
         <FeedbackWidget />
-        <AppreciationWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("social") &&
+            user.accessibleModules?.includes("social"))) && (
+          <AppreciationWidget />
+        )}
       </div>
     </div>
   );

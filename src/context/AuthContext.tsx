@@ -96,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pan: apiUser.pan,
         bankName: apiUser.bankName,
         bankAccountNo: apiUser.bankAccountNo,
+        accessibleModules:
+          apiUser.roles?.[0]?.accessibleModules || apiUser.accessibleModules, // Support both nested in role or direct if flattened
       };
 
       setUser(updatedUser);
@@ -149,7 +151,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Use avatar from backend if available
         avatar:
           userData.user.avatar ||
-          userData.user.email.substring(0, 2).toUpperCase(),
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            userData.user.name || userData.user.email
+          )}&background=random`,
         employeeId: userData.user.employeeId,
         doj: userData.user.doj,
         pan: userData.user.pan,
@@ -158,6 +162,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tenantId: userData.user.tenantId,
         isSuperAdmin: userData.user.isSuperAdmin || false,
         isCompanyAdmin: userData.user.isCompanyAdmin || false,
+        accessibleModules:
+          userData.user.roles?.[0]?.accessibleModules ||
+          userData.user.accessibleModules,
       };
 
       setUser(user);

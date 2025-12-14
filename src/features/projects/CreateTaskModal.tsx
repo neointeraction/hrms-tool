@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api.service";
-import { Button } from "../../components/common/Button";
+
 import { Input } from "../../components/common/Input";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
@@ -69,17 +69,22 @@ export default function CreateTaskModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+          >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() =>
               handleSubmit({ preventDefault: () => {} } as React.FormEvent)
             }
-            isLoading={loading}
+            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+            disabled={loading}
           >
-            Create Task
-          </Button>
+            {loading ? "Creating..." : "Create Task"}
+          </button>
         </div>
       }
     >

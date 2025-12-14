@@ -383,6 +383,7 @@ class ApiService {
   async createRole(data: {
     name: string;
     permissions?: string[];
+    accessibleModules?: string[];
   }): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/admin/roles`, {
       method: "POST",
@@ -401,7 +402,11 @@ class ApiService {
 
   async updateRole(
     id: string,
-    data: { name?: string; permissions?: string[] }
+    data: {
+      name?: string;
+      permissions?: string[];
+      accessibleModules?: string[];
+    }
   ): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/admin/roles/${id}`, {
       method: "PUT",
@@ -1763,6 +1768,160 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to fetch audit logs");
+    return response.json();
+  }
+  // Social Wall
+  async getSocialFeed(params?: any): Promise<any> {
+    const queryString = params
+      ? "?" + new URLSearchParams(params).toString()
+      : "";
+    const response = await fetch(`${API_BASE_URL}/social/feed${queryString}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch social feed");
+    return response.json();
+  }
+
+  async createPost(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/social/posts`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to create post");
+    return response.json();
+  }
+
+  async updatePost(postId: string, content: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/social/posts/${postId}`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update post");
+    }
+    return response.json();
+  }
+
+  async deletePost(postId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/social/posts/${postId}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete post");
+    return response.json();
+  }
+
+  async toggleReaction(id: string, type: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/social/posts/${id}/react`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type }),
+    });
+    if (!response.ok) throw new Error("Failed to toggle reaction");
+    return response.json();
+  }
+
+  async votePoll(id: string, optionIndex: number): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/social/posts/${id}/vote`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ optionIndex }),
+    });
+    if (!response.ok) throw new Error("Failed to vote");
+    return response.json();
+  }
+
+  async getComments(id: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/social/posts/${id}/comments`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch comments");
+    return response.json();
+  }
+
+  async addComment(
+    id: string,
+    content: string,
+    parentId?: string
+  ): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/social/posts/${id}/comments`,
+      {
+        method: "POST",
+        headers: {
+          ...this.getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content, parentId }),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to add comment");
+    return response.json();
+  }
+
+  async toggleCommentReaction(commentId: string, type: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/social/comments/${commentId}/react`,
+      {
+        method: "POST",
+        headers: {
+          ...this.getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type }),
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to toggle comment reaction");
+    }
+    return response.json();
+  }
+
+  async uploadSocialMedia(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(`${API_BASE_URL}/social/upload-media`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Failed to upload media");
+    return response.json();
+  }
+
+  async checkNewSocialPosts(lastChecked: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/social/check-new?lastChecked=${lastChecked}`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to check new posts");
     return response.json();
   }
 }

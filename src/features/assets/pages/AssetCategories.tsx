@@ -143,7 +143,7 @@ export default function AssetCategories() {
             resetForm();
             setIsModalOpen(true);
           }}
-          leftIcon={<Plus size={18} />}
+          leftIcon={<Plus size={20} />}
         >
           Add Category
         </Button>

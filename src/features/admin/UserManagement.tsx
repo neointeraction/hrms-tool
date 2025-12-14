@@ -166,7 +166,7 @@ export default function UserManagement() {
         </h2>
         <Button
           onClick={() => setIsAddUserModalOpen(true)}
-          leftIcon={<Plus size={18} />}
+          leftIcon={<Plus size={20} />}
         >
           Add User
         </Button>

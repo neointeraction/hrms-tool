@@ -116,7 +116,11 @@ export default function AppreciationWidget() {
               <div className="bg-white p-2 rounded-full shadow-sm border border-border z-10">
                 {appreciations[currentIndex].badge ? (
                   <img
-                    src={`${ASSET_BASE_URL}${appreciations[currentIndex].badge.icon}`}
+                    src={
+                      appreciations[currentIndex].badge.icon.startsWith("http")
+                        ? appreciations[currentIndex].badge.icon
+                        : `${ASSET_BASE_URL}${appreciations[currentIndex].badge.icon}`
+                    }
                     alt={appreciations[currentIndex].badge.title}
                     className="w-12 h-12 object-contain"
                   />

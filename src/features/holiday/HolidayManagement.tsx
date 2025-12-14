@@ -4,6 +4,7 @@ import { apiService } from "../../services/api.service";
 import { Calendar, Trash2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { Table, type Column } from "../../components/common/Table";
+import { Button } from "../../components/common/Button";
 import { DatePicker } from "../../components/common/DatePicker";
 
 import { useMemo } from "react";
@@ -170,13 +171,12 @@ export default function HolidayManagement({
           </div>
 
           {isAdminOrHR && (
-            <button
+            <Button
               onClick={() => setIsAdding(!isAdding)}
-              className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-secondary transition-colors"
+              leftIcon={<Plus size={20} />}
             >
-              <Plus size={18} />
               Add Holiday
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -190,7 +190,7 @@ export default function HolidayManagement({
           {!error && <span />} {/* Spacer */}
           <button
             onClick={() => setIsAdding(!isAdding)}
-            className="flex items-center gap-2 bg-brand-primary text-white px-3 py-1.5 text-sm rounded-lg hover:bg-brand-secondary transition-colors"
+            className="flex items-center gap-2 bg-brand-primary text-white px-3 py-1.5 text-sm rounded-lg hover:bg-brand-primary/90 transition-colors"
           >
             <Plus size={16} />
             Add Holiday
@@ -247,17 +247,17 @@ export default function HolidayManagement({
           </div>
           <div className="flex gap-2">
             <button
-              type="submit"
-              className="px-4 py-2 bg-status-success text-white rounded hover:bg-status-success/90"
-            >
-              Save
-            </button>
-            <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="px-4 py-2 bg-bg-hover text-text-primary rounded"
+              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors"
+            >
+              Save
             </button>
           </div>
         </form>

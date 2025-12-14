@@ -183,7 +183,8 @@ export default function AddEditEmployee({
       ]);
       console.log("Roles received:", rolesData);
       console.log("Roles count:", rolesData?.length);
-      setRoles(rolesData);
+
+      setRoles(rolesData || []);
       setManagers(employeesData);
     } catch (err) {
       console.error("Failed to fetch dropdowns", err);
@@ -350,15 +351,36 @@ export default function AddEditEmployee({
           : "Add New Employee"
       }
       maxWidth="max-w-4xl"
+      footer={
+        !viewMode ? (
+          <div className="flex justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Employee"}
+            </button>
+          </div>
+        ) : undefined
+      }
     >
-      <div className="flex flex-col h-[70vh]">
+      <div className="flex flex-col">
         {/* Tabs */}
         <div className="flex overflow-x-auto border-b border-border mb-4">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab
                   ? "border-brand-primary text-brand-primary"
                   : "border-transparent text-text-secondary hover:text-text-primary"
@@ -370,7 +392,7 @@ export default function AddEditEmployee({
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto pr-2">
+        <form onSubmit={handleSubmit} className="pr-2">
           <div className="space-y-6">
             {/* Basic Info */}
             {activeTab === "Basic Info" && (
@@ -922,27 +944,6 @@ export default function AddEditEmployee({
             )}
           </div>
         </form>
-
-        {/* Footer */}
-        {!viewMode && (
-          <div className="pt-4 border-t border-border flex justify-end gap-3 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover font-medium transition-colors"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary font-medium transition-colors disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Employee"}
-            </button>
-          </div>
-        )}
       </div>
     </Modal>
   );

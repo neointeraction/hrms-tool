@@ -1,6 +1,5 @@
 import { Modal } from "./Modal";
 import { AlertTriangle, Info, AlertCircle, CheckCircle } from "lucide-react";
-import { Button } from "./Button";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -55,6 +54,20 @@ export function ConfirmationModal({
     }
   };
 
+  const getButtonColor = () => {
+    switch (variant) {
+      case "danger":
+        return "bg-status-error hover:bg-status-error/90";
+      case "warning":
+        return "bg-status-warning hover:bg-status-warning/90";
+      case "success":
+        return "bg-status-success hover:bg-status-success/90";
+      case "info":
+      default:
+        return "bg-brand-primary hover:bg-brand-primary/90";
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -62,7 +75,26 @@ export function ConfirmationModal({
       title={title}
       maxWidth="max-w-sm"
       hideHeader={true}
-      footer={null}
+      footer={
+        <div className="flex justify-end gap-3 w-full">
+          {showCancel && (
+            <button
+              onClick={onClose}
+              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+              disabled={isLoading}
+            >
+              {cancelText}
+            </button>
+          )}
+          <button
+            onClick={onConfirm}
+            className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${getButtonColor()}`}
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : confirmText}
+          </button>
+        </div>
+      }
     >
       <div className="flex flex-col items-center text-center p-2">
         <div className={`p-3 rounded-full mb-4 ${getBgColor()}`}>
@@ -71,28 +103,7 @@ export function ConfirmationModal({
 
         <h3 className="text-lg font-bold text-text-primary mb-2">{title}</h3>
 
-        <p className="text-sm text-text-secondary mb-8">{message}</p>
-
-        <div className="flex items-center justify-center gap-3 w-full">
-          {showCancel && (
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="w-full"
-              disabled={isLoading}
-            >
-              {cancelText}
-            </Button>
-          )}
-          <Button
-            onClick={onConfirm}
-            className="w-full"
-            variant={variant === "info" ? "primary" : variant}
-            isLoading={isLoading}
-          >
-            {confirmText}
-          </Button>
-        </div>
+        <p className="text-sm text-text-secondary mb-4">{message}</p>
       </div>
     </Modal>
   );

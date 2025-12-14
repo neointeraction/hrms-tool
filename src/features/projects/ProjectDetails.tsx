@@ -5,6 +5,7 @@ import { apiService } from "../../services/api.service";
 import TaskBoard from "./TaskBoard";
 import { useAuth } from "../../context/AuthContext";
 import { Loader } from "../../components/common/Loader";
+import { Button } from "../../components/common/Button";
 import CreateTaskModal from "./CreateTaskModal";
 
 export default function ProjectDetails() {
@@ -41,6 +42,19 @@ export default function ProjectDetails() {
 
   const isPM = user?.role === "Project Manager" || user?.role === "Admin";
 
+  // Check if Tasks module is enabled
+  const tenantLimits =
+    user?.tenantId &&
+    typeof user.tenantId === "object" &&
+    "limits" in user.tenantId
+      ? (user.tenantId as any).limits
+      : null;
+
+  const isTasksEnabled =
+    !tenantLimits || // Default to true if no limits found (legacy/dev)
+    !tenantLimits.enabledModules ||
+    tenantLimits.enabledModules.includes("tasks");
+
   return (
     <div className="space-y-6">
       <button
@@ -71,13 +85,13 @@ export default function ProjectDetails() {
             <p className="text-text-secondary text-lg">{project.client}</p>
           </div>
 
-          {isPM && (
-            <button
+          {isPM && isTasksEnabled && (
+            <Button
               onClick={() => setShowTaskModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90"
+              leftIcon={<Plus size={20} />}
             >
-              <Plus size={18} /> Add Task
-            </button>
+              Add Task
+            </Button>
           )}
         </div>
 
@@ -125,11 +139,13 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      {/* Task Board */}
-      <div>
-        <h2 className="text-lg font-bold text-text-primary mb-4">Tasks</h2>
-        <TaskBoard projectId={project._id} />
-      </div>
+      {/* Task Board - Only show if Tasks module is enabled */}
+      {isTasksEnabled && (
+        <div>
+          <h2 className="text-lg font-bold text-text-primary mb-4">Tasks</h2>
+          <TaskBoard projectId={project._id} />
+        </div>
+      )}
 
       {showTaskModal && (
         <CreateTaskModal

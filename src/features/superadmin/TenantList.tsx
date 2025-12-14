@@ -14,6 +14,7 @@ import {
 import CreateTenantModal from "./CreateTenantModal.tsx";
 import EditTenantModal from "./EditTenantModal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Button } from "../../components/common/Button";
 
 interface Tenant {
   _id: string;
@@ -136,13 +137,12 @@ const TenantList = () => {
             Manage all companies and their subscriptions
           </p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          leftIcon={<Plus size={20} />}
         >
-          <Plus size={20} />
           Create Tenant
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}

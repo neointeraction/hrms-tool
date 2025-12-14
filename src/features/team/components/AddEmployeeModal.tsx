@@ -81,11 +81,11 @@ export default function AddEmployeeModal({
       title="Add New Employee"
       maxWidth="max-w-md"
       footer={
-        <div className="flex gap-3 pt-4">
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover transition-colors"
+            className="px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
             disabled={loading}
           >
             Cancel
@@ -94,7 +94,7 @@ export default function AddEmployeeModal({
             onClick={() =>
               handleSubmit({ preventDefault: () => {} } as React.FormEvent)
             }
-            className="flex-1 px-4 py-2.5 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2.5 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             disabled={loading}
           >
             {loading ? "Adding..." : "Add Employee"}

@@ -91,7 +91,32 @@ export default function AddUserModal({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New User">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Add New User"
+      footer={
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() =>
+              handleSubmit({ preventDefault: () => {} } as React.FormEvent)
+            }
+            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create User"}
+          </button>
+        </div>
+      }
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
@@ -188,24 +213,6 @@ export default function AddUserModal({
               ]}
             />
           </div>
-        </div>
-
-        <div className="pt-4 flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover font-medium transition-colors"
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="flex-1 px-4 py-2.5 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
-          >
-            {loading ? "Creating..." : "Create User"}
-          </button>
         </div>
       </form>
     </Modal>

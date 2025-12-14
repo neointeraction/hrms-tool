@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
 import { Loader } from "../../components/common/Loader";
+import { Button } from "../../components/common/Button";
 import CreateProjectModal from "./CreateProjectModal";
 
 export default function ProjectDashboard() {
@@ -40,12 +41,12 @@ export default function ProjectDashboard() {
           </p>
         </div>
         {isPM && (
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
+            leftIcon={<Plus size={20} />}
           >
-            <Plus size={18} /> New Project
-          </button>
+            New Project
+          </Button>
         )}
       </div>
 
@@ -66,12 +67,9 @@ export default function ProjectDashboard() {
             Get started by creating a new project.
           </p>
           {isPM && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90"
-            >
+            <Button onClick={() => setShowCreateModal(true)}>
               Create Project
-            </button>
+            </Button>
           )}
         </div>
       ) : (

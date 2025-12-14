@@ -134,133 +134,179 @@ export default function PMDashboard() {
       {/* Summary Section (Standard Top Widgets) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Attendance Widget */}
-        <AttendanceWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("attendance") &&
+            user.accessibleModules?.includes("attendance"))) && (
+          <AttendanceWidget />
+        )}
 
         {/* Leave Widget */}
-        <LeaveWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("leave") &&
+            user.accessibleModules?.includes("leave"))) && <LeaveWidget />}
 
         {/* Upcoming Holiday */}
-        <UpcomingHolidayWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("leave") &&
+            user.accessibleModules?.includes("leave"))) && (
+          <UpcomingHolidayWidget />
+        )}
 
         {/* Team Status Section - Spans 2 cols on large screens */}
-        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary">
-                <Users size={24} />
-              </div>
-              <h2 className="text-lg font-semibold text-text-primary">
-                Live Team Status
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex gap-2 text-xs sm:text-sm hidden xl:flex">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                  <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
-                  <span className="text-text-primary font-bold">
-                    {counts.clockedIn}
-                  </span>
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("attendance") &&
+            user.accessibleModules?.includes("attendance"))) && (
+          <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary">
+                  <Users size={24} />
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                  <span className="w-1.5 h-1.5 rounded-full bg-status-warning" />
-                  <span className="text-text-primary font-bold">
-                    {counts.onBreak}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                  <span className="text-text-primary font-bold">
-                    {counts.clockedOut}
-                  </span>
-                </div>
+                <h2 className="text-lg font-semibold text-text-primary">
+                  Live Team Status
+                </h2>
               </div>
 
-              {/* Pagination Controls */}
-              {teamStatus.length > 3 && (
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page === 0}
-                    className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft size={20} className="text-text-secondary" />
-                  </button>
-                  <button
-                    onClick={() =>
-                      setPage((p) =>
-                        Math.min(Math.ceil(teamStatus.length / 3) - 1, p + 1)
-                      )
-                    }
-                    disabled={page >= Math.ceil(teamStatus.length / 3) - 1}
-                    className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronRight size={20} className="text-text-secondary" />
-                  </button>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2 text-xs sm:text-sm hidden xl:flex">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                    <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
+                    <span className="text-text-primary font-bold">
+                      {counts.clockedIn}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                    <span className="w-1.5 h-1.5 rounded-full bg-status-warning" />
+                    <span className="text-text-primary font-bold">
+                      {counts.onBreak}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                    <span className="text-text-primary font-bold">
+                      {counts.clockedOut}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-bg-main p-3 rounded-lg border border-border h-[90px]"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <Skeleton className="w-8 h-8 rounded-full" />
-                    <Skeleton className="w-16 h-5 rounded-full" />
+                {/* Pagination Controls */}
+                {teamStatus.length > 3 && (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setPage((p) => Math.max(0, p - 1))}
+                      disabled={page === 0}
+                      className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft size={20} className="text-text-secondary" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setPage((p) =>
+                          Math.min(Math.ceil(teamStatus.length / 3) - 1, p + 1)
+                        )
+                      }
+                      disabled={page >= Math.ceil(teamStatus.length / 3) - 1}
+                      className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight size={20} className="text-text-secondary" />
+                    </button>
                   </div>
-                  <div className="space-y-2">
-                    <Skeleton className="w-24 h-3" />
-                    <Skeleton className="w-16 h-3" />
-                  </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
-              {teamStatus.slice(page * 3, (page + 1) * 3).map((member) => (
-                <div
-                  key={member.employeeId}
-                  className="bg-bg-main p-3 rounded-lg border border-border hover:border-brand-primary/30 transition-all group animate-in fade-in duration-300"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="w-8 h-8 rounded-full bg-brand-secondary/10 text-brand-secondary flex items-center justify-center font-bold text-xs">
-                      {member.name
-                        .split(" ")
-                        .map((n: string) => n[0])
-                        .join("")
-                        .substring(0, 2)}
+
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-bg-main p-3 rounded-lg border border-border h-[90px]"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <Skeleton className="w-8 h-8 rounded-full" />
+                      <Skeleton className="w-16 h-5 rounded-full" />
                     </div>
-                    {getStatusBadge(member.status)}
+                    <div className="space-y-2">
+                      <Skeleton className="w-24 h-3" />
+                      <Skeleton className="w-16 h-3" />
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-text-primary truncate text-xs">
-                      {member.name}
-                    </h3>
-                    <p className="text-xs text-text-secondary truncate">
-                      {member.role || "Member"}
-                    </p>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
+                {teamStatus.slice(page * 3, (page + 1) * 3).map((member) => (
+                  <div
+                    key={member.employeeId}
+                    className="bg-bg-main p-3 rounded-lg border border-border hover:border-brand-primary/30 transition-all group animate-in fade-in duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-brand-secondary/10 text-brand-secondary flex items-center justify-center font-bold text-xs">
+                        {member.name
+                          .split(" ")
+                          .map((n: string) => n[0])
+                          .join("")
+                          .substring(0, 2)}
+                      </div>
+                      {getStatusBadge(member.status)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-text-primary truncate text-xs">
+                        {member.name}
+                      </h3>
+                      <p className="text-xs text-text-secondary truncate">
+                        {member.role || "Member"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-              {teamStatus.length === 0 && (
-                <div className="col-span-full text-center py-8 text-xs text-text-secondary border border-border border-dashed rounded-lg bg-bg-main/50">
-                  No team members found.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                ))}
+                {teamStatus.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-xs text-text-secondary border border-border border-dashed rounded-lg bg-bg-main/50">
+                    No team members found.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Appreciation Widget (Wall of Fame) */}
-        <AppreciationWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("social") &&
+            user.accessibleModules?.includes("social"))) && (
+          <AppreciationWidget />
+        )}
 
         {/* Payroll Summary Widget */}
-        <PayrollSummaryWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("payroll") &&
+            user.accessibleModules?.includes("payroll"))) && (
+          <PayrollSummaryWidget />
+        )}
 
         {/* Feedback Widget */}
         <FeedbackWidget />
@@ -269,6 +315,7 @@ export default function PMDashboard() {
       {/* Approvals and Projects Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Approvals Widget */}
+        {/* We keep approvals always visible as they might be relevant for projects logic, but specific subsections depend on modules */}
         <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg">
@@ -285,7 +332,12 @@ export default function PMDashboard() {
           </div>
 
           <div className="space-y-4">
-            {pendingApprovalsCount > 0 ? (
+            {pendingApprovalsCount > 0 &&
+            (!user?.tenantId ||
+              typeof user.tenantId === "string" ||
+              !user.tenantId.limits ||
+              (user.tenantId.limits.enabledModules.includes("attendance") &&
+                user.accessibleModules?.includes("attendance"))) ? (
               <div
                 onClick={() => (window.location.href = "/attendance")}
                 className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
@@ -310,7 +362,12 @@ export default function PMDashboard() {
               </div>
             ) : null}
 
-            {pendingLeavesCount > 0 ? (
+            {pendingLeavesCount > 0 &&
+            (!user?.tenantId ||
+              typeof user.tenantId === "string" ||
+              !user.tenantId.limits ||
+              (user.tenantId.limits.enabledModules.includes("leave") &&
+                user.accessibleModules?.includes("leave"))) ? (
               <div
                 onClick={() => (window.location.href = "/leave")}
                 className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
@@ -350,88 +407,94 @@ export default function PMDashboard() {
         </div>
 
         {/* Projects Widget */}
-        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
-                <Briefcase size={20} />
-              </div>
-              <h2 className="text-lg font-semibold text-text-primary">
-                Active Projects
-              </h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => (window.location.href = "/projects")}
-              className="text-brand-primary hover:bg-brand-primary/10"
-            >
-              View All
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {loading ? (
-              [1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="p-4 bg-bg-main rounded-xl border border-border h-[100px]"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="space-y-1">
-                      <Skeleton className="w-32 h-4" />
-                      <Skeleton className="w-20 h-3" />
-                    </div>
-                    <Skeleton className="w-16 h-5 rounded-full" />
-                  </div>
-                  <Skeleton className="w-full h-8" />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("projects") &&
+            user.accessibleModules?.includes("projects"))) && (
+          <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                  <Briefcase size={20} />
                 </div>
-              ))
-            ) : projects.filter((p) => p.status === "Active").length > 0 ? (
-              projects
-                .filter((p) => p.status === "Active")
-                .slice(0, 3)
-                .map((project) => (
+                <h2 className="text-lg font-semibold text-text-primary">
+                  Active Projects
+                </h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => (window.location.href = "/projects")}
+                className="text-brand-primary hover:bg-brand-primary/10"
+              >
+                View All
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {loading ? (
+                [1, 2].map((i) => (
                   <div
-                    key={project._id}
-                    className="p-4 bg-bg-main rounded-xl border border-border hover:border-brand-primary/30 transition-colors"
+                    key={i}
+                    className="p-4 bg-bg-main rounded-xl border border-border h-[100px]"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-semibold text-text-primary text-sm">
-                          {project.name}
-                        </h4>
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {project.client}
-                        </p>
+                      <div className="space-y-1">
+                        <Skeleton className="w-32 h-4" />
+                        <Skeleton className="w-20 h-3" />
                       </div>
-                      <span className="px-2 py-0.5 bg-status-success/10 text-status-success text-[10px] font-bold uppercase rounded-full tracking-wider">
-                        {project.status}
-                      </span>
+                      <Skeleton className="w-16 h-5 rounded-full" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-brand-primary w-2/3 rounded-full" />
-                      </div>
-                      <span className="text-xs font-medium text-text-primary">
-                        66%
-                      </span>
-                    </div>
-                    <div className="flex justify-between mt-3 text-xs text-text-muted">
-                      <span>
-                        Due {new Date(project.endDate).toLocaleDateString()}
-                      </span>
-                      <span>Team: 4</span>
-                    </div>
+                    <Skeleton className="w-full h-8" />
                   </div>
                 ))
-            ) : (
-              <div className="text-center py-8 text-text-secondary text-sm">
-                No active projects found.
-              </div>
-            )}
+              ) : projects.filter((p) => p.status === "Active").length > 0 ? (
+                projects
+                  .filter((p) => p.status === "Active")
+                  .slice(0, 3)
+                  .map((project) => (
+                    <div
+                      key={project._id}
+                      className="p-4 bg-bg-main rounded-xl border border-border hover:border-brand-primary/30 transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-text-primary text-sm">
+                            {project.name}
+                          </h4>
+                          <p className="text-xs text-text-secondary mt-0.5">
+                            {project.client}
+                          </p>
+                        </div>
+                        <span className="px-2 py-0.5 bg-status-success/10 text-status-success text-[10px] font-bold uppercase rounded-full tracking-wider">
+                          {project.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-brand-primary w-2/3 rounded-full" />
+                        </div>
+                        <span className="text-xs font-medium text-text-primary">
+                          66%
+                        </span>
+                      </div>
+                      <div className="flex justify-between mt-3 text-xs text-text-muted">
+                        <span>
+                          Due {new Date(project.endDate).toLocaleDateString()}
+                        </span>
+                        <span>Team: 4</span>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <div className="text-center py-8 text-text-secondary text-sm">
+                  No active projects found.
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -192,19 +192,34 @@ export default function AdminDashboard() {
           </section>
 
           {/* Employees on Leave */}
-          <section>
-            <EmployeesOnLeave />
-          </section>
+          {(!user?.tenantId ||
+            typeof user.tenantId === "string" ||
+            !user.tenantId.limits ||
+            user.tenantId.limits.enabledModules.includes("leave")) && (
+            <section>
+              <EmployeesOnLeave />
+            </section>
+          )}
 
           {/* Upcoming Holiday */}
-          <section>
-            <UpcomingHolidayWidget />
-          </section>
+          {(!user?.tenantId ||
+            typeof user.tenantId === "string" ||
+            !user.tenantId.limits ||
+            user.tenantId.limits.enabledModules.includes("leave")) && (
+            <section>
+              <UpcomingHolidayWidget />
+            </section>
+          )}
 
           {/* Upcoming Events (Birthdays & Anniversaries) */}
-          <section>
-            <UpcomingEventsWidget />
-          </section>
+          {(!user?.tenantId ||
+            typeof user.tenantId === "string" ||
+            !user.tenantId.limits ||
+            user.tenantId.limits.enabledModules.includes("employees")) && (
+            <section>
+              <UpcomingEventsWidget />
+            </section>
+          )}
 
           {/* Recent Activity */}
           <section className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden">

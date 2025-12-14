@@ -121,7 +121,7 @@ export default function LoginHistoryModal({
           )}
         </div>
 
-        <div className="p-6 border-t border-border bg-bg-card rounded-b-xl">
+        <div className="p-6 bg-bg-card rounded-b-xl">
           <p className="text-xs text-text-muted text-center">
             Showing last {history.length} login attempts.
           </p>

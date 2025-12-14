@@ -57,7 +57,7 @@ export default function LeavePolicyList() {
             Manage leave types and allocation rules
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} leftIcon={<Plus size={18} />}>
+        <Button onClick={() => setShowForm(true)} leftIcon={<Plus size={20} />}>
           Create New Policy
         </Button>
       </div>

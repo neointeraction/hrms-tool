@@ -358,7 +358,7 @@ export default function Timesheet() {
           )}
           <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            leftIcon={<Plus size={18} />}
+            leftIcon={<Plus size={20} />}
           >
             Add Entry
           </Button>

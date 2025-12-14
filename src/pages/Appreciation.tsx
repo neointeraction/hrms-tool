@@ -248,7 +248,11 @@ export default function Appreciation() {
                       }`}
                     >
                       <img
-                        src={`${ASSET_BASE_URL}${badge.icon}`}
+                        src={
+                          badge.icon.startsWith("http")
+                            ? badge.icon
+                            : `${ASSET_BASE_URL}${badge.icon}`
+                        }
                         alt={badge.title}
                         className="w-8 h-8 object-contain"
                       />
@@ -305,7 +309,11 @@ export default function Appreciation() {
                 <div className="flex-shrink-0 bg-brand-primary/5 rounded-full p-2 border border-brand-primary/10">
                   {appr.badge ? (
                     <img
-                      src={`${ASSET_BASE_URL}${appr.badge.icon}`}
+                      src={
+                        appr.badge.icon.startsWith("http")
+                          ? appr.badge.icon
+                          : `${ASSET_BASE_URL}${appr.badge.icon}`
+                      }
                       alt={appr.badge.title}
                       className="w-8 h-8 object-contain"
                     />
@@ -467,7 +475,11 @@ export default function Appreciation() {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={`${ASSET_BASE_URL}${badge.icon}`}
+                      src={
+                        badge.icon.startsWith("http")
+                          ? badge.icon
+                          : `${ASSET_BASE_URL}${badge.icon}`
+                      }
                       alt={badge.title}
                       className="w-8 h-8 object-contain"
                     />

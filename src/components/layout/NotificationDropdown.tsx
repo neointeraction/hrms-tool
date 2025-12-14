@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bell, Check } from "lucide-react";
+import { Tooltip } from "../common/Tooltip";
 import { useAppStore } from "../../store/useAppStore";
 import { useNavigate } from "react-router-dom";
 
@@ -77,15 +78,17 @@ export default function NotificationDropdown() {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded-lg transition-colors"
-      >
-        <Bell size={20} />
-        {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full ring-2 ring-white animate-pulse" />
-        )}
-      </button>
+      <Tooltip content="Notifications">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded-lg transition-colors"
+        >
+          <Bell size={20} />
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-status-error rounded-full ring-2 ring-white animate-pulse" />
+          )}
+        </button>
+      </Tooltip>
 
       {isOpen && (
         <div

@@ -4,6 +4,8 @@ import { apiService } from "../../services/api.service";
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
+import { Checkbox } from "../../components/common/Checkbox";
+import { Button } from "../../components/common/Button";
 
 interface ApplyLeaveModalProps {
   isOpen: boolean;
@@ -106,22 +108,18 @@ export default function ApplyLeaveModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() =>
               handleSubmit({ preventDefault: () => {} } as React.FormEvent)
             }
             disabled={loading}
-            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+            isLoading={loading}
           >
-            {loading ? "Submitting..." : "Submit Application"}
-          </button>
+            Submit Application
+          </Button>
         </div>
       }
     >
@@ -131,7 +129,6 @@ export default function ApplyLeaveModal({
             <X size={14} /> {error}
           </div>
         )}
-
         <div className="space-y-1">
           <Select
             label="Leave Type"
@@ -147,22 +144,14 @@ export default function ApplyLeaveModal({
         </div>
 
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             id="isHalfDay"
             name="isHalfDay"
             checked={formData.isHalfDay}
             onChange={handleChange}
-            className="w-4 h-4 text-brand-primary border-border rounded focus:ring-brand-primary"
+            label="Half Day Leave"
           />
-          <label
-            htmlFor="isHalfDay"
-            className="text-sm font-medium text-text-primary"
-          >
-            Half Day Leave
-          </label>
         </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <DatePicker
@@ -188,7 +177,6 @@ export default function ApplyLeaveModal({
             />
           </div>
         </div>
-
         <div className="space-y-1">
           <label className="text-xs font-medium text-text-secondary uppercase">
             Reason

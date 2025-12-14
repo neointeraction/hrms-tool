@@ -1,12 +1,7 @@
 import { useState } from "react";
-import {
-  PlusCircle,
-  List,
-  CheckSquare,
-  FileText,
-  Calendar,
-} from "lucide-react";
+import { Plus, List, CheckSquare, FileText, Calendar } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { Button } from "../../components/common/Button";
 import LeaveBalance from "./LeaveBalance";
 import LeaveList from "./LeaveList";
 import LeaveApproval from "./LeaveApproval";
@@ -28,7 +23,13 @@ export default function LeaveDashboard() {
     user?.role === "HR" ||
     user?.role === "Project Manager";
 
-  const canManagePolicies = user?.role === "Admin" || user?.role === "HR";
+  const canManagePolicies =
+    (user?.role === "Admin" || user?.role === "HR") &&
+    (!user?.tenantId ||
+      typeof user.tenantId === "string" ||
+      !user.tenantId.limits ||
+      user.tenantId.limits.enabledModules.includes("policies"));
+
   const canViewOverview = user?.role === "Admin" || user?.role === "HR";
 
   return (
@@ -44,20 +45,19 @@ export default function LeaveDashboard() {
             </p>
           </div>
           <div className="flex gap-3">
-            <button
+            <Button
+              variant="outline"
               onClick={() => setIsHolidayModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-bg-card border border-border text-text-primary rounded-lg hover:bg-bg-hover transition-colors"
+              leftIcon={<Calendar size={20} />}
             >
-              <Calendar size={20} />
               View Holidays
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsApplyModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
+              leftIcon={<Plus size={20} />}
             >
-              <PlusCircle size={20} />
               Apply for Leave
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -121,7 +121,7 @@ export default function LeaveDashboard() {
         <div className="mt-4">
           {activeTab === "my-leaves" && <LeaveList />}
           {activeTab === "approvals" && <LeaveApproval />}
-          {activeTab === "policies" && <LeavePolicyList />}
+          {activeTab === "policies" && canManagePolicies && <LeavePolicyList />}
           {activeTab === "overview" && <HRLeaveOverview />}
         </div>
       </div>

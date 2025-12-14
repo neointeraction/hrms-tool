@@ -25,6 +25,11 @@ export const menuItems: MenuItem[] = [
     roles: ["Admin", "HR"],
   },
   {
+    to: "/roles",
+    label: "Role Management",
+    roles: ["Admin", "HR"],
+  },
+  {
     to: "/assets",
     label: "Asset Management",
     roles: ["Admin", "HR"],
@@ -128,6 +133,19 @@ export const menuItems: MenuItem[] = [
   {
     to: "/miscellaneous",
     label: "Miscellaneous",
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
+  },
+  {
+    to: "/social",
+    label: "Social Wall",
     roles: [
       "Admin",
       "HR",

@@ -22,12 +22,37 @@ export default function HRDashboard() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AttendanceWidget />
-        <LeaveWidget />
-        <UpcomingHolidayWidget />
-        <PayrollSummaryWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("attendance")) && (
+          <AttendanceWidget />
+        )}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("leave")) && (
+          <LeaveWidget />
+        )}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("leave")) && (
+          <UpcomingHolidayWidget />
+        )}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("payroll")) && (
+          <PayrollSummaryWidget />
+        )}
         <FeedbackWidget />
-        <AppreciationWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("social")) && (
+          <AppreciationWidget />
+        )}
       </div>
     </div>
   );

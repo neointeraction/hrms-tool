@@ -5,7 +5,6 @@ import {
   Trash2,
   Package,
   ChevronLeft,
-  Upload,
   Download,
   UserPlus,
 } from "lucide-react";
@@ -334,7 +333,7 @@ export default function AssetInventory() {
               resetForm();
               setIsModalOpen(true);
             }}
-            leftIcon={<Plus size={18} />}
+            leftIcon={<Plus size={20} />}
           >
             Add Asset
           </Button>
@@ -649,18 +648,23 @@ export default function AssetInventory() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
+          <div className="flex justify-end gap-3 pt-4">
+            <button
               type="button"
-              variant="secondary"
               onClick={() => {
                 setIsModalOpen(false);
                 resetForm();
               }}
+              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
             >
               Cancel
-            </Button>
-            <Button type="submit">{editingAsset ? "Update" : "Create"}</Button>
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {editingAsset ? "Update" : "Create"}
+            </button>
           </div>
         </form>
       </Modal>

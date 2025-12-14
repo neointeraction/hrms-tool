@@ -30,7 +30,7 @@ export function Modal({
         className={`bg-bg-card rounded-xl shadow-2xl w-full ${maxWidth} mx-4 animate-in fade-in zoom-in-95 duration-300 ease-out border border-border flex flex-col max-h-[90vh]`}
       >
         {!hideHeader && (
-          <div className="flex items-center justify-between p-6 border-b border-border shrink-0">
+          <div className="flex items-center justify-between p-3 border-b border-border shrink-0">
             <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
             <button
               onClick={onClose}
@@ -44,7 +44,7 @@ export function Modal({
         <div className="p-6 space-y-4 overflow-y-auto">{children}</div>
 
         {footer && (
-          <div className="p-6 border-t border-border bg-bg-main/50 rounded-b-xl shrink-0">
+          <div className="p-3 bg-bg-main/50 rounded-b-xl shrink-0">
             {footer}
           </div>
         )}

@@ -4,6 +4,7 @@ import { apiService } from "../../services/api.service";
 import { Badge } from "../../components/common/Badge";
 import { Table, type Column } from "../../components/common/Table";
 import RichTextEditor from "../../components/common/RichTextEditor";
+import { Checkbox } from "../../components/common/Checkbox";
 
 export default function EmailAutomation() {
   const [activeTab, setActiveTab] = useState<"settings" | "logs">("settings");
@@ -336,48 +337,38 @@ export default function EmailAutomation() {
                   <h3 className="text-sm font-semibold text-text-primary mb-2">
                     Notifications
                   </h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm text-text-secondary">
-                      <input
-                        type="checkbox"
-                        checked={settings.notification?.ccManager || false}
-                        onChange={(e) =>
-                          updateSetting(
-                            "notification.ccManager",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      CC Employee's Manager
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-text-secondary">
-                      <input
-                        type="checkbox"
-                        checked={settings.notification?.notifyHR || false}
-                        onChange={(e) =>
-                          updateSetting(
-                            "notification.notifyHR",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      Notify HR upon sending
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-text-secondary">
-                      <input
-                        type="checkbox"
-                        checked={
-                          settings.notification?.notifyAllEmployees || false
-                        }
-                        onChange={(e) =>
-                          updateSetting(
-                            "notification.notifyAllEmployees",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      Send celebration email to all employees
-                    </label>
+                  <div className="space-y-4">
+                    {" "}
+                    {/* Increased space-y for better layout */}
+                    <Checkbox
+                      checked={settings.notification?.ccManager || false}
+                      onChange={(e) =>
+                        updateSetting(
+                          "notification.ccManager",
+                          e.target.checked
+                        )
+                      }
+                      label="CC Employee's Manager"
+                    />
+                    <Checkbox
+                      checked={settings.notification?.notifyHR || false}
+                      onChange={(e) =>
+                        updateSetting("notification.notifyHR", e.target.checked)
+                      }
+                      label="Notify HR upon sending"
+                    />
+                    <Checkbox
+                      checked={
+                        settings.notification?.notifyAllEmployees || false
+                      }
+                      onChange={(e) =>
+                        updateSetting(
+                          "notification.notifyAllEmployees",
+                          e.target.checked
+                        )
+                      }
+                      label="Send celebration email to all employees"
+                    />
                   </div>
                 </div>
               </div>

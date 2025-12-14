@@ -29,69 +29,77 @@ export default function AccountantDashboard() {
 
       {/* Standard Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <AttendanceWidget />
-        <LeaveWidget />
-        <UpcomingHolidayWidget />
-        <FeedbackWidget />
-        <AppreciationWidget />
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          user.tenantId.limits.enabledModules.includes("leave")) && (
+          <UpcomingHolidayWidget />
+        )}
       </div>
 
       {/* Financials Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="text-brand-primary" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Payroll Summary
-            </h2>
-          </div>
-          <p className="text-3xl font-bold text-text-primary">$142,500</p>
-          <p className="text-sm text-text-secondary mb-4">
-            Total payout for June
-          </p>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="w-2 h-2 rounded-full bg-status-warning animate-pulse" />
-            <span className="text-status-warning font-medium">Processing</span>
-          </div>
-        </div>
-
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <CreditCard className="text-status-success" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Salary Status
-            </h2>
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-text-secondary">Disbursed</span>
-              <span className="font-bold text-status-success">85%</span>
+      {(!user?.tenantId ||
+        typeof user.tenantId === "string" ||
+        !user.tenantId.limits ||
+        user.tenantId.limits.enabledModules.includes("payroll")) && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <DollarSign className="text-brand-primary" size={24} />
+              <h2 className="text-lg font-semibold text-text-primary">
+                Payroll Summary
+              </h2>
             </div>
-            <div className="w-full bg-bg-main rounded-full h-2">
-              <div className="bg-status-success h-2 rounded-full w-[85%]" />
-            </div>
-            <p className="text-xs text-text-secondary text-right">
-              Remaining: 22 employees
+            <p className="text-3xl font-bold text-text-primary">$142,500</p>
+            <p className="text-sm text-text-secondary mb-4">
+              Total payout for June
             </p>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="w-2 h-2 rounded-full bg-status-warning animate-pulse" />
+              <span className="text-status-warning font-medium">
+                Processing
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <PieChart className="text-status-info" size={24} />
-            <h2 className="text-lg font-semibold text-text-primary">
-              Expenses
-            </h2>
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="text-status-success" size={24} />
+              <h2 className="text-lg font-semibold text-text-primary">
+                Salary Status
+              </h2>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary">Disbursed</span>
+                <span className="font-bold text-status-success">85%</span>
+              </div>
+              <div className="w-full bg-bg-main rounded-full h-2">
+                <div className="bg-status-success h-2 rounded-full w-[85%]" />
+              </div>
+              <p className="text-xs text-text-secondary text-right">
+                Remaining: 22 employees
+              </p>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-text-primary">$12,450</p>
-          <p className="text-sm text-text-secondary mb-4">
-            Reimbursements pending
-          </p>
-          <button className="text-sm text-brand-primary font-medium hover:underline">
-            View Details
-          </button>
+
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <PieChart className="text-status-info" size={24} />
+              <h2 className="text-lg font-semibold text-text-primary">
+                Expenses
+              </h2>
+            </div>
+            <p className="text-3xl font-bold text-text-primary">$12,450</p>
+            <p className="text-sm text-text-secondary mb-4">
+              Reimbursements pending
+            </p>
+            <button className="text-sm text-brand-primary font-medium hover:underline">
+              View Details
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Billing Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

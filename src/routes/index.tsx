@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 
 import EmployeeManagement from "../features/employee/EmployeeManagement";
 import RoleGuard from "../components/auth/RoleGuard";
+import ModuleGuard from "../components/auth/ModuleGuard";
 
 import Login from "../pages/Login";
 import CompanySetup from "../pages/CompanySetup";
@@ -18,6 +19,7 @@ import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
+import RoleManagement from "../features/admin/RoleManagement";
 import UserManagement from "../features/superadmin/UserManagement";
 import Settings from "../features/superadmin/Settings";
 import {
@@ -33,6 +35,7 @@ import AssetCategories from "../features/assets/pages/AssetCategories";
 import AssetInventory from "../features/assets/pages/AssetInventory";
 import MyAssets from "../features/assets/pages/MyAssets";
 import AssetDashboard from "../features/assets/pages/AssetDashboard";
+import SocialFeed from "../features/social/SocialFeed";
 
 export const router = createBrowserRouter([
   {
@@ -76,7 +79,9 @@ export const router = createBrowserRouter([
         path: "ai-configuration",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <QAConfig />
+            <ModuleGuard module="ai_chatbot">
+              <QAConfig />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -84,7 +89,19 @@ export const router = createBrowserRouter([
         path: "employee-management",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <EmployeeManagement />
+            <ModuleGuard module="employees">
+              <EmployeeManagement />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "roles",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <ModuleGuard module="roles">
+              <RoleManagement />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -118,7 +135,9 @@ export const router = createBrowserRouter([
               "Consultant",
             ]}
           >
-            <Attendance />
+            <ModuleGuard module="attendance">
+              <Attendance />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -126,7 +145,9 @@ export const router = createBrowserRouter([
         path: "audit",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <AuditTrail />
+            <ModuleGuard module="audit">
+              <AuditTrail />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -143,7 +164,9 @@ export const router = createBrowserRouter([
               "Consultant",
             ]}
           >
-            <LeaveDashboard />
+            <ModuleGuard module="leave">
+              <LeaveDashboard />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -161,7 +184,9 @@ export const router = createBrowserRouter([
               "Consultant",
             ]}
           >
-            <PayrollDashboard />
+            <ModuleGuard module="payroll">
+              <PayrollDashboard />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -178,7 +203,9 @@ export const router = createBrowserRouter([
               "Accountant",
             ]}
           >
-            <ProjectDashboard />
+            <ModuleGuard module="projects">
+              <ProjectDashboard />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -194,7 +221,9 @@ export const router = createBrowserRouter([
               "Consultant",
             ]}
           >
-            <ProjectDetails />
+            <ModuleGuard module="projects">
+              <ProjectDetails />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -212,7 +241,9 @@ export const router = createBrowserRouter([
               "Accountant",
             ]}
           >
-            <Organization />
+            <ModuleGuard module="organization">
+              <Organization />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -275,6 +306,26 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "social",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <ModuleGuard module="social">
+              <SocialFeed />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
         path: "miscellaneous",
         element: (
           <RoleGuard
@@ -331,7 +382,9 @@ export const router = createBrowserRouter([
         path: "miscellaneous/email-automation",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <EmailAutomation />
+            <ModuleGuard module="email_automation">
+              <EmailAutomation />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -339,7 +392,9 @@ export const router = createBrowserRouter([
         path: "miscellaneous/asset-categories",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <AssetCategories />
+            <ModuleGuard module="assets">
+              <AssetCategories />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -347,7 +402,9 @@ export const router = createBrowserRouter([
         path: "assets",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <AssetDashboard />
+            <ModuleGuard module="assets">
+              <AssetDashboard />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -355,13 +412,30 @@ export const router = createBrowserRouter([
         path: "assets/inventory",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <AssetInventory />
+            <ModuleGuard module="assets">
+              <AssetInventory />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
       {
         path: "my-assets",
-        element: <MyAssets />,
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <ModuleGuard module="assets">
+              <MyAssets />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
       },
     ],
   },

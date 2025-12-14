@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, Save, Plus, Trash2, Users, CheckCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Modal } from "../../components/common/Modal";
+import { Button } from "../../components/common/Button";
 
 import { Skeleton } from "../../components/common/Skeleton";
 
@@ -207,13 +208,13 @@ export default function SalaryStructureManager() {
                   <h2 className="text-lg font-bold text-text-primary">
                     Salary Structure
                   </h2>
-                  <button
+                  <Button
                     onClick={handleSave}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50"
+                    leftIcon={<Save size={20} />}
                   >
-                    <Save size={18} /> Save Changes
-                  </button>
+                    Save Changes
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import { Shield, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { Modal } from "../../components/common/Modal";
+import { Button } from "../../components/common/Button";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Checkbox } from "../../components/common/Checkbox";
+
+import { MODULES } from "../../constants/modules";
 
 interface Permission {
   _id: string;
@@ -14,6 +19,7 @@ interface Role {
   _id: string;
   name: string;
   permissions: Permission[];
+  accessibleModules: string[];
 }
 
 export default function RoleManagement() {
@@ -21,6 +27,7 @@ export default function RoleManagement() {
   const [availablePermissions, setAvailablePermissions] = useState<
     Permission[]
   >([]);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +35,27 @@ export default function RoleManagement() {
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [roleName, setRoleName] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
+
+  // Filter modules available to the tenant
+  const tenantModules = MODULES.filter((m) => {
+    // If no tenant or limits (e.g. super admin or legacy), show all
+    if (
+      !user?.tenantId ||
+      typeof user.tenantId !== "object" ||
+      !("limits" in user.tenantId)
+    )
+      return true;
+
+    // TypeScript doesn't automatically narrow 'user.tenantId' to the version with limits despite the check above in all contexts
+    const tenantWithLimits = user.tenantId as any;
+    return (
+      tenantWithLimits.limits &&
+      tenantWithLimits.limits.enabledModules &&
+      tenantWithLimits.limits.enabledModules.includes(m.key)
+    );
+  });
 
   const [deleteRoleId, setDeleteRoleId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -60,10 +87,12 @@ export default function RoleManagement() {
       setEditingRole(role);
       setRoleName(role.name);
       setSelectedPermissions(role.permissions.map((p) => p._id));
+      setSelectedModules(role.accessibleModules || []);
     } else {
       setEditingRole(null);
       setRoleName("");
       setSelectedPermissions([]);
+      setSelectedModules([]);
     }
     setIsModalOpen(true);
   };
@@ -85,6 +114,7 @@ export default function RoleManagement() {
       const payload = {
         name: roleName,
         permissions: selectedPermissions,
+        accessibleModules: selectedModules,
       };
 
       if (editingRole) {
@@ -128,13 +158,9 @@ export default function RoleManagement() {
             Manage system roles and permissions
           </p>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
-        >
-          <Plus size={20} />
+        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={20} />}>
           Add Role
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -177,6 +203,38 @@ export default function RoleManagement() {
             ),
           },
           {
+            header: "Accessible Modules",
+            render: (role) => (
+              <div className="flex flex-wrap gap-1">
+                {role.accessibleModules && role.accessibleModules.length > 0 ? (
+                  role.accessibleModules.slice(0, 5).map((moduleKey) => {
+                    const moduleLabel =
+                      MODULES.find((m) => m.key === moduleKey)?.label ||
+                      moduleKey;
+                    return (
+                      <span
+                        key={moduleKey}
+                        className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs rounded-full border border-blue-100 dark:border-blue-800"
+                      >
+                        {moduleLabel}
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="text-sm text-text-secondary">
+                    No modules
+                  </span>
+                )}
+                {role.accessibleModules &&
+                  role.accessibleModules.length > 5 && (
+                    <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-full border border-gray-200 dark:border-gray-700">
+                      +{role.accessibleModules.length - 5} more
+                    </span>
+                  )}
+              </div>
+            ),
+          },
+          {
             header: "Actions",
             className: "text-right",
             render: (role) => (
@@ -209,20 +267,66 @@ export default function RoleManagement() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingRole ? "Edit Role" : "Add New Role"}
+        maxWidth="max-w-4xl"
       >
-        <form onSubmit={handleSaveRole} className="space-y-4">
+        <form onSubmit={handleSaveRole} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Role Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 bg-white border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors"
               placeholder="e.g. HR Manager"
+              className="w-full px-3 py-2 border border-border rounded-lg bg-bg-main text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+              required
             />
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-text-secondary">
+                Accessible Modules
+              </label>
+              <div className="flex gap-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedModules(tenantModules.map((m) => m.key))
+                  }
+                  className="text-brand-primary hover:text-brand-primary/80 font-medium"
+                >
+                  Select All
+                </button>
+                <span className="text-border">|</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedModules([])}
+                  className="text-text-secondary hover:text-text-primary"
+                >
+                  Deselect All
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 border border-border rounded-lg p-4 bg-bg-main/50">
+              {tenantModules.map((moduleObj) => (
+                <Checkbox
+                  key={moduleObj.key}
+                  label={moduleObj.shortLabel || moduleObj.label}
+                  checked={selectedModules.includes(moduleObj.key)}
+                  onChange={(e: any) => {
+                    if (e.target.checked) {
+                      setSelectedModules([...selectedModules, moduleObj.key]);
+                    } else {
+                      setSelectedModules(
+                        selectedModules.filter((m) => m !== moduleObj.key)
+                      );
+                    }
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           <div>

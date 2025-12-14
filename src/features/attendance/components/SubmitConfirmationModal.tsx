@@ -24,16 +24,16 @@ export default function SubmitConfirmationModal({
       title="Confirm Submission"
       maxWidth="max-w-md"
       footer={
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-main hover:bg-bg-secondary rounded-md border border-border-dim transition-colors"
+            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-secondary rounded-md shadow-lg shadow-brand-primary/20 transition-all hover:scale-[1.02]"
+            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors"
           >
             Confirm Submit
           </button>

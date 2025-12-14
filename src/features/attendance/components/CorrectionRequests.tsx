@@ -5,6 +5,7 @@ import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 import { Select } from "../../../components/common/Select";
 import { DatePicker } from "../../../components/common/DatePicker";
+import { Button } from "../../../components/common/Button";
 
 export default function CorrectionRequests() {
   const { user } = useAuth();
@@ -123,13 +124,12 @@ export default function CorrectionRequests() {
               Request corrections for missed clock in/out
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
+            leftIcon={<Plus size={20} />}
           >
-            <Plus size={18} />
             New Request
-          </button>
+          </Button>
         </div>
 
         {showAddForm && (

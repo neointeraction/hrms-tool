@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Filter, Download, Search, Calendar, Loader2 } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { Button } from "../../components/common/Button";
 
 interface AuditLog {
   _id: string;
@@ -94,10 +95,9 @@ export default function AuditLogs() {
           System Audit Logs
         </h2>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg hover:bg-bg-hover transition-colors text-sm">
-            <Download size={16} />
+          <Button variant="outline" size="sm" leftIcon={<Download size={16} />}>
             Export CSV
-          </button>
+          </Button>
         </div>
       </div>
 
