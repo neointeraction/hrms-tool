@@ -211,19 +211,6 @@ class ApiService {
     return response.json();
   }
 
-  async updateCompanySettings(data: any): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/settings/company`, {
-      method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to update settings");
-    }
-    return response.json();
-  }
-
   async getSubscriptionDetails(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/settings/subscription`, {
       headers: this.getAuthHeaders(),
@@ -1145,6 +1132,22 @@ class ApiService {
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error("Failed to update task");
+    return response.json();
+  }
+
+  async updateCompanySettings(data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const headers = this.getAuthHeaders();
+    if (isFormData) {
+      delete (headers as any)["Content-Type"]; // Let browser set Content-Type with boundary
+    }
+
+    const response = await fetch(`${API_BASE_URL}/settings/company`, {
+      method: "PUT",
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to update settings");
     return response.json();
   }
 

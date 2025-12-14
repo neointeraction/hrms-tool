@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Users,
@@ -43,6 +43,25 @@ export default function MainLayout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Update Favicon
+  useEffect(() => {
+    if (user?.tenantId && typeof user.tenantId === "object") {
+      const settings = (user.tenantId as any).settings;
+      if (settings?.favicon) {
+        const link: HTMLLinkElement | null =
+          document.querySelector("link[rel~='icon']");
+        if (link) {
+          link.href = settings.favicon;
+        } else {
+          const newLink = document.createElement("link");
+          newLink.rel = "icon";
+          newLink.href = settings.favicon;
+          document.head.appendChild(newLink);
+        }
+      }
+    }
+  }, [user]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -126,6 +145,11 @@ export default function MainLayout() {
       to: "/my-assets",
       icon: Package,
       label: "My Assets",
+    },
+    {
+      to: "/settings",
+      icon: Settings,
+      label: "System Settings",
     },
   ];
 
@@ -297,7 +321,15 @@ export default function MainLayout() {
         )}
       >
         <div className="p-6 hidden md:flex items-center justify-between border-b border-border h-16">
-          <span className="font-bold text-2xl text-brand-primary">HRMS</span>
+          {(user?.tenantId as any)?.settings?.logo ? (
+            <img
+              src={(user?.tenantId as any).settings.logo}
+              alt="Company Logo"
+              className="h-10 w-auto object-contain"
+            />
+          ) : (
+            <span className="font-bold text-2xl text-brand-primary">HRMS</span>
+          )}
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

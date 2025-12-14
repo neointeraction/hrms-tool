@@ -127,8 +127,13 @@ export const menuItems: MenuItem[] = [
   },
   {
     to: "/superadmin/settings",
-    label: "Settings",
+    label: "Platform Settings",
     roles: ["Super Admin"],
+  },
+  {
+    to: "/settings",
+    label: "System Settings",
+    roles: ["Admin"], // Company Admin
   },
   {
     to: "/miscellaneous",

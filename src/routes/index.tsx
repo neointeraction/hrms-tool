@@ -37,6 +37,9 @@ import MyAssets from "../features/assets/pages/MyAssets";
 import AssetDashboard from "../features/assets/pages/AssetDashboard";
 import SocialFeed from "../features/social/SocialFeed";
 
+// Settings
+import SystemSettings from "../pages/admin/SystemSettings";
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -297,11 +300,12 @@ export const router = createBrowserRouter([
           </RoleGuard>
         ),
       },
+      // Company Admin Settings
       {
-        path: "/superadmin/settings",
+        path: "settings",
         element: (
-          <RoleGuard allowedRoles={["Super Admin"]}>
-            <Settings />
+          <RoleGuard allowedRoles={["Admin"]}>
+            <SystemSettings />
           </RoleGuard>
         ),
       },

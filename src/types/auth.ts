@@ -22,6 +22,11 @@ export interface User {
         _id: string;
         companyName: string;
         status?: string;
+        settings?: {
+          logo?: string;
+          favicon?: string;
+          [key: string]: any;
+        };
         limits?: {
           maxEmployees: number;
           maxStorage: number;
