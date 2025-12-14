@@ -21,7 +21,6 @@ import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
 import RoleManagement from "../features/admin/RoleManagement";
 import UserManagement from "../features/superadmin/UserManagement";
-import Settings from "../features/superadmin/Settings";
 import {
   CompanySettings,
   SubscriptionPage,
