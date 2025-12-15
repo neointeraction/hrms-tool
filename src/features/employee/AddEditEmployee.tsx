@@ -5,6 +5,7 @@ import { PasswordInput } from "../../components/common/PasswordInput";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
+import { Input } from "../../components/common/Input";
 
 interface AddEditEmployeeProps {
   isOpen: boolean;
@@ -116,12 +117,11 @@ export default function AddEditEmployee({
           },
         });
         if (employee.profilePicture) {
-          // If storing path like "uploads/..." append backend URL
-          // Assuming image is served from same origin or full URL.
-          // For now, assume relative path 'uploads/...' needs '/uploads/...' prepended or usage of API_URL
-          // We'll trust backend sends relative path e.g. 'uploads/file.png'.
-          // Simple preview hack:
-          setImagePreview(`${ASSET_BASE_URL}/${employee.profilePicture}`);
+          setImagePreview(
+            employee.profilePicture.startsWith("http")
+              ? employee.profilePicture
+              : `${ASSET_BASE_URL}/${employee.profilePicture}`
+          );
         }
       } else {
         // Reset form
@@ -320,21 +320,16 @@ export default function AddEditEmployee({
           required={required}
         />
       ) : (
-        <>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            {label} {required && <span className="text-red-500">*</span>}
-          </label>
-
-          <input
-            type={type}
-            name={name}
-            value={formData[name]}
-            onChange={handleChange}
-            disabled={viewMode}
-            required={required}
-            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
-          />
-        </>
+        <Input
+          label={label}
+          type={type}
+          name={name}
+          value={formData[name]}
+          onChange={handleChange}
+          disabled={viewMode}
+          required={required}
+          className="disabled:opacity-60"
+        />
       )}
     </div>
   );
@@ -651,8 +646,7 @@ export default function AddEditEmployee({
                   <label className="block text-sm font-medium text-text-secondary mb-1">
                     Account Holder Name
                   </label>
-                  <input
-                    type="text"
+                  <Input
                     value={formData.bankDetails?.accountName || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
@@ -664,15 +658,14 @@ export default function AddEditEmployee({
                       }))
                     }
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                    className="disabled:opacity-60"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1">
                     Account Number
                   </label>
-                  <input
-                    type="text"
+                  <Input
                     value={formData.bankDetails?.accountNumber || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
@@ -684,15 +677,14 @@ export default function AddEditEmployee({
                       }))
                     }
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                    className="disabled:opacity-60"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1">
                     Bank Name
                   </label>
-                  <input
-                    type="text"
+                  <Input
                     value={formData.bankDetails?.bankName || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
@@ -704,15 +696,14 @@ export default function AddEditEmployee({
                       }))
                     }
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                    className="disabled:opacity-60"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-1">
                     IFSC / SWIFT Code
                   </label>
-                  <input
-                    type="text"
+                  <Input
                     value={formData.bankDetails?.ifscCode || ""}
                     onChange={(e) =>
                       setFormData((prev: any) => ({
@@ -724,7 +715,7 @@ export default function AddEditEmployee({
                       }))
                     }
                     disabled={viewMode}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-card text-text-primary disabled:bg-bg-main"
+                    className="disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -779,7 +770,7 @@ export default function AddEditEmployee({
                         </button>
                       )}
                       <div className="grid grid-cols-2 gap-2">
-                        <input
+                        <Input
                           placeholder="Company"
                           value={item.companyName}
                           onChange={(e) =>
@@ -790,10 +781,10 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
+                          className="w-full"
                           disabled={viewMode}
                         />
-                        <input
+                        <Input
                           placeholder="Job Title"
                           value={item.jobTitle}
                           onChange={(e) =>
@@ -804,7 +795,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
+                          className="w-full"
                           disabled={viewMode}
                         />
                         <DatePicker
@@ -877,7 +868,7 @@ export default function AddEditEmployee({
                         </button>
                       )}
                       <div className="grid grid-cols-2 gap-2">
-                        <input
+                        <Input
                           placeholder="Institute"
                           value={item.instituteName}
                           onChange={(e) =>
@@ -888,10 +879,10 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
+                          className="w-full"
                           disabled={viewMode}
                         />
-                        <input
+                        <Input
                           placeholder="Degree"
                           value={item.degree}
                           onChange={(e) =>
@@ -902,10 +893,10 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
+                          className="w-full"
                           disabled={viewMode}
                         />
-                        <input
+                        <Input
                           placeholder="Specialization"
                           value={item.specialization}
                           onChange={(e) =>
@@ -916,7 +907,7 @@ export default function AddEditEmployee({
                               e.target.value
                             )
                           }
-                          className="border border-border p-1 rounded bg-bg-card text-text-primary w-full"
+                          className="w-full"
                           disabled={viewMode}
                         />
                         <DatePicker

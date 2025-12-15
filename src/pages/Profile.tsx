@@ -13,7 +13,6 @@ import {
   IdCard,
   Heart,
   X,
-  Loader2,
   Plus,
   Trash2,
   GraduationCap,
@@ -22,7 +21,9 @@ import {
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
+import { Input } from "../components/common/Input";
 import { ConfirmationModal } from "../components/common/ConfirmationModal";
+import { Skeleton } from "../components/common/Skeleton";
 
 const TABS = [
   "Basic Info",
@@ -193,7 +194,11 @@ export default function Profile() {
           });
 
           if (employeeRecord.profilePicture) {
-            setPreviewUrl(`${ASSET_BASE_URL}/${employeeRecord.profilePicture}`);
+            setPreviewUrl(
+              employeeRecord.profilePicture.startsWith("http")
+                ? employeeRecord.profilePicture
+                : `${ASSET_BASE_URL}/${employeeRecord.profilePicture}`
+            );
           }
         }
       } catch (err: any) {
@@ -327,6 +332,24 @@ export default function Profile() {
     type = "text"
   ) => {
     const Icon = icon;
+    // Input component can handle label, but here the structure is a bit mixed.
+    // Let's use Input for formatting.
+    // Actually, Input takes leftIcon which is ReactNode.
+    // The current renderField puts icon in the label.
+    // Let's keep the label external for consistency with other non-input views (read-only view uses the same label structure?)
+    // No, read-only view doesn't show label?
+    // Wait, line 336 shows label. Both read-only and edit show label.
+    // If I use Input label, it will show label inside the Input component wrapper.
+    // Let's look at lines 336-339. It renders a label.
+    // If I use <Input label={...} /> it renders a label.
+    // So I can replace the whole block effectively?
+    // But read-only state (line 352) uses the same label function? No, line 335 starts the div. Label is always rendered.
+    // So if isEditing is false, we still need the label.
+    // So I should validly use Input only for the input part, and pass `label={undefined}` or just not pass it,
+    // BUT Input handles styling well.
+    // Let's keep the external label for now to minimize visual regression on read-only state,
+    // and just replace the <input> with <Input className="..." />.
+    // Actually Input component has a label prop but it is optional.
     return (
       <div>
         <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
@@ -337,12 +360,11 @@ export default function Profile() {
           type === "date" ? (
             <DatePicker name={name} value={value} onChange={handleChange} />
           ) : (
-            <input
+            <Input
               type={type}
               name={name}
               value={value}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             />
           )
         ) : (
@@ -379,10 +401,58 @@ export default function Profile() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Loading State */}
+      {/* Loading State - Skeleton */}
       {loading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
-          <span className="ml-3 text-text-secondary">Loading profile...</span>
+        <div className="space-y-6">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar Skeleton */}
+            <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border lg:col-span-1 h-fit">
+              <div className="flex flex-col items-center space-y-4">
+                <Skeleton className="w-32 h-32 rounded-full" />
+                <div className="space-y-2 w-full flex flex-col items-center">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+                <div className="w-full space-y-3 mt-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex justify-between">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Skeleton */}
+            <div className="lg:col-span-3 bg-bg-card rounded-lg shadow-sm border border-border">
+              {/* Tabs Skeleton */}
+              <div className="flex border-b border-border p-1">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-10 w-24 mr-4 rounded-t-lg" />
+                ))}
+              </div>
+
+              {/* Form Fields Skeleton */}
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -710,14 +780,13 @@ export default function Profile() {
                         Account Name
                       </label>
                       {isEditing ? (
-                        <input
+                        <Input
                           type="text"
                           name="accountName"
                           value={
                             (profileData as any).bankDetails?.accountName || ""
                           }
                           onChange={handleBankDetailChange}
-                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
                       ) : (
                         <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
@@ -732,7 +801,7 @@ export default function Profile() {
                         Account Number
                       </label>
                       {isEditing ? (
-                        <input
+                        <Input
                           type="text"
                           name="accountNumber"
                           value={
@@ -740,7 +809,6 @@ export default function Profile() {
                             ""
                           }
                           onChange={handleBankDetailChange}
-                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
                       ) : (
                         <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
@@ -755,14 +823,13 @@ export default function Profile() {
                         Bank Name
                       </label>
                       {isEditing ? (
-                        <input
+                        <Input
                           type="text"
                           name="bankName"
                           value={
                             (profileData as any).bankDetails?.bankName || ""
                           }
                           onChange={handleBankDetailChange}
-                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
                       ) : (
                         <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
@@ -776,14 +843,13 @@ export default function Profile() {
                         IFSC Code
                       </label>
                       {isEditing ? (
-                        <input
+                        <Input
                           type="text"
                           name="ifscCode"
                           value={
                             (profileData as any).bankDetails?.ifscCode || ""
                           }
                           onChange={handleBankDetailChange}
-                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
                         />
                       ) : (
                         <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">

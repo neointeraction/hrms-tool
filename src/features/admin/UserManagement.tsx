@@ -14,6 +14,7 @@ import AddUserModal from "./components/AddUserModal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Button } from "../../components/common/Button";
 import { Table } from "../../components/common/Table";
+import { Input } from "../../components/common/Input";
 
 interface User {
   _id: string;
@@ -172,16 +173,14 @@ export default function UserManagement() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-4 bg-bg-main p-2 rounded-lg border border-border">
-        <Search className="text-text-muted" size={20} />
-        <input
-          type="text"
-          placeholder="Search users by name, email, or role..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-transparent border-none outline-none flex-1 text-sm"
-        />
-      </div>
+      <Input
+        type="text"
+        placeholder="Search users by name, email, or role..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="bg-transparent border-none outline-none flex-1 text-sm h-full"
+        leftIcon={<Search className="text-text-muted" size={20} />}
+      />
 
       {error && (
         <div className="bg-status-error/10 text-status-error p-4 rounded-lg flex items-center gap-2">

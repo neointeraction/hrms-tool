@@ -4,6 +4,7 @@ import { apiService } from "../../services/api.service";
 import { Input } from "../../components/common/Input";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
+import { Checkbox } from "../../components/common/Checkbox";
 
 import { Select } from "../../components/common/Select";
 
@@ -151,23 +152,23 @@ export default function CreateProjectModal({
               employees.map((emp) => {
                 const empId = emp.user?._id || emp._id;
                 return (
-                  <label
+                  <div
                     key={empId}
                     className="flex items-center gap-2 p-2 hover:bg-bg-hover rounded cursor-pointer"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={formData.members.includes(empId)}
                       onChange={() => handleMemberToggle(empId)}
-                      className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                      label={
+                        <span className="text-sm text-text-primary">
+                          {emp.firstName} {emp.lastName}{" "}
+                          <span className="text-text-secondary text-xs">
+                            ({emp.designation})
+                          </span>
+                        </span>
+                      }
                     />
-                    <span className="text-sm text-text-primary">
-                      {emp.firstName} {emp.lastName}{" "}
-                      <span className="text-text-secondary text-xs">
-                        ({emp.designation})
-                      </span>
-                    </span>
-                  </label>
+                  </div>
                 );
               })
             )}

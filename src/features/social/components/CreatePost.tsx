@@ -3,6 +3,9 @@ import { Image as ImageIcon, BarChart2, X, Loader2, Users } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 import { Avatar } from "../../../components/common/Avatar";
+import { Input } from "../../../components/common/Input";
+import { Select } from "../../../components/common/Select";
+import { Textarea } from "../../../components/common/Textarea";
 
 interface CreatePostProps {
   onPostCreated: (post: any) => void;
@@ -105,26 +108,27 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
           {/* Scope Selector */}
           <div className="flex items-center">
             <div className="relative inline-block group">
-              <select
+              <Select
                 value={scope}
-                onChange={(e) => setScope(e.target.value as any)}
-                className="appearance-none bg-gray-50 dark:bg-bg-hover text-xs font-medium pl-3 pr-8 py-1.5 rounded-full text-text-secondary hover:text-brand-primary hover:bg-brand-primary/5 focus:outline-none cursor-pointer transition-colors border border-transparent hover:border-brand-primary/20"
-              >
-                <option value="company">Everyone</option>
-                <option value="department">My Department</option>
-                <option value="project">My Project</option>
-              </select>
+                onChange={(value) => setScope(value as any)}
+                options={[
+                  { value: "company", label: "Everyone" },
+                  { value: "department", label: "My Department" },
+                  { value: "project", label: "My Project" },
+                ]}
+                className="w-40 bg-gray-50 dark:bg-bg-hover text-xs py-0 h-9"
+              />
               <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-text-muted group-hover:text-brand-primary transition-colors">
                 <Users size={12} />
               </div>
             </div>
           </div>
 
-          <textarea
+          <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={isPoll ? "Ask a question..." : "What's on your mind?"}
-            className="w-full border-none p-0 focus:ring-0 resize-none text-base min-h-[60px] placeholder:text-text-muted/60 bg-transparent text-text-primary"
+            className="w-full border-none p-0 focus:ring-0 resize-none text-base min-h-[60px] placeholder:text-text-muted/60 bg-transparent text-text-primary shadow-none"
           />
 
           {/* Media Preview */}
@@ -162,13 +166,13 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
             <div className="bg-gray-50/50 dark:bg-black/20 p-4 rounded-xl border border-border space-y-3 animate-in fade-in slide-in-from-top-2">
               <div className="space-y-2">
                 {pollOptions.map((opt, idx) => (
-                  <input
+                  <Input
                     key={idx}
                     type="text"
                     value={opt}
                     onChange={(e) => updatePollOption(idx, e.target.value)}
                     placeholder={`Option ${idx + 1}`}
-                    className="w-full px-4 py-2 text-sm border border-border dark:bg-bg-card rounded-lg focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                    className="bg-gray-50 dark:bg-bg-card"
                   />
                 ))}
               </div>

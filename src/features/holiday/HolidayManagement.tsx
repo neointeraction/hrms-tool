@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { apiService } from "../../services/api.service";
 import { Calendar, Trash2, Plus } from "lucide-react";
@@ -6,8 +6,8 @@ import { format } from "date-fns";
 import { Table, type Column } from "../../components/common/Table";
 import { Button } from "../../components/common/Button";
 import { DatePicker } from "../../components/common/DatePicker";
-
-import { useMemo } from "react";
+import { Select } from "../../components/common/Select";
+import { Input } from "../../components/common/Input";
 
 interface Holiday {
   _id: string;
@@ -21,6 +21,12 @@ interface Holiday {
 interface HolidayManagementProps {
   isModal?: boolean;
 }
+
+const HOLIDAY_TYPES = [
+  { value: "Public", label: "Public Holiday" },
+  { value: "Optional", label: "Optional" },
+  { value: "Weekend", label: "Weekend" },
+];
 
 export default function HolidayManagement({
   isModal = false,
@@ -205,13 +211,9 @@ export default function HolidayManagement({
           className="bg-bg-card p-4 rounded-lg border border-border shadow-sm flex flex-wrap gap-4 items-end animate-in slide-in-from-top-2"
         >
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium mb-1">
-              Holiday Name
-            </label>
-            <input
+            <Input
+              label="Holiday Name"
               required
-              type="text"
-              className="w-full p-2 rounded border border-border bg-bg-main"
               value={newHoliday.name}
               onChange={(e) =>
                 setNewHoliday({ ...newHoliday, name: e.target.value })
@@ -232,18 +234,14 @@ export default function HolidayManagement({
           </div>
 
           <div className="flex-1 min-w-[150px]">
-            <label className="block text-sm font-medium mb-1">Type</label>
-            <select
-              className="w-full p-2 rounded border border-border bg-bg-main"
+            <Select
+              label="Type"
               value={newHoliday.type}
-              onChange={(e) =>
-                setNewHoliday({ ...newHoliday, type: e.target.value })
+              onChange={(value) =>
+                setNewHoliday({ ...newHoliday, type: value as string })
               }
-            >
-              <option value="Public">Public Holiday</option>
-              <option value="Optional">Optional</option>
-              <option value="Weekend">Weekend</option>
-            </select>
+              options={HOLIDAY_TYPES}
+            />
           </div>
           <div className="flex gap-2">
             <button

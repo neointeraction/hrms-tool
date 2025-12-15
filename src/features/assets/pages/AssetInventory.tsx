@@ -11,8 +11,10 @@ import {
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
 import { Modal } from "../../../components/common/Modal";
-import { Loader } from "../../../components/common/Loader";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { Badge } from "../../../components/common/Badge";
+import { Input } from "../../../components/common/Input";
+import { Select } from "../../../components/common/Select";
 
 interface Asset {
   _id: string;
@@ -350,46 +352,110 @@ export default function AssetInventory() {
 
       {/* Filters */}
       <div className="bg-bg-card p-4 rounded-xl border border-border flex gap-4">
-        <input
+        <Input
           type="text"
           placeholder="Search by name, code, or serial number..."
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          className="flex-1 px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
+          className="flex-1 bg-bg-input"
         />
-        <select
-          value={filters.categoryId}
-          onChange={(e) =>
-            setFilters({ ...filters, categoryId: e.target.value })
-          }
-          className="px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
-        >
-          <option value="">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
-        >
-          <option value="">All Statuses</option>
-          <option value="Available">Available</option>
-          <option value="Issued">Issued</option>
-          <option value="Under Repair">Under Repair</option>
-          <option value="Lost">Lost</option>
-          <option value="Disposed">Disposed</option>
-        </select>
+        <div className="w-48">
+          <Select
+            value={filters.categoryId}
+            onChange={(value) =>
+              setFilters({ ...filters, categoryId: value as string })
+            }
+            options={[
+              { value: "", label: "All Categories" },
+              ...categories.map((cat) => ({
+                value: cat._id,
+                label: cat.name,
+              })),
+            ]}
+            className="bg-bg-input"
+          />
+        </div>
+        <div className="w-40">
+          <Select
+            value={filters.status}
+            onChange={(value) =>
+              setFilters({ ...filters, status: value as string })
+            }
+            options={[
+              { value: "", label: "All Statuses" },
+              { value: "Available", label: "Available" },
+              { value: "Issued", label: "Issued" },
+              { value: "Under Repair", label: "Under Repair" },
+              { value: "Lost", label: "Lost" },
+              { value: "Disposed", label: "Disposed" },
+            ]}
+            className="bg-bg-input"
+          />
+        </div>
       </div>
 
       {/* Assets List */}
       <div className="bg-bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 flex justify-center">
-            <Loader />
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-bg-secondary border-b border-border">
+                <tr>
+                  {[
+                    "Asset Code",
+                    "Name",
+                    "Category",
+                    "Serial Number",
+                    "Status",
+                    "Condition",
+                    "Actions",
+                  ].map((header, i) => (
+                    <th
+                      key={i}
+                      className={`px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase ${
+                        header === "Actions" ? "text-right" : ""
+                      }`}
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-20" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-24" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-20" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-6 w-24 rounded-full" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-16" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-3">
+                        <Skeleton className="h-5 w-5 rounded" />
+                        <Skeleton className="h-5 w-5 rounded" />
+                        <Skeleton className="h-5 w-5 rounded" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : assets.length === 0 ? (
           <div className="p-12 text-center text-text-secondary">
@@ -512,126 +578,111 @@ export default function AssetInventory() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Category *
-              </label>
-              <select
+              <Select
+                label="Category *"
                 required
                 value={formData.categoryId}
-                onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, categoryId: value as string })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "Select Category" },
+                  ...categories.map((cat) => ({
+                    value: cat._id,
+                    label: cat.name,
+                  })),
+                ]}
+                className="bg-bg-input"
+              />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Asset Name *
-              </label>
-              <input
+              <Input
+                label="Asset Name *"
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Manufacturer
-              </label>
-              <input
+              <Input
+                label="Manufacturer"
                 type="text"
                 value={formData.manufacturer}
                 onChange={(e) =>
                   setFormData({ ...formData, manufacturer: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Model
-              </label>
-              <input
+              <Input
+                label="Model"
                 type="text"
                 value={formData.model}
                 onChange={(e) =>
                   setFormData({ ...formData, model: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Serial Number
-              </label>
-              <input
+              <Input
+                label="Serial Number"
                 type="text"
                 value={formData.serialNumber}
                 onChange={(e) =>
                   setFormData({ ...formData, serialNumber: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Condition
-              </label>
-              <select
+              <Select
+                label="Condition"
                 value={formData.condition}
-                onChange={(e) =>
-                  setFormData({ ...formData, condition: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, condition: value as string })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
-              >
-                <option value="New">New</option>
-                <option value="Good">Good</option>
-                <option value="Used">Used</option>
-                <option value="Damaged">Damaged</option>
-              </select>
+                options={[
+                  { value: "New", label: "New" },
+                  { value: "Good", label: "Good" },
+                  { value: "Used", label: "Used" },
+                  { value: "Damaged", label: "Damaged" },
+                ]}
+                className="bg-bg-input"
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Purchase Price
-              </label>
-              <input
+              <Input
+                label="Purchase Price"
                 type="number"
                 value={formData.purchasePrice}
                 onChange={(e) =>
                   setFormData({ ...formData, purchasePrice: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">
-                Current Value
-              </label>
-              <input
+              <Input
+                label="Current Value"
                 type="number"
                 value={formData.currentValue}
                 onChange={(e) =>
                   setFormData({ ...formData, currentValue: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
@@ -692,34 +743,32 @@ export default function AssetInventory() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Assign to Employee *
-            </label>
-            <select
+            <Select
+              label="Assign to Employee *"
               value={assignmentData.employeeId}
-              onChange={(e) =>
+              onChange={(value) =>
                 setAssignmentData({
                   ...assignmentData,
-                  employeeId: e.target.value,
+                  employeeId: value as string,
                 })
               }
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+              options={[
+                { value: "", label: "Select an employee" },
+                ...employees.map((emp: any) => ({
+                  value: emp._id,
+                  label: `${emp.firstName} ${emp.lastName} - ${
+                    emp.employeeId || emp.email
+                  }`,
+                })),
+              ]}
               required
-            >
-              <option value="">Select an employee</option>
-              {employees.map((emp: any) => (
-                <option key={emp._id} value={emp._id}>
-                  {emp.firstName} {emp.lastName} - {emp.employeeId || emp.email}
-                </option>
-              ))}
-            </select>
+              className="bg-bg-input"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Expected Return Date (Optional)
-            </label>
-            <input
+            <Input
+              label="Expected Return Date (Optional)"
               type="date"
               value={assignmentData.expectedReturnDate}
               onChange={(e) =>
@@ -728,7 +777,7 @@ export default function AssetInventory() {
                   expectedReturnDate: e.target.value,
                 })
               }
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+              className="bg-bg-input"
             />
           </div>
 
@@ -791,26 +840,26 @@ export default function AssetInventory() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              Disposal Reason *
-            </label>
-            <select
-              value={disposalReason}
-              onChange={(e) => setDisposalReason(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+            <Select
+              label="Disposal Reason *"
               required
-            >
-              <option value="">Select a reason</option>
-              <option value="End of Life">End of Life</option>
-              <option value="Damaged Beyond Repair">
-                Damaged Beyond Repair
-              </option>
-              <option value="Lost/Stolen">Lost/Stolen</option>
-              <option value="Obsolete">Obsolete</option>
-              <option value="Sold">Sold</option>
-              <option value="Donated">Donated</option>
-              <option value="Other">Other</option>
-            </select>
+              value={disposalReason}
+              onChange={(value) => setDisposalReason(value as string)}
+              options={[
+                { value: "", label: "Select a reason" },
+                { value: "End of Life", label: "End of Life" },
+                {
+                  value: "Damaged Beyond Repair",
+                  label: "Damaged Beyond Repair",
+                },
+                { value: "Lost/Stolen", label: "Lost/Stolen" },
+                { value: "Obsolete", label: "Obsolete" },
+                { value: "Sold", label: "Sold" },
+                { value: "Donated", label: "Donated" },
+                { value: "Other", label: "Other" },
+              ]}
+              className="bg-bg-input"
+            />
           </div>
 
           <div>

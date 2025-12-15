@@ -8,19 +8,23 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
+import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">
-          Welcome, {user?.name.split(" ")[0]}! 👋
-        </h1>
-        <p className="text-text-secondary mt-1">
-          Financial Overview & Payroll Status
-        </p>
+      <div className="flex flex-row justify-between items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary">
+            Welcome, {user?.name.split(" ")[0]}! 👋
+          </h1>
+          <p className="text-text-secondary mt-1">
+            Financial Overview & Payroll Status
+          </p>
+        </div>
+        <AppreciationWidget />
       </div>
 
       {/* Standard Widgets */}

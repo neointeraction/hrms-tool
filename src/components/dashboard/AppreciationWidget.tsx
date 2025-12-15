@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { Award, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
-import { Button } from "../common/Button";
+import { useAuth } from "../../context/AuthContext";
+import { Tooltip } from "../common/Tooltip";
+import confetti from "canvas-confetti";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Badge {
   _id: string;
@@ -24,20 +26,122 @@ interface AppreciationItem {
   createdAt: string;
 }
 
+interface BadgeGroup {
+  badge: Badge;
+  count: number;
+  isNew?: boolean;
+}
+
 export default function AppreciationWidget() {
-  const [appreciations, setAppreciations] = useState<AppreciationItem[]>([]);
+  const { user } = useAuth();
+  const [userBadges, setUserBadges] = useState<BadgeGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(0);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    fetchAppreciations();
-  }, []);
+    if (user) {
+      fetchUserAppreciations();
+    }
+  }, [user]);
 
-  const fetchAppreciations = async () => {
+  const triggerConfetti = (rect: DOMRect) => {
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+      particleCount: 100,
+      spread: 100,
+      origin: { x, y },
+      colors: [
+        "#FFD700",
+        "#FF69B4",
+        "#00BFFF",
+        "#32CD32",
+        "#FF4500",
+        "#9370DB",
+      ],
+      gravity: 1.0,
+      scalar: 1.2,
+      startVelocity: 30,
+      ticks: 200,
+      zIndex: 10000,
+    });
+  };
+
+  const checkNewBadges = (badges: BadgeGroup[]) => {
+    if (!user) return badges;
+
+    const storageKey = `seen_badges_${user.id}`;
+    const seenIds = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const currentIds = badges.map((b) => b.badge._id);
+
+    // Find new badges
+    const newBadges = badges.filter((b) => !seenIds.includes(b.badge._id));
+
+    if (newBadges.length > 0) {
+      // Mark them as new in state for potential UI highlighting
+      badges = badges.map((b) => ({
+        ...b,
+        isNew: newBadges.some((nb) => nb.badge._id === b.badge._id),
+      }));
+
+      // Update storage
+      localStorage.setItem(storageKey, JSON.stringify(currentIds));
+
+      // Trigger confetti for each new badge after a short delay to ensure render
+      setTimeout(() => {
+        newBadges.forEach((nb) => {
+          const element = document.getElementById(`badge-${nb.badge._id}`);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            triggerConfetti(rect);
+          }
+        });
+      }, 500);
+    }
+
+    return badges;
+  };
+
+  const fetchUserAppreciations = async () => {
     try {
-      // Fetch all recent appreciations to show in dashboard
-      const data = await apiService.getAppreciations();
-      setAppreciations(data.slice(0, 5)); // Show only latest 5
+      const userId = user?.id || (user as any)?._id;
+
+      if (!userId) {
+        return;
+      }
+
+      const data: AppreciationItem[] = await apiService.getAppreciations({
+        recipientId: userId,
+      });
+
+      // Group by unique badge
+      const badgeMap = new Map<string, BadgeGroup>();
+
+      data.forEach((item) => {
+        if (item.badge) {
+          const existing = badgeMap.get(item.badge._id);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            badgeMap.set(item.badge._id, {
+              badge: item.badge,
+              count: 1,
+            });
+          }
+        }
+      });
+
+      let badges = Array.from(badgeMap.values());
+
+      // Only check for new badges on first load per session/mount
+      if (!initialized.current) {
+        badges = checkNewBadges(badges);
+        initialized.current = true;
+      }
+
+      setUserBadges(badges);
     } catch (err) {
       console.error("Failed to fetch appreciations", err);
     } finally {
@@ -45,121 +149,99 @@ export default function AppreciationWidget() {
     }
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % appreciations.length);
+  const handleBadgeClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    triggerConfetti(rect);
   };
 
   const handlePrev = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + appreciations.length) % appreciations.length
-    );
+    if (startIndex > 0) {
+      setStartIndex((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  const handleNext = () => {
+    if (startIndex + 5 < userBadges.length) {
+      setStartIndex((prev) => Math.min(userBadges.length - 5, prev + 1));
+    }
   };
 
   if (loading) {
     return (
-      <div className="bg-bg-card border border-border rounded-xl p-6 shadow-sm h-full animate-pulse">
-        <div className="h-6 w-1/3 bg-bg-hover rounded mb-4"></div>
-        <div className="space-y-3">
-          <div className="h-16 bg-bg-hover rounded"></div>
-        </div>
+      <div className="flex gap-2 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-10 w-10 bg-bg-hover rounded-full"></div>
+        ))}
       </div>
     );
   }
 
+  if (userBadges.length === 0) return null;
+
+  const visibleBadges = userBadges.slice(startIndex, startIndex + 5);
+  const showPrev = startIndex > 0;
+  const showNext = startIndex + 5 < userBadges.length;
+
   return (
-    <div className="bg-bg-card border border-border rounded-xl p-6 shadow-sm h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-brand-primary/10 rounded-lg">
-            <Award className="text-brand-primary" size={20} />
-          </div>
-          <h3 className="font-semibold text-lg text-text-primary">
-            Wall of Fame
-          </h3>
-        </div>
-        {appreciations.length > 1 && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePrev}
-              className="h-8 w-8 p-0 rounded-full"
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+      {/* Prev Arrow */}
+      {showPrev && (
+        <button
+          onClick={handlePrev}
+          className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-secondary transition-colors"
+        >
+          <ChevronLeft size={16} />
+        </button>
+      )}
+
+      <div className="flex items-center gap-3">
+        {visibleBadges.map((item) => (
+          <Tooltip
+            key={item.badge._id}
+            content={`${item.badge.title} (x${item.count})`}
+          >
+            <div
+              id={`badge-${item.badge._id}`}
+              onClick={handleBadgeClick}
+              className={`flex-shrink-0 relative group cursor-pointer transition-all duration-300 hover:-translate-y-0.5 ${
+                item.isNew ? "animate-bounce" : ""
+              }`}
             >
-              <ChevronLeft size={16} />
-            </Button>
-            <span className="text-xs text-text-secondary font-medium">
-              {currentIndex + 1} / {appreciations.length}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleNext}
-              className="h-8 w-8 p-0 rounded-full"
-            >
-              <ChevronRight size={16} />
-            </Button>
-          </div>
-        )}
-      </div>
+              {/* Glow Effect on Hover */}
+              <div className="absolute inset-0 bg-brand-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-      <div className="flex-1 flex flex-col justify-center min-h-[120px]">
-        {appreciations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-text-muted text-sm border-2 border-dashed border-border rounded-lg p-8">
-            <p>No appreciations yet.</p>
-          </div>
-        ) : (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300 w-full">
-            <div className="bg-bg-main p-6 rounded-lg border border-border flex flex-col items-center text-center gap-3 relative overflow-hidden">
-              {/* Background decorative blob */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-
-              <div className="bg-white p-2 rounded-full shadow-sm border border-border z-10">
-                {appreciations[currentIndex].badge ? (
-                  <img
-                    src={
-                      appreciations[currentIndex].badge.icon.startsWith("http")
-                        ? appreciations[currentIndex].badge.icon
-                        : `${ASSET_BASE_URL}${appreciations[currentIndex].badge.icon}`
-                    }
-                    alt={appreciations[currentIndex].badge.title}
-                    className="w-12 h-12 object-contain"
-                  />
-                ) : (
-                  <div className="w-12 h-12 flex items-center justify-center">
-                    <Award className="w-8 h-8 text-text-muted opacity-50" />
-                  </div>
-                )}
-              </div>
-
-              <div className="z-10">
-                <p className="text-sm text-text-secondary">
-                  <span className="font-bold text-text-primary">
-                    {appreciations[currentIndex].recipient.firstName}{" "}
-                    {appreciations[currentIndex].recipient.lastName}
-                  </span>{" "}
-                  was awarded
-                </p>
-                <p className="font-bold text-brand-primary text-base">
-                  {appreciations[currentIndex].badge?.title || "Unknown Badge"}
-                </p>
-              </div>
-
-              {appreciations[currentIndex].message && (
-                <p className="text-xs text-text-muted italic max-w-[90%] z-10">
-                  "{appreciations[currentIndex].message}"
-                </p>
+              {/* Badge Count Badge (Meta-Badge) */}
+              {item.count > 1 && (
+                <div className="absolute -top-1 -right-1 bg-gradient-to-r from-brand-primary to-purple-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full z-10 border border-white dark:border-gray-800 shadow-sm leading-none ring-1 ring-black/5">
+                  {item.count}
+                </div>
               )}
 
-              <div className="mt-2 text-[10px] text-text-muted uppercase tracking-wider z-10">
-                By {appreciations[currentIndex].sender.firstName} •{" "}
-                {new Date(
-                  appreciations[currentIndex].createdAt
-                ).toLocaleDateString()}
+              <div className="w-10 h-10 flex items-center justify-center bg-white/50 dark:bg-black/20 rounded-full border border-white/30 dark:border-white/10 shadow-sm group-hover:border-brand-primary/30 transition-colors">
+                <img
+                  src={
+                    item.badge.icon.startsWith("http")
+                      ? item.badge.icon
+                      : `${ASSET_BASE_URL}${item.badge.icon}`
+                  }
+                  alt={item.badge.title}
+                  className="w-7 h-7 object-contain drop-shadow-sm group-hover:scale-125 transition-transform duration-300"
+                />
               </div>
             </div>
-          </div>
-        )}
+          </Tooltip>
+        ))}
       </div>
+
+      {/* Next Arrow */}
+      {showNext && (
+        <button
+          onClick={handleNext}
+          className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-secondary transition-colors"
+        >
+          <ChevronRight size={16} />
+        </button>
+      )}
     </div>
   );
 }

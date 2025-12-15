@@ -8,6 +8,7 @@ import {
 } from "../utils/navigation";
 import { Loader } from "../components/common/Loader";
 import { PasswordInput } from "../components/common/PasswordInput";
+import { Input } from "../components/common/Input";
 
 export default function Login() {
   const [email, setEmail] = useState("shameer@neointeraction.com"); // Default for demo
@@ -64,7 +65,9 @@ export default function Login() {
     <div className="min-h-screen bg-bg-main flex items-center justify-center p-4">
       <div className="bg-bg-card rounded-xl shadow-lg w-full max-w-md overflow-hidden border border-border">
         <div className="bg-brand-primary p-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">HRMS Portal</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            NeointeractionHR Portal
+          </h1>
           <p className="text-brand-primary/20 text-white/80">
             Sign in to access your dashboard
           </p>
@@ -80,23 +83,15 @@ export default function Login() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-text-secondary">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={20}
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all bg-bg-card text-text-primary"
-                  placeholder="name@company.com"
-                  required
-                />
-              </div>
+              <Input
+                label="Email Address"
+                leftIcon={<Mail size={20} />} // Input handles the icon color usually? checking Input.tsx lines 38-41: text-text-muted. Correct.
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+              />
             </div>
 
             <div className="space-y-2">

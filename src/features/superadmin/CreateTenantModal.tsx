@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Globe } from "lucide-react";
 import { Modal } from "../../components/common/Modal";
 import { Select } from "../../components/common/Select";
+import { Input } from "../../components/common/Input";
 import { apiService } from "../../services/api.service";
 import { Checkbox } from "../../components/common/Checkbox";
 import { MODULES, MODULE_KEYS } from "../../constants/modules";
@@ -28,13 +29,50 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
     password: string;
   } | null>(null);
 
+  // Branding State
+  const [logo, setLogo] = useState<File | null>(null);
+  const [favicon, setFavicon] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "logo" | "favicon"
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (field === "logo") {
+        setLogo(file);
+      } else {
+        setFavicon(file);
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (field === "logo") setLogoPreview(reader.result as string);
+        else setFaviconPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const response = await apiService.createTenant(formData);
+      const data = new FormData();
+      data.append("companyName", formData.companyName);
+      data.append("ownerEmail", formData.ownerEmail);
+      data.append("plan", formData.plan);
+      data.append("subdomain", formData.subdomain);
+      data.append("limits", JSON.stringify(formData.limits));
+
+      if (logo) data.append("logo", logo);
+      if (favicon) data.append("favicon", favicon);
+
+      const response = await apiService.createTenant(data);
       setSuccess({
         email: response.admin.email,
         password: response.admin.tempPassword,
@@ -137,12 +175,11 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
               <label className="block text-sm font-medium text-text-secondary mb-1">
                 Company Name <span className="text-status-error">*</span>
               </label>
-              <input
-                type="text"
+              <Input
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-bg-main text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                className="bg-bg-main"
                 required
               />
             </div>
@@ -151,12 +188,12 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
               <label className="block text-sm font-medium text-text-secondary mb-1">
                 Owner Email <span className="text-status-error">*</span>
               </label>
-              <input
+              <Input
                 type="email"
                 name="ownerEmail"
                 value={formData.ownerEmail}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-bg-main text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                className="bg-bg-main"
                 required
                 placeholder="admin@company.com"
               />
@@ -189,14 +226,15 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
                 Subdomain (Optional)
               </label>
               <div className="flex items-center">
-                <input
-                  type="text"
-                  name="subdomain"
-                  value={formData.subdomain}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-border rounded-l-lg bg-bg-main text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                  placeholder="company"
-                />
+                <div className="flex-1">
+                  <Input
+                    name="subdomain"
+                    value={formData.subdomain}
+                    onChange={handleChange}
+                    className="bg-bg-main rounded-r-none"
+                    placeholder="company"
+                  />
+                </div>
                 <span className="px-3 py-2 bg-bg-secondary border-y border-r border-border rounded-r-lg text-text-secondary text-sm">
                   .hrms.com
                 </span>
@@ -204,6 +242,106 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
               <p className="text-xs text-text-secondary mt-1">
                 e.g., acme.yourhrms.com
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Branding Section */}
+        <div className="bg-bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ImageIcon className="text-brand-primary" size={20} />
+            <h2 className="text-lg font-semibold text-text-primary">
+              Branding
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Logo Upload */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Company Logo
+              </label>
+              <div className="flex items-start gap-4">
+                <div className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-bg-secondary overflow-hidden relative group">
+                  {logoPreview ? (
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-text-muted text-[10px]">No Logo</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white text-[10px] font-medium">Change</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "logo")}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+                <div className="flex-1 text-sm text-text-secondary">
+                  <p className="text-xs">Upload company logo.</p>
+                  <div className="mt-2">
+                    <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 border border-border rounded-lg hover:bg-bg-hover transition-colors text-xs font-medium">
+                      <Upload size={14} />
+                      Choose File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "logo")}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Favicon Upload */}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Favicon
+              </label>
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-bg-secondary overflow-hidden relative group">
+                  {faviconPreview ? (
+                    <img
+                      src={faviconPreview}
+                      alt="Favicon preview"
+                      className="w-8 h-8 object-contain"
+                    />
+                  ) : (
+                    <Globe className="text-text-muted" size={24} />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white text-[10px] font-medium">Change</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "favicon")}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+                <div className="flex-1 text-sm text-text-secondary">
+                  <p className="text-xs">Upload favicon.</p>
+                  <div className="mt-2">
+                    <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 border border-border rounded-lg hover:bg-bg-hover transition-colors text-xs font-medium">
+                      <Upload size={14} />
+                      Choose File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "favicon")}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

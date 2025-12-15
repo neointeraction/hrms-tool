@@ -29,14 +29,14 @@ export function ConfirmationModal({
   const getIcon = () => {
     switch (variant) {
       case "danger":
-        return <AlertTriangle size={32} className="text-status-error" />;
+        return <AlertTriangle size={28} className="text-status-error" />;
       case "warning":
-        return <AlertCircle size={32} className="text-status-warning" />;
+        return <AlertCircle size={28} className="text-status-warning" />;
       case "success":
-        return <CheckCircle size={32} className="text-status-success" />;
+        return <CheckCircle size={28} className="text-status-success" />;
       case "info":
       default:
-        return <Info size={32} className="text-brand-primary" />;
+        return <Info size={28} className="text-brand-primary" />;
     }
   };
 
@@ -75,12 +75,13 @@ export function ConfirmationModal({
       title={title}
       maxWidth="max-w-sm"
       hideHeader={true}
+      padding="p-4"
       footer={
-        <div className="flex justify-end gap-3 w-full">
+        <div className="flex justify-center gap-4 w-full">
           {showCancel && (
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+              className="px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
               disabled={isLoading}
             >
               {cancelText}
@@ -88,7 +89,7 @@ export function ConfirmationModal({
           )}
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${getButtonColor()}`}
+            className={`px-3 py-1.5 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${getButtonColor()}`}
             disabled={isLoading}
           >
             {isLoading ? "Processing..." : confirmText}
@@ -96,14 +97,18 @@ export function ConfirmationModal({
         </div>
       }
     >
-      <div className="flex flex-col items-center text-center p-2">
-        <div className={`p-3 rounded-full mb-4 ${getBgColor()}`}>
+      <div className="flex flex-col items-center text-center p-0">
+        <div
+          className={`p-3 rounded-full mb-3 ${getBgColor()} animate-in zoom-in-50 duration-300`}
+        >
           {getIcon()}
         </div>
 
-        <h3 className="text-lg font-bold text-text-primary mb-2">{title}</h3>
+        <h3 className="text-lg font-bold text-text-primary mb-1">{title}</h3>
 
-        <p className="text-sm text-text-secondary mb-4">{message}</p>
+        <p className="text-base text-text-secondary leading-relaxed">
+          {message}
+        </p>
       </div>
     </Modal>
   );

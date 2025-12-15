@@ -3,7 +3,7 @@ import { Plus, Briefcase, Calendar, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
-import { Loader } from "../../components/common/Loader";
+import { Skeleton } from "../../components/common/Skeleton";
 import { Button } from "../../components/common/Button";
 import CreateProjectModal from "./CreateProjectModal";
 
@@ -51,8 +51,37 @@ export default function ProjectDashboard() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader size={32} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-bg-card border border-border rounded-lg p-5 flex flex-col h-[180px]"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded ml-4" />
+              </div>
+
+              <div className="space-y-2 mb-4 flex-1">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+              </div>
+
+              <div className="flex items-center gap-4 border-t border-border pt-3">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="w-4 h-4 rounded-full" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  <Skeleton className="w-4 h-4 rounded-full" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : projects.length === 0 ? (
         <div className="text-center py-12 bg-bg-card border border-border rounded-lg">

@@ -122,13 +122,16 @@ export default function PMDashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">
-          {greeting}, {user?.name.split(" ")[0]}! 🚀
-        </h1>
-        <p className="text-text-secondary mt-1">
-          Project status and team overview for today
-        </p>
+      <div className="flex flex-row justify-between items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary">
+            {greeting}, {user?.name.split(" ")[0]}! 🚀
+          </h1>
+          <p className="text-text-secondary mt-1">
+            Project status and team overview for today
+          </p>
+        </div>
+        <AppreciationWidget />
       </div>
 
       {/* Summary Section (Standard Top Widgets) */}
@@ -287,15 +290,6 @@ export default function PMDashboard() {
         )}
 
         {/* Appreciation Widget (Wall of Fame) */}
-        {(!user?.tenantId ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          (user.tenantId.limits.enabledModules.includes("social") &&
-            user.accessibleModules?.includes("social"))) && (
-          <AppreciationWidget />
-        )}
 
         {/* Payroll Summary Widget */}
         {(!user?.tenantId ||

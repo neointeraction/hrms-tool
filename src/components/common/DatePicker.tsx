@@ -224,6 +224,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
               py-2 text-sm text-text-primary
               focus:outline-none focus:ring-2 focus:border-transparent
               disabled:bg-bg-main disabled:text-text-muted disabled:cursor-not-allowed
+              h-[38px]
               ${className || ""}
             `}
             wrapperClassName="w-full"

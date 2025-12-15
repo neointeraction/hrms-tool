@@ -86,7 +86,7 @@ export const Select = ({
         <div
           onClick={toggleOpen}
           className={cn(
-            "w-full rounded-lg border bg-bg-card px-3 py-2 text-sm cursor-pointer flex items-center justify-between transition-colors",
+            "w-full rounded-lg border bg-bg-card px-3 py-2 text-sm cursor-pointer flex items-center justify-between transition-colors h-[38px]",
             error
               ? "border-status-error focus:ring-status-error"
               : "border-border hover:border-text-muted focus:ring-brand-primary",

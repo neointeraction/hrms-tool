@@ -7,6 +7,7 @@ import { Button } from "../components/common/Button";
 import { ConfirmationModal } from "../components/common/ConfirmationModal";
 import { Modal } from "../components/common/Modal";
 import { Select } from "../components/common/Select";
+import { Input } from "../components/common/Input";
 
 interface Badge {
   _id: string;
@@ -400,12 +401,11 @@ export default function Appreciation() {
                 <label className="block text-sm font-medium text-text-secondary mb-1">
                   Badge Title
                 </label>
-                <input
-                  type="text"
+                <Input
                   value={newBadgeTitle}
                   onChange={(e) => setNewBadgeTitle(e.target.value)}
                   placeholder="e.g. Star Performer"
-                  className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
+                  className="bg-bg-input"
                   required
                 />
               </div>

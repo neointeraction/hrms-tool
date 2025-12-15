@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Building, Loader, Trash2, UserX, UserCheck } from "lucide-react";
+import { Building, Trash2, UserX, UserCheck } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { Badge } from "../../components/common/Badge";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Skeleton } from "../../components/common/Skeleton";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
@@ -180,8 +181,40 @@ export default function UserManagement() {
 
       {/* Users Table */}
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader className="animate-spin text-brand-primary" size={32} />
+        <div className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="min-w-full divide-y divide-border">
+            {/* Header Skeleton */}
+            <div className="bg-bg-secondary/50 px-6 py-3 border-b border-border flex justify-between">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-4 w-24" />
+              ))}
+            </div>
+            {/* Rows Skeleton */}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="px-6 py-4 flex justify-between items-center"
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <div>
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-32" />
+                <div className="flex gap-1">
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-6" />
+                  <Skeleton className="h-6 w-6" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden">

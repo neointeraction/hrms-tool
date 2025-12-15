@@ -14,8 +14,11 @@ import {
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
 import { Modal } from "../../../components/common/Modal";
-import { Loader } from "../../../components/common/Loader";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { Badge } from "../../../components/common/Badge";
+import { Select } from "../../../components/common/Select";
+import { Checkbox } from "../../../components/common/Checkbox";
+import { Textarea } from "../../../components/common/Textarea";
 
 interface AssetAssignment {
   _id: string;
@@ -155,9 +158,44 @@ export default function MyAssets() {
       {/* Assets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {loading ? (
-          <div className="col-span-full py-12 flex justify-center">
-            <Loader />
-          </div>
+          // Skeleton Loader
+          Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-bg-card border border-border rounded-xl overflow-hidden flex flex-col h-[280px]"
+            >
+              {/* Header Skeleton */}
+              <div className="p-4 border-b border-border flex justify-between items-start">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="w-5 h-5 rounded" />
+                    <Skeleton className="h-5 w-32" />
+                  </div>
+                  <Skeleton className="h-3 w-20 ml-7" />
+                </div>
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+
+              {/* Details Skeleton */}
+              <div className="p-4 flex-1 space-y-3">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+                <div className="border-t border-border/50 pt-2 space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </div>
+
+              {/* Actions Skeleton */}
+              <div className="p-3 border-t border-border bg-bg-hover/50 flex gap-2">
+                <Skeleton className="h-8 flex-1 rounded-lg" />
+                <Skeleton className="h-8 flex-1 rounded-lg" />
+              </div>
+            </div>
+          ))
         ) : assignments.length === 0 ? (
           <div className="col-span-full py-12 bg-bg-card border border-border rounded-xl text-center text-text-secondary">
             <Package className="mx-auto mb-4 text-text-muted" size={48} />
@@ -356,11 +394,12 @@ export default function MyAssets() {
             </li>
           </ul>
 
-          <div className="flex items-center gap-2 p-3 bg-bg-secondary rounded-lg">
-            <input type="checkbox" id="agree" className="w-4 h-4" required />
-            <label htmlFor="agree" className="text-sm text-text-primary">
-              I agree to the terms and conditions above
-            </label>
+          <div className="p-3 bg-bg-secondary rounded-lg">
+            <Checkbox
+              id="agree"
+              label="I agree to the terms and conditions above"
+              required
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
@@ -396,26 +435,27 @@ export default function MyAssets() {
             <label className="block text-sm font-medium text-text-primary mb-1">
               Condition at Return *
             </label>
-            <select
+            <Select
               value={returnCondition}
-              onChange={(e) => setReturnCondition(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
-            >
-              <option value="New">New</option>
-              <option value="Good">Good</option>
-              <option value="Used">Used</option>
-              <option value="Damaged">Damaged</option>
-            </select>
+              onChange={(value) => setReturnCondition(value as string)}
+              options={[
+                { value: "New", label: "New" },
+                { value: "Good", label: "Good" },
+                { value: "Used", label: "Used" },
+                { value: "Damaged", label: "Damaged" },
+              ]}
+              className="bg-bg-input"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-primary mb-1">
               Notes (Optional)
             </label>
-            <textarea
+            <Textarea
               value={returnNotes}
               onChange={(e) => setReturnNotes(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+              className="bg-bg-input"
               rows={3}
               placeholder="Any additional notes about the asset condition..."
             />
@@ -461,26 +501,27 @@ export default function MyAssets() {
             <label className="block text-sm font-medium text-text-primary mb-1">
               Incident Type *
             </label>
-            <select
+            <Select
               value={incidentType}
-              onChange={(e) => setIncidentType(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
-            >
-              <option value="Damage">Damage</option>
-              <option value="Lost">Lost</option>
-              <option value="Theft">Theft</option>
-              <option value="Malfunction">Malfunction</option>
-            </select>
+              onChange={(value) => setIncidentType(value as string)}
+              options={[
+                { value: "Damage", label: "Damage" },
+                { value: "Lost", label: "Lost" },
+                { value: "Theft", label: "Theft" },
+                { value: "Malfunction", label: "Malfunction" },
+              ]}
+              className="bg-bg-input"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-primary mb-1">
               Description *
             </label>
-            <textarea
+            <Textarea
               value={incidentDescription}
               onChange={(e) => setIncidentDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+              className="bg-bg-input"
               rows={4}
               placeholder="Describe what happened in detail..."
               required
@@ -491,16 +532,17 @@ export default function MyAssets() {
             <label className="block text-sm font-medium text-text-primary mb-1">
               Urgency
             </label>
-            <select
+            <Select
               value={incidentUrgency}
-              onChange={(e) => setIncidentUrgency(e.target.value)}
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Critical">Critical</option>
-            </select>
+              onChange={(value) => setIncidentUrgency(value as string)}
+              options={[
+                { value: "Low", label: "Low" },
+                { value: "Medium", label: "Medium" },
+                { value: "High", label: "High" },
+                { value: "Critical", label: "Critical" },
+              ]}
+              className="bg-bg-input"
+            />
           </div>
 
           <div>

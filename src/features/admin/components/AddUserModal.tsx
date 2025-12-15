@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Modal } from "../../../components/common/Modal";
 import { Select } from "../../../components/common/Select";
+import { Input } from "../../../components/common/Input";
+import { PasswordInput } from "../../../components/common/PasswordInput";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -22,7 +23,6 @@ export default function AddUserModal({
     role: "",
     status: "active",
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -130,58 +130,44 @@ export default function AddUserModal({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            Full Name <span className="text-red-500">*</span>
-          </label>
-          <input
+          <Input
+            label="Full Name"
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors text-text-primary"
+            className="bg-bg-card"
             placeholder="e.g. John Doe"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            Email Address <span className="text-red-500">*</span>
-          </label>
-          <input
+          <Input
+            label="Email Address"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors text-text-primary"
+            className="bg-bg-card"
             placeholder="john@company.com"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-1.5">
-            Password <span className="text-red-500">*</span>
+            Password <span className="text-status-error">*</span>
           </label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-              className="w-full px-4 py-2.5 bg-bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-colors pr-10 text-text-primary"
-              placeholder="Min. 6 characters"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+          <PasswordInput
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            minLength={6}
+            className="bg-bg-card"
+            placeholder="Min. 6 characters"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

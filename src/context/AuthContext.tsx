@@ -23,12 +23,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check for persisted user session
     const storedUser = localStorage.getItem("hrms_user");
-    const storedToken = localStorage.getItem("hrms_token");
+    const storedToken = localStorage.getItem("authToken");
 
     if (storedUser && storedToken) {
       try {
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
+        const parsedUser = JSON.parse(storedUser);
+        // Validate user object has an ID
+        if (parsedUser && (parsedUser.id || parsedUser._id)) {
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+        } else {
+          console.warn(
+            "[AuthContext] Stored user missing ID. Clearing session."
+          );
+          localStorage.removeItem("hrms_user");
+          localStorage.removeItem("authToken");
+        }
         // Fetch fresh data from server to ensure avatar and details are up to date
         // We define refreshUser below, but we can call it here if we move it or use a separate internal function
         // To avoid hoisting issues or define-before-use, we'll verify if we can call it.
@@ -37,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Failed to parse stored user", error);
         localStorage.removeItem("hrms_user");
-        localStorage.removeItem("hrms_token");
+        localStorage.removeItem("authToken");
       }
     }
     setIsLoading(false);
@@ -48,7 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Let's modify the login and refreshUser logic first.
 
   // Normalize role names from API (handles old lowercase names)
-  const normalizeRole = (apiRole: string): Role => {
+  const normalizeRole = (apiRole: string | any): Role => {
+    const roleName =
+      typeof apiRole === "object" && apiRole?.name ? apiRole.name : apiRole;
+
+    if (typeof roleName !== "string") return "Employee";
+
     const roleMap: Record<string, Role> = {
       admin: "Admin",
       hr: "HR",
@@ -61,13 +76,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     // If it's already capitalized, return as-is
-    if (Object.values(roleMap).includes(apiRole as Role)) {
-      return apiRole as Role;
+    if (Object.values(roleMap).includes(roleName as Role)) {
+      return roleName as Role;
     }
 
     // Otherwise map from lowercase to capitalized
-    return roleMap[apiRole.toLowerCase()] || "Employee";
+    return roleMap[roleName.toLowerCase()] || "Employee";
   };
+
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("hrms_user");
+    localStorage.removeItem("authToken");
+  };
+
+  // Add a separate effect to refresh user on mount if authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      refreshUser();
+    }
+  }, []);
 
   const refreshUser = async () => {
     try {
@@ -100,21 +130,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           apiUser.roles?.[0]?.accessibleModules || apiUser.accessibleModules, // Support both nested in role or direct if flattened
       };
 
+      if (!updatedUser.id) {
+        console.error("[AuthContext] CRITICAL: Missing ID in updated user!");
+      }
+
       setUser(updatedUser);
       localStorage.setItem("hrms_user", JSON.stringify(updatedUser)); // Update storage
       return updatedUser;
     } catch (error) {
       console.error("Failed to refresh user data", error);
+      // If refresh fails (e.g. 401), we should probably logout to force re-auth
+      logout();
       return null;
     }
   };
-
-  // Add a separate effect to refresh user on mount if authenticated
-  useEffect(() => {
-    if (localStorage.getItem("hrms_token")) {
-      refreshUser();
-    }
-  }, []);
 
   const login = async (
     email: string,
@@ -128,14 +157,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Store token immediately so subsequent requests authenticate
       if (response.token) {
-        localStorage.setItem("hrms_token", response.token);
+        localStorage.setItem("authToken", response.token);
       }
 
       // The API returns a token, we need to fetch user data
       const userData = await apiService.getCurrentUser();
 
       const user: User = {
-        id: userData.user._id,
+        id: userData.user.id || userData.user._id,
         email: userData.user.email,
         name: userData.user.name || userData.user.email.split("@")[0],
         // Set role to "Super Admin" if isSuperAdmin is true
@@ -185,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Persist session
         localStorage.setItem("hrms_user", JSON.stringify(dummyUser));
-        localStorage.setItem("hrms_token", "dummy-token");
+        localStorage.setItem("authToken", "dummy-token");
 
         return dummyUser;
       }
@@ -306,14 +335,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return dummyUsers[email.toLowerCase()] || null;
-  };
-
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem("hrms_user");
-    localStorage.removeItem("hrms_token");
-    localStorage.removeItem("authToken"); // Also remove the API token
   };
 
   return (

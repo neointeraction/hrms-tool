@@ -6,6 +6,7 @@ import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
 import { Checkbox } from "../../components/common/Checkbox";
 import { Button } from "../../components/common/Button";
+import { Textarea } from "../../components/common/Textarea";
 
 interface ApplyLeaveModalProps {
   isOpen: boolean;
@@ -181,14 +182,14 @@ export default function ApplyLeaveModal({
           <label className="text-xs font-medium text-text-secondary uppercase">
             Reason
           </label>
-          <textarea
+          <Textarea
             name="reason"
             value={formData.reason}
             onChange={handleChange}
             required
             rows={3}
             placeholder="Please provide a reason for your leave..."
-            className="w-full p-2 border border-border rounded-lg bg-bg-card focus:outline-none focus:border-brand-primary transition-colors text-sm resize-none text-text-primary"
+            className="bg-bg-card"
           />
         </div>
       </form>

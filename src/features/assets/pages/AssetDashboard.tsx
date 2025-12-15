@@ -8,7 +8,7 @@ import {
   Clock,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
-import { Loader } from "../../../components/common/Loader";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { Badge } from "../../../components/common/Badge";
 import { useNavigate } from "react-router-dom";
 
@@ -47,8 +47,102 @@ export default function AssetDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Loader />
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+
+        {/* Key Metrics Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-bg-card border border-border rounded-xl p-6"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Skeleton className="h-6 w-6 rounded" />
+                <Skeleton className="h-4 w-12" />
+              </div>
+              <Skeleton className="h-8 w-16 mb-1" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
+
+        {/* Status Breakdown & Quick Actions Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Status Breakdown Skeleton */}
+          <div className="bg-bg-card border border-border rounded-xl p-6 flex flex-col h-full">
+            <Skeleton className="h-6 w-48 mb-4" />
+            <div className="grid grid-cols-2 gap-3 flex-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="p-3 border border-border rounded-lg h-24"
+                >
+                  <Skeleton className="h-5 w-20 mb-2" />
+                  <Skeleton className="h-8 w-12" />
+                </div>
+              ))}
+              <div className="col-span-2 p-3 border border-border rounded-lg flex items-center justify-between h-16">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5 rounded" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <Skeleton className="h-6 w-12" />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions & Alerts Skeleton */}
+          <div className="space-y-4">
+            {/* Alert Skeleton */}
+            <div className="border border-border rounded-xl p-6">
+              <div className="flex items-start gap-3">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Skeleton */}
+            <div className="bg-bg-card border border-border rounded-xl p-6">
+              <Skeleton className="h-6 w-32 mb-4" />
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="p-4 border border-border rounded-lg h-20"
+                  >
+                    <Skeleton className="h-5 w-5 mb-2" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Utilization Insights Skeleton */}
+        <div className="bg-bg-card border border-border rounded-xl p-6">
+          <Skeleton className="h-6 w-40 mb-4" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i}>
+                <Skeleton className="h-4 w-24 mb-2" />
+                <div className="flex items-end gap-2 mb-2">
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <Skeleton className="h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

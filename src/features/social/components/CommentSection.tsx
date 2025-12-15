@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Avatar } from "../../../components/common/Avatar";
+import { Input } from "../../../components/common/Input";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -148,12 +149,11 @@ export default function CommentSection({ postId }: CommentSectionProps) {
           className="w-8 h-8"
         />
         <div className="flex-1 relative">
-          <input
-            type="text"
+          <Input
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment..."
-            className="w-full bg-gray-100 dark:bg-bg-hover dark:text-text-primary border-none rounded-full py-2 px-4 pr-10 text-sm focus:ring-1 focus:ring-blue-500 transition-shadow"
+            className="bg-gray-100 dark:bg-bg-hover rounded-full pr-10"
           />
           <button
             type="submit"

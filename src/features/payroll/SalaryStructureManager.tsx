@@ -3,6 +3,7 @@ import { Search, Save, Plus, Trash2, Users, CheckCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Modal } from "../../components/common/Modal";
 import { Button } from "../../components/common/Button";
+import { Input } from "../../components/common/Input";
 
 import { Skeleton } from "../../components/common/Skeleton";
 
@@ -222,26 +223,26 @@ export default function SalaryStructureManager() {
                     <label className="text-xs font-medium text-text-secondary uppercase">
                       Basic Salary
                     </label>
-                    <input
+                    <Input
                       type="number"
                       value={structure.baseSalary}
                       onChange={(e) =>
                         updateField("baseSalary", Number(e.target.value))
                       }
-                      className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
+                      className="bg-bg-card"
                     />
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-text-secondary uppercase">
                       HRA
                     </label>
-                    <input
+                    <Input
                       type="number"
                       value={structure.hra}
                       onChange={(e) =>
                         updateField("hra", Number(e.target.value))
                       }
-                      className="w-full p-2 border border-border rounded bg-bg-card text-text-primary"
+                      className="bg-bg-card"
                     />
                   </div>
                 </div>
@@ -262,16 +263,16 @@ export default function SalaryStructureManager() {
                   <div className="space-y-2 bg-bg-main p-3 rounded-lg">
                     {structure.allowances.map((allowance: any, idx: number) => (
                       <div key={idx} className="flex gap-2 items-center">
-                        <input
+                        <Input
                           type="text"
                           placeholder="Name"
                           value={allowance.name}
                           onChange={(e) =>
                             updateAllowance(idx, "name", e.target.value)
                           }
-                          className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                          className="flex-1 bg-bg-card"
                         />
-                        <input
+                        <Input
                           type="number"
                           placeholder="Amount"
                           value={allowance.amount}
@@ -282,7 +283,7 @@ export default function SalaryStructureManager() {
                               Number(e.target.value)
                             )
                           }
-                          className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                          className="w-32 bg-bg-card"
                         />
                         <button
                           onClick={() => removeAllowance(idx)}
@@ -316,16 +317,16 @@ export default function SalaryStructureManager() {
                   <div className="space-y-2 bg-bg-main p-3 rounded-lg">
                     {structure.deductions.map((deduction: any, idx: number) => (
                       <div key={idx} className="flex gap-2 items-center">
-                        <input
+                        <Input
                           type="text"
                           placeholder="Name"
                           value={deduction.name}
                           onChange={(e) =>
                             updateDeduction(idx, "name", e.target.value)
                           }
-                          className="flex-1 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                          className="flex-1 bg-bg-card"
                         />
-                        <input
+                        <Input
                           type="number"
                           placeholder="Amount"
                           value={deduction.amount}
@@ -336,7 +337,7 @@ export default function SalaryStructureManager() {
                               Number(e.target.value)
                             )
                           }
-                          className="w-32 p-2 border border-border rounded text-sm bg-bg-card text-text-primary"
+                          className="w-32 bg-bg-card"
                         />
                         <button
                           onClick={() => removeDeduction(idx)}

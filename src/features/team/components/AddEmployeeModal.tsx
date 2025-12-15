@@ -4,6 +4,7 @@ import { PasswordInput } from "../../../components/common/PasswordInput";
 import { apiService } from "../../../services/api.service";
 import type { RegisterUserData } from "../../../services/api.service";
 import { Select } from "../../../components/common/Select";
+import { Input } from "../../../components/common/Input";
 import { Modal } from "../../../components/common/Modal";
 
 interface AddEmployeeModalProps {
@@ -116,31 +117,25 @@ export default function AddEmployeeModal({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
+          <Input
+            label="Name"
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
             placeholder="John Doe"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
+          <Input
+            label="Email"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
             placeholder="employee@company.com"
           />
         </div>
@@ -160,16 +155,13 @@ export default function AddEmployeeModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-2">
-            Employee ID <span className="text-red-500">*</span>
-          </label>
-          <input
+          <Input
+            label="Employee ID"
             type="text"
             name="employeeId"
             value={formData.employeeId}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 bg-bg-main border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary transition-colors"
             placeholder="EMP001"
           />
         </div>

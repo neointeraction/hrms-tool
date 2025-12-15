@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, MessagesSquare } from "lucide-react";
+import { Input } from "../../components/common/Input";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
 
@@ -175,13 +176,14 @@ export default function ChatWidget() {
             className="p-4 bg-bg-card border-t border-border"
           >
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about HR policies..."
-                className="flex-1 bg-bg-main border border-border rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all placeholder:text-text-muted text-text-primary"
-              />
+              <div className="flex-1">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about HR policies..."
+                  className="bg-bg-main rounded-full px-4 py-2.5 text-sm"
+                />
+              </div>
               <button
                 type="submit"
                 disabled={!input.trim() || loading}

@@ -10,6 +10,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
+import { Input } from "../../components/common/Input";
+import { Skeleton } from "../../components/common/Skeleton";
 
 export default function SystemSettings() {
   const { showToast } = useNotification();
@@ -113,7 +115,73 @@ export default function SystemSettings() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading settings...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+
+        {/* Branding Section Skeleton */}
+        <div className="bg-bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-6 w-32" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Logo Skeleton */}
+            <div>
+              <Skeleton className="h-4 w-24 mb-2" />
+              <div className="flex items-start gap-4">
+                <Skeleton className="w-32 h-32 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-8 w-24 mt-2 rounded-lg" />
+                </div>
+              </div>
+            </div>
+
+            {/* Favicon Skeleton */}
+            <div>
+              <Skeleton className="h-4 w-24 mb-2" />
+              <div className="flex items-start gap-4">
+                <Skeleton className="w-16 h-16 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-8 w-24 mt-2 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* General Configuration Skeleton */}
+        <div className="bg-bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+
+            <div>
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -247,13 +315,12 @@ export default function SystemSettings() {
               <label className="block text-sm font-medium text-text-primary mb-1">
                 Company Name
               </label>
-              <input
-                type="text"
+              <Input
                 value={formData.companyName}
                 onChange={(e) =>
                   setFormData({ ...formData, companyName: e.target.value })
                 }
-                className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                className="bg-bg-input"
               />
             </div>
 
@@ -262,11 +329,10 @@ export default function SystemSettings() {
                 Subdomain
               </label>
               <div className="flex items-center">
-                <input
-                  type="text"
+                <Input
                   value={formData.subdomain}
                   disabled
-                  className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-l-lg text-text-secondary cursor-not-allowed"
+                  className="bg-bg-secondary cursor-not-allowed rounded-r-none"
                 />
                 <span className="px-3 py-2 bg-bg-secondary border border-l-0 border-border rounded-r-lg text-text-secondary text-sm">
                   .yourhrms.com

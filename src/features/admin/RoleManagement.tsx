@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Shield, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
+import { Input } from "../../components/common/Input";
 import { Modal } from "../../components/common/Modal";
 import { Button } from "../../components/common/Button";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
@@ -274,12 +275,11 @@ export default function RoleManagement() {
             <label className="block text-sm font-medium text-text-secondary mb-2">
               Role Name <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
+            <Input
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
               placeholder="e.g. HR Manager"
-              className="w-full px-3 py-2 border border-border rounded-lg bg-bg-main text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+              className="bg-bg-main"
               required
             />
           </div>
@@ -354,19 +354,17 @@ export default function RoleManagement() {
                           key={permission._id}
                           className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={selectedPermissions.includes(
                               permission._id
                             )}
                             onChange={() =>
                               handleTogglePermission(permission._id)
                             }
-                            className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                            label={
+                              permission.name.split(":")[1] || permission.name
+                            }
                           />
-                          <span className="text-sm text-text-secondary">
-                            {permission.name.split(":")[1] || permission.name}
-                          </span>
                         </label>
                       ))}
                     </div>

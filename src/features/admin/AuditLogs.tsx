@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { Filter, Download, Search, Calendar, Loader2 } from "lucide-react";
+import { Filter, Download, Search, Calendar } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Button } from "../../components/common/Button";
+import { Skeleton } from "../../components/common/Skeleton";
+import { Input } from "../../components/common/Input";
 
 interface AuditLog {
   _id: string;
@@ -102,13 +104,12 @@ export default function AuditLogs() {
       </div>
 
       <div className="flex items-center gap-4 bg-bg-main p-2 rounded-lg border border-border">
-        <Search className="text-text-muted" size={20} />
-        <input
-          type="text"
+        <Input
           placeholder="Search logs by action, user, or module..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="bg-transparent border-none outline-none flex-1 text-sm text-text-primary placeholder:text-text-muted"
+          className="bg-transparent border-none outline-none flex-1 text-sm text-text-primary placeholder:text-text-muted h-full"
+          leftIcon={<Search className="text-text-muted" size={20} />}
         />
         <button className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors">
           <Calendar size={14} />
@@ -121,8 +122,49 @@ export default function AuditLogs() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="animate-spin text-brand-primary" size={32} />
+        <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-bg-main text-text-secondary text-xs uppercase font-semibold">
+              <tr>
+                {[
+                  "Timestamp",
+                  "Action",
+                  "Module",
+                  "User",
+                  "Details",
+                  "IP Address",
+                ].map((header) => (
+                  <th key={header} className="px-6 py-4">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <tr key={i}>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-4 w-32" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-5 w-24 rounded" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-4 w-20" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-4 w-32" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-4 w-48" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <Skeleton className="h-4 w-24" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="bg-bg-card rounded-lg border border-border overflow-hidden">

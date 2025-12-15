@@ -15,6 +15,9 @@ import CreateTenantModal from "./CreateTenantModal.tsx";
 import EditTenantModal from "./EditTenantModal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Button } from "../../components/common/Button";
+import { Input } from "../../components/common/Input";
+import { Select } from "../../components/common/Select";
+import { Skeleton } from "../../components/common/Skeleton";
 
 interface Tenant {
   _id: string;
@@ -151,56 +154,89 @@ const TenantList = () => {
           {/* Search */}
           <div className="col-span-2">
             <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
+              <Input
                 placeholder="Search by company name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                leftIcon={<Search className="text-gray-400" size={20} />}
+                className="bg-white dark:bg-gray-700"
               />
             </div>
           </div>
 
           {/* Status Filter */}
-          <select
+          <Select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="trial">Trial</option>
-            <option value="suspended">Suspended</option>
-            <option value="expired">Expired</option>
-          </select>
+            onChange={(value) => setFilterStatus(value as string)}
+            options={[
+              { value: "all", label: "All Statuses" },
+              { value: "active", label: "Active" },
+              { value: "trial", label: "Trial" },
+              { value: "suspended", label: "Suspended" },
+              { value: "expired", label: "Expired" },
+            ]}
+            className="bg-white dark:bg-gray-700"
+          />
 
           {/* Plan Filter */}
-          <select
+          <Select
             value={filterPlan}
-            onChange={(e) => setFilterPlan(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Plans</option>
-            <option value="free">Free</option>
-            <option value="basic">Basic</option>
-            <option value="pro">Pro</option>
-            <option value="enterprise">Enterprise</option>
-          </select>
+            onChange={(value) => setFilterPlan(value as string)}
+            options={[
+              { value: "all", label: "All Plans" },
+              { value: "free", label: "Free" },
+              { value: "basic", label: "Basic" },
+              { value: "pro", label: "Pro" },
+              { value: "enterprise", label: "Enterprise" },
+            ]}
+            className="bg-white dark:bg-gray-700"
+          />
         </div>
       </div>
 
       {/* Tenants Grid */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Loading tenants...
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+            >
+              {/* Tenant Header Skeleton */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+
+              {/* Status & Plan Badges Skeleton */}
+              <div className="flex gap-2 mb-4">
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+
+              {/* Stats Skeleton */}
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </div>
+
+              {/* Actions Skeleton */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                <Skeleton className="h-9 flex-1 rounded-lg" />
+                <Skeleton className="h-9 flex-1 rounded-lg" />
+                <Skeleton className="h-9 w-10 rounded-lg" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : tenants.length === 0 ? (
         <div className="text-center py-12">

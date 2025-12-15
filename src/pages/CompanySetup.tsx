@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building, User, Mail, Lock, Globe, Check } from "lucide-react";
 import { PasswordInput } from "../components/common/PasswordInput";
+import { Input } from "../components/common/Input";
 import { apiService } from "../services/api.service";
 
 const CompanySetup = () => {
@@ -102,7 +103,7 @@ const CompanySetup = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
           <h1 className="text-3xl font-bold mb-2">
-            Create Your HRMS Workspace
+            Create Your NeointeractionHR Workspace
           </h1>
           <p className="text-blue-100">
             Get started with your free account in minutes
@@ -150,44 +151,28 @@ const CompanySetup = () => {
               </h2>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Company Name *
-                </label>
-                <div className="relative">
-                  <Building
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Acme Corporation"
-                  />
-                </div>
+                <Input
+                  label="Company Name *"
+                  leftIcon={<Building size={20} />}
+                  type="text"
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  required
+                  placeholder="Acme Corporation"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Subdomain (Optional)
-                </label>
-                <div className="relative">
-                  <Globe
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    name="subdomain"
-                    value={formData.subdomain}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="acme"
-                  />
-                </div>
+                <Input
+                  label="Subdomain (Optional)"
+                  leftIcon={<Globe size={20} />}
+                  type="text"
+                  name="subdomain"
+                  value={formData.subdomain}
+                  onChange={handleChange}
+                  placeholder="acme"
+                />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Your workspace URL: {formData.subdomain || "your-company"}
                   .yourhrms.com
@@ -213,45 +198,29 @@ const CompanySetup = () => {
               </h2>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Your Name *
-                </label>
-                <div className="relative">
-                  <User
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    name="adminName"
-                    value={formData.adminName}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="John Doe"
-                  />
-                </div>
+                <Input
+                  label="Your Name *"
+                  leftIcon={<User size={20} />}
+                  type="text"
+                  name="adminName"
+                  value={formData.adminName}
+                  onChange={handleChange}
+                  required
+                  placeholder="John Doe"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email *
-                </label>
-                <div className="relative">
-                  <Mail
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="email"
-                    name="adminEmail"
-                    value={formData.adminEmail}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="john@acme.com"
-                  />
-                </div>
+                <Input
+                  label="Email *"
+                  leftIcon={<Mail size={20} />}
+                  type="email"
+                  name="adminEmail"
+                  value={formData.adminEmail}
+                  onChange={handleChange}
+                  required
+                  placeholder="john@acme.com"
+                />
               </div>
 
               <div>

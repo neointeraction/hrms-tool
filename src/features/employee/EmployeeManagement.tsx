@@ -160,7 +160,11 @@ export default function EmployeeManagement() {
                 <div className="flex items-center gap-3">
                   {emp.profilePicture ? (
                     <img
-                      src={`${ASSET_BASE_URL}/${emp.profilePicture}`}
+                      src={
+                        emp.profilePicture.startsWith("http")
+                          ? emp.profilePicture
+                          : `${ASSET_BASE_URL}/${emp.profilePicture}`
+                      }
                       alt={`${emp.firstName} ${emp.lastName}`}
                       className="w-10 h-10 rounded-full object-cover border border-border"
                     />

@@ -28,6 +28,7 @@ interface ApiResponse<T = any> {
 class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("authToken");
+    console.log("[ApiService Debug] getAuthHeaders. Token found:", !!token);
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -125,10 +126,18 @@ class ApiService {
   }
 
   async createTenant(data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const body = isFormData ? data : JSON.stringify(data);
+    const headers = this.getAuthHeaders();
+    if (isFormData) {
+      // @ts-ignore
+      delete headers["Content-Type"]; // Let browser set boundary for FormData
+    }
+
     const response = await fetch(`${API_BASE_URL}/superadmin/tenants`, {
       method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers,
+      body,
     });
     if (!response.ok) {
       const error = await response.json();
@@ -138,10 +147,18 @@ class ApiService {
   }
 
   async updateTenant(id: string, data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const body = isFormData ? data : JSON.stringify(data);
+    const headers = this.getAuthHeaders();
+    if (isFormData) {
+      // @ts-ignore
+      delete headers["Content-Type"]; // Let browser set boundary for FormData
+    }
+
     const response = await fetch(`${API_BASE_URL}/superadmin/tenants/${id}`, {
       method: "PATCH",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers,
+      body,
     });
     if (!response.ok) {
       const error = await response.json();
@@ -1646,7 +1663,8 @@ class ApiService {
   }
 
   async getAppreciations(params?: { recipientId?: string }): Promise<any[]> {
-    const queryParams = params ? `?recipientId=${params.recipientId}` : "";
+    const queryParams =
+      params && params.recipientId ? `?recipientId=${params.recipientId}` : "";
     const response = await fetch(`${API_BASE_URL}/appreciation${queryParams}`, {
       method: "GET",
       headers: this.getAuthHeaders(),

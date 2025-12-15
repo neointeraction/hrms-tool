@@ -21,6 +21,7 @@ import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
 import RoleManagement from "../features/admin/RoleManagement";
 import UserManagement from "../features/superadmin/UserManagement";
+import SuperAdminSettings from "../features/superadmin/Settings";
 import {
   CompanySettings,
   SubscriptionPage,
@@ -296,6 +297,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard allowedRoles={["Super Admin"]}>
             <UserManagement />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/superadmin/settings",
+        element: (
+          <RoleGuard allowedRoles={["Super Admin"]}>
+            <SuperAdminSettings />
           </RoleGuard>
         ),
       },

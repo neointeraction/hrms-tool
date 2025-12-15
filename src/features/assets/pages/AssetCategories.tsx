@@ -3,7 +3,10 @@ import { Plus, Edit, Trash2, ChevronLeft } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
 import { Modal } from "../../../components/common/Modal";
-import { Loader } from "../../../components/common/Loader";
+import { Skeleton } from "../../../components/common/Skeleton";
+import { Input } from "../../../components/common/Input";
+import { Select } from "../../../components/common/Select";
+import { Checkbox } from "../../../components/common/Checkbox";
 
 interface CustomField {
   name: string;
@@ -158,8 +161,53 @@ export default function AssetCategories() {
       {/* Categories List */}
       <div className="bg-bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-12 flex justify-center">
-            <Loader />
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-bg-secondary border-b border-border">
+                <tr>
+                  {[
+                    "Name",
+                    "Description",
+                    "Custom Fields",
+                    "Status",
+                    "Actions",
+                  ].map((header, i) => (
+                    <th
+                      key={i}
+                      className={`px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider ${
+                        header === "Actions" ? "text-right" : ""
+                      }`}
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-32" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-48" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-4 w-20" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-3">
+                        <Skeleton className="h-5 w-5 rounded" />
+                        <Skeleton className="h-5 w-5 rounded" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : categories.length === 0 ? (
           <div className="p-12 text-center text-text-secondary">
@@ -255,14 +303,13 @@ export default function AssetCategories() {
             <label className="block text-sm font-medium text-text-primary mb-1">
               Name *
             </label>
-            <input
-              type="text"
+            <Input
               required
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              className="bg-bg-input"
               placeholder="e.g., Laptop, Monitor, Keyboard"
             />
           </div>
@@ -301,49 +348,50 @@ export default function AssetCategories() {
                 key={index}
                 className="p-3 bg-bg-secondary rounded-lg mb-2 space-y-2"
               >
-                <div className="flex gap-2">
-                  <input
-                    type="text"
+                <div className="flex gap-2 items-start">
+                  <Input
                     placeholder="Field name"
                     value={field.name}
                     onChange={(e) =>
                       updateCustomField(index, { name: e.target.value })
                     }
-                    className="flex-1 px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
+                    className="flex-1 bg-bg-input"
                   />
-                  <select
-                    value={field.fieldType}
-                    onChange={(e) =>
-                      updateCustomField(index, {
-                        fieldType: e.target.value as CustomField["fieldType"],
-                      })
-                    }
-                    className="px-3 py-2 bg-bg-input border border-border rounded-lg text-sm"
-                  >
-                    <option value="text">Text</option>
-                    <option value="number">Number</option>
-                    <option value="date">Date</option>
-                    <option value="dropdown">Dropdown</option>
-                    <option value="boolean">Yes/No</option>
-                  </select>
+                  <div className="w-1/3">
+                    <Select
+                      value={field.fieldType}
+                      onChange={(value) =>
+                        updateCustomField(index, {
+                          fieldType: value as CustomField["fieldType"],
+                        })
+                      }
+                      options={[
+                        { value: "text", label: "Text" },
+                        { value: "number", label: "Number" },
+                        { value: "date", label: "Date" },
+                        { value: "dropdown", label: "Dropdown" },
+                        { value: "boolean", label: "Yes/No" },
+                      ]}
+                      className="bg-bg-input"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeCustomField(index)}
-                    className="px-3 py-2 text-status-error hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                    className="p-2 text-status-error hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg mt-1"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center gap-2 mt-2">
+                  <Checkbox
                     checked={field.required}
                     onChange={(e) =>
                       updateCustomField(index, { required: e.target.checked })
                     }
+                    label="Required field"
                   />
-                  Required field
-                </label>
+                </div>
               </div>
             ))}
           </div>

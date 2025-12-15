@@ -22,18 +22,21 @@ export default function EmployeeDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">
-          {greeting}, {user?.name.split(" ")[0]}! 👋
-        </h1>
-        <p className="text-text-secondary mt-1">
-          Here's your dashboard for today,{" "}
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+      <div className="flex flex-row justify-between items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary">
+            {greeting}, {user?.name.split(" ")[0]}! 👋
+          </h1>
+          <p className="text-text-secondary mt-1">
+            Here's your dashboard for today,{" "}
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+        <AppreciationWidget />
       </div>
 
       {/* Summary Section */}
@@ -73,15 +76,6 @@ export default function EmployeeDashboard() {
           <PayrollSummaryWidget />
         )}
         <FeedbackWidget />
-        {(!user?.tenantId ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          (user.tenantId.limits.enabledModules.includes("social") &&
-            user.accessibleModules?.includes("social"))) && (
-          <AppreciationWidget />
-        )}
       </div>
     </div>
   );

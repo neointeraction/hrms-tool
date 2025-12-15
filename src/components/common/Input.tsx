@@ -18,6 +18,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       leftIcon,
       rightIcon,
       id,
+      required,
       ...props
     },
     ref
@@ -31,7 +32,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className="block text-sm font-medium text-text-secondary mb-1"
           >
-            {label}
+            {label} {required && <span className="text-status-error">*</span>}
           </label>
         )}
         <div className="relative">
@@ -43,6 +44,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
+            disabled={props.disabled}
+            required={required}
             className={`
             w-full rounded-lg border bg-bg-card
             ${
@@ -55,6 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             py-2 text-sm placeholder-text-muted text-text-primary
             focus:outline-none focus:ring-2 focus:border-transparent
             disabled:bg-bg-main disabled:text-text-muted
+            h-[38px]
             ${className}
           `}
             {...props}

@@ -34,6 +34,8 @@ import ChatWidget from "../features/chat/ChatWidget";
 import { Tooltip } from "../components/common/Tooltip";
 import { Avatar } from "../components/common/Avatar";
 import { useNotification } from "../context/NotificationContext";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
+import { useRef } from "react";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -43,6 +45,8 @@ export default function MainLayout() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const profileRef = useRef<HTMLDivElement>(null!);
+  useOnClickOutside(profileRef, () => setIsProfileOpen(false));
 
   // Update Favicon
   useEffect(() => {
@@ -282,7 +286,9 @@ export default function MainLayout() {
           <button onClick={toggleSidebar} className="text-text-primary p-1">
             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <span className="font-bold text-xl text-brand-primary">HRMS</span>
+          <span className="font-bold text-xl text-brand-primary">
+            NeointeractionHR
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {accessibleRoutes.some((r) => r.to === "/social") &&
@@ -328,7 +334,9 @@ export default function MainLayout() {
               className="h-10 w-auto object-contain"
             />
           ) : (
-            <span className="font-bold text-2xl text-brand-primary">HRMS</span>
+            <span className="font-bold text-2xl text-brand-primary">
+              NeointeractionHR
+            </span>
           )}
         </div>
 
@@ -377,7 +385,10 @@ export default function MainLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-[calc(100vh-64px)] md:h-screen overflow-hidden">
         {/* Desktop Header */}
-        <header className="hidden md:flex bg-bg-sidebar border-b border-border h-16 px-8 items-center justify-between sticky top-0 z-10">
+        <header
+          className="hidden md:flex bg-bg-sidebar border-b border-border h-16 px-8 items-center justify-between sticky top-0 z-10"
+          style={{ zIndex: 999 }}
+        >
           <div className="flex items-center gap-2 text-text-secondary text-sm">
             <span className="text-text-muted">Home</span>
             {getBreadcrumbs().map((crumb, index) => (
@@ -419,7 +430,7 @@ export default function MainLayout() {
                 </Tooltip>
               )}
             <NotificationDropdown />
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <Tooltip content="User Profile">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -444,10 +455,6 @@ export default function MainLayout() {
 
               {isProfileOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsProfileOpen(false)}
-                  />
                   <div className="absolute right-0 top-full mt-2 w-48 bg-bg-card rounded-lg shadow-lg border border-border py-1 z-20">
                     <div className="px-4 py-2 border-b border-border md:hidden">
                       <p className="text-sm font-medium text-text-primary">

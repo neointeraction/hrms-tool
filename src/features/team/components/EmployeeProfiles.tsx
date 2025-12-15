@@ -3,6 +3,7 @@ import { Plus, Search, MoreVertical, AlertCircle } from "lucide-react";
 import AddEmployeeModal from "./AddEmployeeModal";
 import { apiService } from "../../../services/api.service";
 import { Skeleton } from "../../../components/common/Skeleton";
+import { Input } from "../../../components/common/Input";
 
 interface Employee {
   _id: string;
@@ -65,12 +66,11 @@ export default function EmployeeProfiles() {
 
       <div className="flex items-center gap-4 bg-bg-main p-2 rounded-lg border border-border">
         <Search className="text-text-muted" size={20} />
-        <input
-          type="text"
+        <Input
           placeholder="Search employees..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-transparent border-none outline-none flex-1 text-sm"
+          className="border-none bg-transparent focus:ring-0 px-0 h-auto"
         />
       </div>
 

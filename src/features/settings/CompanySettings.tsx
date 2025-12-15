@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api.service";
 import { Save, Building, Globe, DollarSign, Clock } from "lucide-react";
+import { Input } from "../../components/common/Input";
+import { Select } from "../../components/common/Select";
 
 interface CompanySettings {
   name: string;
@@ -148,13 +150,12 @@ const CompanySettings = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Company Name
               </label>
-              <input
-                type="text"
+              <Input
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="bg-white dark:bg-gray-700"
               />
             </div>
 
@@ -162,11 +163,10 @@ const CompanySettings = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Subdomain
               </label>
-              <input
-                type="text"
+              <Input
                 value={settings?.subdomain || ""}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                className="bg-gray-100 dark:bg-gray-900 cursor-not-allowed"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Subdomain cannot be changed
@@ -189,20 +189,25 @@ const CompanySettings = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Timezone
               </label>
-              <select
-                name="timezone"
+              <Select
                 value={formData.timezone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="America/New_York">Eastern Time (ET)</option>
-                <option value="America/Chicago">Central Time (CT)</option>
-                <option value="America/Denver">Mountain Time (MT)</option>
-                <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                <option value="Europe/London">London (GMT)</option>
-                <option value="Asia/Kolkata">India (IST)</option>
-                <option value="Asia/Singapore">Singapore (SGT)</option>
-              </select>
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    timezone: value as string,
+                  }))
+                }
+                options={[
+                  { value: "America/New_York", label: "Eastern Time (ET)" },
+                  { value: "America/Chicago", label: "Central Time (CT)" },
+                  { value: "America/Denver", label: "Mountain Time (MT)" },
+                  { value: "America/Los_Angeles", label: "Pacific Time (PT)" },
+                  { value: "Europe/London", label: "London (GMT)" },
+                  { value: "Asia/Kolkata", label: "India (IST)" },
+                  { value: "Asia/Singapore", label: "Singapore (SGT)" },
+                ]}
+                className="bg-white dark:bg-gray-700"
+              />
             </div>
 
             <div>
@@ -210,34 +215,44 @@ const CompanySettings = () => {
                 <DollarSign className="inline mr-1" size={16} />
                 Currency
               </label>
-              <select
-                name="currency"
+              <Select
                 value={formData.currency}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="USD">USD - US Dollar</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="GBP">GBP - British Pound</option>
-                <option value="INR">INR - Indian Rupee</option>
-                <option value="SGD">SGD - Singapore Dollar</option>
-              </select>
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    currency: value as string,
+                  }))
+                }
+                options={[
+                  { value: "USD", label: "USD - US Dollar" },
+                  { value: "EUR", label: "EUR - Euro" },
+                  { value: "GBP", label: "GBP - British Pound" },
+                  { value: "INR", label: "INR - Indian Rupee" },
+                  { value: "SGD", label: "SGD - Singapore Dollar" },
+                ]}
+                className="bg-white dark:bg-gray-700"
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Date Format
               </label>
-              <select
-                name="dateFormat"
+              <Select
                 value={formData.dateFormat}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option>
-                <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</option>
-              </select>
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    dateFormat: value as string,
+                  }))
+                }
+                options={[
+                  { value: "MM/DD/YYYY", label: "MM/DD/YYYY (12/31/2024)" },
+                  { value: "DD/MM/YYYY", label: "DD/MM/YYYY (31/12/2024)" },
+                  { value: "YYYY-MM-DD", label: "YYYY-MM-DD (2024-12-31)" },
+                ]}
+                className="bg-white dark:bg-gray-700"
+              />
             </div>
           </div>
         </div>
@@ -256,12 +271,12 @@ const CompanySettings = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Start Time
               </label>
-              <input
+              <Input
                 type="time"
                 name="workHours.start"
                 value={formData.workHours.start}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="bg-white dark:bg-gray-700"
               />
             </div>
 
@@ -269,12 +284,12 @@ const CompanySettings = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 End Time
               </label>
-              <input
+              <Input
                 type="time"
                 name="workHours.end"
                 value={formData.workHours.end}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="bg-white dark:bg-gray-700"
               />
             </div>
           </div>

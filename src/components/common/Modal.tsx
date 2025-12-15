@@ -9,6 +9,7 @@ interface ModalProps {
   footer?: React.ReactNode;
   maxWidth?: string;
   hideHeader?: boolean;
+  padding?: string;
 }
 
 import { createPortal } from "react-dom";
@@ -21,6 +22,7 @@ export function Modal({
   footer,
   maxWidth = "max-w-md",
   hideHeader = false,
+  padding = "p-6",
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -41,7 +43,7 @@ export function Modal({
           </div>
         )}
 
-        <div className="p-6 space-y-4 overflow-y-auto">{children}</div>
+        <div className={`${padding} space-y-4 overflow-y-auto`}>{children}</div>
 
         {footer && (
           <div className="p-3 bg-bg-main/50 rounded-b-xl shrink-0">

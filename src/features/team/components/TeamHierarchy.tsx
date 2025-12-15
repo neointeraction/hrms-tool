@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "../../../components/common/Avatar";
 import { Skeleton } from "../../../components/common/Skeleton";
+import { Input } from "../../../components/common/Input";
 
 interface Employee {
   _id: string;
@@ -48,10 +49,12 @@ const TreeNode = ({ node }: { node: Employee }) => {
           <Avatar
             src={
               node.profilePicture
-                ? `${ASSET_BASE_URL}${node.profilePicture}`.replace(
-                    "//uploads",
-                    "/uploads"
-                  )
+                ? node.profilePicture.startsWith("http")
+                  ? node.profilePicture
+                  : `${ASSET_BASE_URL}${node.profilePicture}`.replace(
+                      "//uploads",
+                      "/uploads"
+                    )
                 : undefined
             }
             name={`${node.firstName} ${node.lastName}`}
@@ -257,16 +260,12 @@ export default function TeamHierarchy() {
           {view === "directory" && (
             <div className="pr-2 w-full md:w-auto">
               <div className="relative w-full md:w-64">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={16}
-                />
-                <input
-                  type="text"
+                <Input
                   placeholder="Search employees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-1.5 bg-bg-secondary border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+                  leftIcon={<Search className="text-text-muted" size={16} />}
+                  className="bg-bg-secondary w-full"
                 />
               </div>
             </div>
@@ -299,10 +298,12 @@ export default function TeamHierarchy() {
                       <Avatar
                         src={
                           emp.profilePicture
-                            ? `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
-                                "//uploads",
-                                "/uploads"
-                              )
+                            ? emp.profilePicture.startsWith("http")
+                              ? emp.profilePicture
+                              : `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
+                                  "//uploads",
+                                  "/uploads"
+                                )
                             : undefined
                         }
                         name={`${emp.firstName} ${emp.lastName}`}

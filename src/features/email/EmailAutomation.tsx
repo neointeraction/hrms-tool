@@ -5,6 +5,7 @@ import { Badge } from "../../components/common/Badge";
 import { Table, type Column } from "../../components/common/Table";
 import RichTextEditor from "../../components/common/RichTextEditor";
 import { Checkbox } from "../../components/common/Checkbox";
+import { Input } from "../../components/common/Input";
 
 export default function EmailAutomation() {
   const [activeTab, setActiveTab] = useState<"settings" | "logs">("settings");
@@ -238,13 +239,13 @@ export default function EmailAutomation() {
                       <label className="block text-sm font-medium text-text-secondary mb-1">
                         Subject
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={settings.birthday.subject}
                         onChange={(e) =>
                           updateSetting("birthday.subject", e.target.value)
                         }
-                        className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                        className="bg-bg-input"
                       />
                     </div>
                     <div>
@@ -288,13 +289,13 @@ export default function EmailAutomation() {
                       <label className="block text-sm font-medium text-text-secondary mb-1">
                         Subject
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={settings.anniversary.subject}
                         onChange={(e) =>
                           updateSetting("anniversary.subject", e.target.value)
                         }
-                        className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg"
+                        className="bg-bg-input"
                       />
                     </div>
                     <div>
@@ -323,13 +324,13 @@ export default function EmailAutomation() {
                     <label className="text-sm text-text-secondary">
                       Send daily at:
                     </label>
-                    <input
+                    <Input
                       type="time"
                       value={settings.schedule?.time || "09:00"}
                       onChange={(e) =>
                         updateSetting("schedule.time", e.target.value)
                       }
-                      className="px-2 py-1 bg-bg-input border border-border rounded"
+                      className="px-2 py-1 bg-bg-input"
                     />
                   </div>
                 </div>

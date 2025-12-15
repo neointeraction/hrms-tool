@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import EmployeesOnLeave from "./EmployeesOnLeave";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import UpcomingEventsWidget from "./UpcomingEventsWidget";
+import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -116,16 +117,21 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">Admin Console</h1>
-        <p className="text-text-secondary mt-1">
-          Welcome back, {user?.name}.
-          {user?.tenantId && typeof user.tenantId === "object" && (
-            <span className="ml-1 text-brand-primary font-medium">
-              @ {(user.tenantId as any).companyName}
-            </span>
-          )}
-        </p>
+      <div className="flex flex-row justify-between items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary">
+            Admin Console
+          </h1>
+          <p className="text-text-secondary mt-1">
+            Welcome back, {user?.name}.
+            {user?.tenantId && typeof user.tenantId === "object" && (
+              <span className="ml-1 text-brand-primary font-medium">
+                @ {(user.tenantId as any).companyName}
+              </span>
+            )}
+          </p>
+        </div>
+        <AppreciationWidget />
       </div>
 
       {/* Stats Grid */}
