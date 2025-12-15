@@ -42,12 +42,13 @@ export default function MainLayout() {
   const { theme, toggleTheme } = useTheme();
   const { unreadSocialCount, clearSocialNotifications } = useNotification();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Desktop Profile State
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const profileRef = useRef<HTMLDivElement>(null!);
   useOnClickOutside(profileRef, () => setIsProfileOpen(false));
-
   // Update Favicon
   useEffect(() => {
     if (user?.tenantId && typeof user.tenantId === "object") {
@@ -171,7 +172,6 @@ export default function MainLayout() {
   const enabledModules = tenantLimits?.enabledModules;
 
   // Map routes to module names (key must match module names in backend/EditTenantModal)
-  // Map routes to module names (key must match module names in backend/EditTenantModal)
   const routeModuleMap: Record<string, string> = {
     "/attendance": "attendance",
     "/leave": "leave",
@@ -277,6 +277,12 @@ export default function MainLayout() {
     const item = navItems.find((item) => item.to === path);
     return item ? [item.label] : ["Page"];
   };
+  // Mobile Profile State
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
+  const mobileProfileRef = useRef<HTMLDivElement>(null!);
+  useOnClickOutside(mobileProfileRef, () => setIsMobileProfileOpen(false));
+
+  // ... (existing code)
 
   return (
     <div className="min-h-screen bg-bg-main flex flex-col md:flex-row transition-colors duration-200">
@@ -286,9 +292,17 @@ export default function MainLayout() {
           <button onClick={toggleSidebar} className="text-text-primary p-1">
             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <span className="font-bold text-xl text-brand-primary">
-            NeointeractionHR
-          </span>
+          {(user?.tenantId as any)?.settings?.logo ? (
+            <img
+              src={(user?.tenantId as any).settings.logo}
+              alt="Company Logo"
+              className="h-8 w-auto object-contain"
+            />
+          ) : (
+            <span className="font-bold text-xl text-brand-primary">
+              NeointeractionHR
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {accessibleRoutes.some((r) => r.to === "/social") &&
@@ -310,23 +324,68 @@ export default function MainLayout() {
               </button>
             )}
           <NotificationDropdown />
-          <Avatar
-            src={user?.avatar}
-            name={user?.name}
-            alt={user?.name}
-            size="sm"
-          />
+
+          {/* Mobile Profile Dropdown */}
+          <div className="relative" ref={mobileProfileRef}>
+            <button
+              onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
+              className="focus:outline-none"
+            >
+              <Avatar
+                src={user?.avatar}
+                name={user?.name}
+                alt={user?.name}
+                size="sm"
+              />
+            </button>
+
+            {isMobileProfileOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-bg-card rounded-lg shadow-lg border border-border py-1 z-50">
+                <div className="px-4 py-2 border-b border-border">
+                  <p className="text-sm font-medium text-text-primary truncate">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs text-text-muted truncate">
+                    {user?.designation}
+                  </p>
+                </div>
+                {user?.role !== "Super Admin" && (
+                  <button
+                    onClick={() => {
+                      setIsMobileProfileOpen(false);
+                      navigate("/profile");
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-bg-hover flex items-center gap-2"
+                  >
+                    <UserCircle2 size={16} />
+                    My Profile
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileProfileOpen(false);
+                    navigate("/login", { replace: true });
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-status-error hover:bg-bg-hover flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-10 w-[280px] bg-bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen flex flex-col",
+          "fixed inset-y-0 left-0 z-50 w-[280px] bg-bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen flex flex-col",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-6 hidden md:flex items-center justify-between border-b border-border h-16">
+        <div className="p-6 flex items-center justify-between border-b border-border h-16">
           {(user?.tenantId as any)?.settings?.logo ? (
             <img
               src={(user?.tenantId as any).settings.logo}
@@ -377,7 +436,7 @@ export default function MainLayout() {
       {/* Overlay for mobile sidebar */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-0 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

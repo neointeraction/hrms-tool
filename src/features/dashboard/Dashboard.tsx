@@ -12,6 +12,8 @@ export default function Dashboard() {
 
   if (!user) return null;
 
+  // Render dashboard based on role
+
   switch (user.role) {
     case "Admin":
       return <AdminDashboard />;

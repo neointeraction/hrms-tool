@@ -183,7 +183,7 @@ export default function AppreciationWidget() {
   const showNext = startIndex + 5 < userBadges.length;
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden max-w-full">
       {/* Prev Arrow */}
       {showPrev && (
         <button

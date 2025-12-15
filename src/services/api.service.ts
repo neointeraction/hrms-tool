@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -89,7 +89,7 @@ class ApiService {
   }
 
   async getAllEmployees(): Promise<ApiResponse> {
-    const response = await fetch(`${API_BASE_URL}/hr/employees`, {
+    const response = await fetch(`${API_BASE_URL}/employees`, {
       method: "GET",
       headers: this.getAuthHeaders(),
     });
