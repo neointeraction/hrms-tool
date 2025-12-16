@@ -181,7 +181,8 @@ export default function EmployeeManagement() {
           columns={[
             {
               header: "Employee",
-              accessorKey: "firstName", // Enable sorting by name
+              accessorKey: "firstName",
+              searchKey: "firstName",
               render: (emp) => (
                 <div className="flex items-center gap-3">
                   {emp.profilePicture ? (

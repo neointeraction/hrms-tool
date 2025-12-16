@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   Download,
   UserPlus,
+  Image as ImageIcon,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
@@ -29,6 +30,7 @@ interface Asset {
   purchasePrice?: number;
   currentValue?: number;
   invoice?: string;
+  image?: string;
 }
 
 export default function AssetInventory() {
@@ -75,6 +77,7 @@ export default function AssetInventory() {
     purchasePrice: "",
     currentValue: "",
     notes: "",
+    image: null as File | null,
   });
 
   useEffect(() => {
@@ -123,15 +126,29 @@ export default function AssetInventory() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
-        ...formData,
-        purchasePrice: formData.purchasePrice
-          ? parseFloat(formData.purchasePrice)
-          : undefined,
-        currentValue: formData.currentValue
-          ? parseFloat(formData.currentValue)
-          : undefined,
-      };
+      const payload = new FormData();
+      payload.append("categoryId", formData.categoryId);
+      payload.append("name", formData.name);
+      if (formData.manufacturer)
+        payload.append("manufacturer", formData.manufacturer);
+      if (formData.model) payload.append("model", formData.model);
+      if (formData.serialNumber)
+        payload.append("serialNumber", formData.serialNumber);
+      if (formData.purchaseDate)
+        payload.append("purchaseDate", formData.purchaseDate);
+      if (formData.vendor) payload.append("vendor", formData.vendor);
+      if (formData.warrantyExpiry)
+        payload.append("warrantyExpiry", formData.warrantyExpiry);
+      payload.append("condition", formData.condition);
+      if (formData.purchasePrice)
+        payload.append("purchasePrice", formData.purchasePrice);
+      if (formData.currentValue)
+        payload.append("currentValue", formData.currentValue);
+      if (formData.notes) payload.append("notes", formData.notes);
+
+      if (formData.image) {
+        payload.append("image", formData.image);
+      }
 
       if (editingAsset) {
         await apiService.updateAsset(editingAsset._id, payload);
@@ -162,6 +179,7 @@ export default function AssetInventory() {
       purchasePrice: asset.purchasePrice?.toString() || "",
       currentValue: asset.currentValue?.toString() || "",
       notes: "",
+      image: null,
     });
     setIsModalOpen(true);
   };
@@ -231,6 +249,7 @@ export default function AssetInventory() {
       purchasePrice: "",
       currentValue: "",
       notes: "",
+      image: null,
     });
     setEditingAsset(null);
   };
@@ -402,6 +421,7 @@ export default function AssetInventory() {
               <thead className="bg-bg-secondary border-b border-border">
                 <tr>
                   {[
+                    "Image",
                     "Asset Code",
                     "Name",
                     "Category",
@@ -424,6 +444,9 @@ export default function AssetInventory() {
               <tbody className="divide-y divide-border">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <tr key={i}>
+                    <td className="px-6 py-4">
+                      <Skeleton className="h-10 w-10 rounded-lg" />
+                    </td>
                     <td className="px-6 py-4">
                       <Skeleton className="h-4 w-20" />
                     </td>
@@ -468,6 +491,9 @@ export default function AssetInventory() {
               <thead className="bg-bg-secondary border-b border-border">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
+                    Image
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
                     Asset Code
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
@@ -496,6 +522,23 @@ export default function AssetInventory() {
                     key={asset._id}
                     className="hover:bg-bg-hover transition-colors"
                   >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="w-10 h-10 rounded-lg bg-bg-secondary border border-border flex items-center justify-center overflow-hidden">
+                        {asset.image ? (
+                          <img
+                            src={
+                              asset.image.startsWith("http")
+                                ? asset.image
+                                : `http://localhost:5000${asset.image}`
+                            }
+                            alt={asset.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="text-text-muted" size={16} />
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="font-mono text-sm text-brand-primary">
                         {asset.assetCode}
@@ -684,6 +727,56 @@ export default function AssetInventory() {
                 }
                 className="bg-bg-input"
               />
+            </div>
+
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-text-primary mb-1">
+                Asset Image
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-20 bg-bg-secondary rounded-lg border border-border flex items-center justify-center overflow-hidden">
+                  {formData.image ? (
+                    <img
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : editingAsset?.image ? (
+                    <img
+                      src={
+                        editingAsset.image.startsWith("http")
+                          ? editingAsset.image
+                          : `http://localhost:5000${editingAsset.image}`
+                      }
+                      alt="Current"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="text-text-muted" size={24} />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setFormData({ ...formData, image: e.target.files[0] });
+                      }
+                    }}
+                    className="block w-full text-sm text-text-secondary
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-brand-primary/10 file:text-brand-primary
+                      hover:file:bg-brand-primary/20
+                    "
+                  />
+                  <p className="text-xs text-text-muted mt-1">
+                    Upload an image of the asset (JPG, PNG, WebP)
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="col-span-2">

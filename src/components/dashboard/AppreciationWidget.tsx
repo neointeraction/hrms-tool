@@ -69,35 +69,50 @@ export default function AppreciationWidget() {
     });
   };
 
-  const checkNewBadges = (badges: BadgeGroup[]) => {
-    if (!user) return badges;
+  const checkNewBadges = (
+    badges: BadgeGroup[],
+    allAppreciations: AppreciationItem[]
+  ) => {
+    // Determine the correct user ID (handles both id and _id)
+    const userId = user?.id || (user as any)?._id;
+    if (!userId) return badges;
 
-    const storageKey = `seen_badges_${user.id}`;
-    const seenIds = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    const currentIds = badges.map((b) => b.badge._id);
+    // Use backend 'isSeen' flag instead of localStorage
+    // Identify appreciations that are NOT seen
+    const unseenAppreciations = allAppreciations.filter(
+      (a) => !(a as any).isSeen
+    );
 
-    // Find new badges
-    const newBadges = badges.filter((b) => !seenIds.includes(b.badge._id));
+    // Find badge IDs corresponding to unseen appreciations
+    const newBadgeIds = unseenAppreciations.map((a) => a.badge._id);
 
-    if (newBadges.length > 0) {
+    if (newBadgeIds.length > 0) {
       // Mark them as new in state for potential UI highlighting
       badges = badges.map((b) => ({
         ...b,
-        isNew: newBadges.some((nb) => nb.badge._id === b.badge._id),
+        isNew: newBadgeIds.includes(b.badge._id),
       }));
 
-      // Update storage
-      localStorage.setItem(storageKey, JSON.stringify(currentIds));
-
-      // Trigger confetti for each new badge after a short delay to ensure render
+      // Trigger confetti for each new badge after a short delay
       setTimeout(() => {
-        newBadges.forEach((nb) => {
-          const element = document.getElementById(`badge-${nb.badge._id}`);
+        // Unique badges to trigger confetti for
+        const uniqueNewBadgeIds = Array.from(new Set(newBadgeIds));
+
+        uniqueNewBadgeIds.forEach((id) => {
+          const element = document.getElementById(`badge-${id}`);
           if (element) {
             const rect = element.getBoundingClientRect();
             triggerConfetti(rect);
           }
         });
+
+        // Calling API to mark as seen persistently
+        const unseenIds = unseenAppreciations.map((a) => a._id);
+        if (unseenIds.length > 0) {
+          apiService.markAppreciationsAsSeen(unseenIds).catch((err) => {
+            console.error("Failed to mark appreciations as seen", err);
+          });
+        }
       }, 500);
     }
 
@@ -137,7 +152,7 @@ export default function AppreciationWidget() {
 
       // Only check for new badges on first load per session/mount
       if (!initialized.current) {
-        badges = checkNewBadges(badges);
+        badges = checkNewBadges(badges, data);
         initialized.current = true;
       }
 

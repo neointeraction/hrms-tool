@@ -397,7 +397,9 @@ export const router = createBrowserRouter([
               "Consultant",
             ]}
           >
-            <Appreciation />
+            <ModuleGuard module="appreciation">
+              <Appreciation />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },

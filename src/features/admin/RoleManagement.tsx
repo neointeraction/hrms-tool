@@ -200,6 +200,8 @@ export default function RoleManagement() {
         columns={[
           {
             header: "Role Name",
+            accessorKey: "name",
+            searchKey: "name",
             render: (role) => (
               <div className="flex items-center gap-2 font-medium text-text-primary">
                 <Shield size={16} className="text-brand-primary" />

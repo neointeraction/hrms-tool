@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -601,15 +601,20 @@ class ApiService {
       const error = await response.json();
       throw new Error(error.message || "Failed to fetch assets");
     }
-
     return response.json();
   }
 
   async createAsset(data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const headers: any = this.getAuthHeaders();
+    if (isFormData) {
+      delete headers["Content-Type"];
+    }
+
     const response = await fetch(`${API_BASE_URL}/assets`, {
       method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -621,17 +626,21 @@ class ApiService {
   }
 
   async updateAsset(id: string, data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const headers: any = this.getAuthHeaders();
+    if (isFormData) {
+      delete headers["Content-Type"];
+    }
+
     const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
-
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to update asset");
     }
-
     return response.json();
   }
 
@@ -894,11 +903,28 @@ class ApiService {
       const error = await response.json();
       throw new Error(error.message || "Failed to fetch history logs");
     }
-
     return response.json();
   }
 
   // Leave Policies
+  async createLeavePolicy(data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
+    const response = await fetch(`${API_BASE_URL}/leave-policies`, {
+      method: "POST",
+      headers: isFormData
+        ? { Authorization: `Bearer ${localStorage.getItem("authToken")}` }
+        : this.getAuthHeaders(),
+      body: isFormData ? data : JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(
+        error.message || error.error || "Failed to create leave policy"
+      );
+    }
+    return response.json();
+  }
+
   async getLeavePolicies(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/leave-policies`, {
       method: "GET",
@@ -923,29 +949,16 @@ class ApiService {
     return response.json();
   }
 
-  async createLeavePolicy(data: any): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/leave-policies`, {
-      method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to create leave policy");
-    }
-    return response.json();
-  }
-
   async updateLeavePolicy(id: string, data: any): Promise<any> {
+    const isFormData = data instanceof FormData;
     const response = await fetch(`${API_BASE_URL}/leave-policies/${id}`, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      headers: isFormData
+        ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        : this.getAuthHeaders(),
+      body: isFormData ? data : JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to update leave policy");
-    }
+    if (!response.ok) throw new Error("Failed to update leave policy");
     return response.json();
   }
 
@@ -1053,7 +1066,10 @@ class ApiService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error("Failed to calculate payroll");
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to calculate payroll");
+    }
     return response.json();
   }
 
@@ -1702,6 +1718,24 @@ class ApiService {
       const error = await response.json();
       throw new Error(error.message || "Failed to send appreciation");
     }
+    return response.json();
+  }
+
+  async markAppreciationsAsSeen(ids: string[]): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/appreciation/mark-seen`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ids }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to mark appreciations as seen");
+    }
+
     return response.json();
   }
   async updateBadge(id: string, formData: FormData) {

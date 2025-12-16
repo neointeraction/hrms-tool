@@ -8,15 +8,17 @@ import {
 import { createPortal } from "react-dom";
 
 interface TooltipProps {
-  content: string;
+  content: ReactNode;
   children: ReactNode;
   position?: "top" | "bottom" | "left" | "right";
+  trigger?: "hover" | "click";
 }
 
 export function Tooltip({
   content,
   children,
   position = "bottom",
+  trigger = "hover",
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -61,31 +63,17 @@ export function Tooltip({
       const halfWidth = tooltipRect.width / 2;
       const padding = 10;
 
-      // Calculate current horizontal boundaries based on the naive center 'left'
-      // Note: We use the 'left' variable (which includes scrollX) for the center point.
-      // But for viewport comparison, we need relative-to-viewport coordinates.
-      // The viewport-relative center is (left - scrollX).
       const viewportCenter = left - scrollX;
-
       let newViewportCenter = viewportCenter;
 
-      // Check Right Edge
       if (viewportCenter + halfWidth > innerWidth - padding) {
         newViewportCenter = innerWidth - padding - halfWidth;
       }
-
-      // Check Left Edge
       if (viewportCenter - halfWidth < padding) {
         newViewportCenter = padding + halfWidth;
       }
 
-      // Calculate the difference to shift the tooltip
-      // The new 'left' (absolute) should be newViewportCenter + scrollX
       const newLeft = newViewportCenter + scrollX;
-
-      // The difference between ideal center and clamped center is the arrow offset
-      // If we shifted the tooltip LOGICALLY Left (newLeft < left), arrow must shift VISUALLY Right (positive offset)
-      // to stay pointing at the target.
       offset = left - newLeft;
       left = newLeft;
     }
@@ -96,13 +84,47 @@ export function Tooltip({
 
   const showTooltip = () => {
     calculatePosition();
-    timeoutRef.current = setTimeout(() => setIsVisible(true), 200);
+    if (trigger === "hover") {
+      timeoutRef.current = setTimeout(() => setIsVisible(true), 200);
+    } else {
+      setIsVisible(true);
+    }
   };
 
   const hideTooltip = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsVisible(false);
   };
+
+  const toggleTooltip = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isVisible) {
+      hideTooltip();
+    } else {
+      showTooltip();
+    }
+  };
+
+  // Click outside to close (for click trigger)
+  useEffect(() => {
+    if (trigger === "click" && isVisible) {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          triggerRef.current &&
+          !triggerRef.current.contains(event.target as Node) &&
+          tooltipRef.current &&
+          !tooltipRef.current.contains(event.target as Node)
+        ) {
+          hideTooltip();
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [trigger, isVisible]);
 
   useLayoutEffect(() => {
     if (isVisible) {
@@ -125,7 +147,7 @@ export function Tooltip({
   const tooltipContent = (
     <div
       ref={tooltipRef}
-      className={`fixed z-[9999] px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg whitespace-nowrap animate-in fade-in zoom-in-95 duration-200 pointer-events-none`}
+      className={`fixed z-[9999] px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg animate-in fade-in zoom-in-95 duration-200`}
       style={{
         top: coords.top,
         left: coords.left,
@@ -162,9 +184,10 @@ export function Tooltip({
     <>
       <div
         ref={triggerRef}
-        className="relative flex items-center justify-center"
-        onMouseEnter={showTooltip}
-        onMouseLeave={hideTooltip}
+        className="relative flex items-center justify-center cursor-pointer"
+        onMouseEnter={trigger === "hover" ? showTooltip : undefined}
+        onMouseLeave={trigger === "hover" ? hideTooltip : undefined}
+        onClick={trigger === "click" ? toggleTooltip : undefined}
       >
         {children}
       </div>

@@ -16,6 +16,7 @@ import { Skeleton } from "./Skeleton";
 export interface Column<T> {
   header: string;
   accessorKey?: keyof T;
+  searchKey?: keyof T; // New prop for search-only accessor
   render?: (item: T) => React.ReactNode;
   className?: string;
   enableSorting?: boolean;
@@ -47,17 +48,20 @@ export function Table<T extends { _id: string } | { id: string }>({
 
   const tableColumns = useMemo(() => {
     return columns.map((col) => {
-      const columnId = (col.accessorKey as string) || col.header;
+      const columnId =
+        (col.accessorKey as string) || (col.searchKey as string) || col.header;
 
       return columnHelper.accessor(
         (row) => {
           if (col.accessorKey) return row[col.accessorKey];
+          if (col.searchKey) return row[col.searchKey];
           return null;
         },
         {
           id: columnId,
           header: col.header,
           enableSorting: col.enableSorting ?? !!col.accessorKey,
+          enableGlobalFilter: !!(col.accessorKey || col.searchKey), // Explicitly enable global filter if key exists
           cell: (info) => {
             if (col.render) {
               return col.render(info.row.original);

@@ -30,6 +30,8 @@ export default function LeaveDashboard() {
       !user.tenantId.limits ||
       user.tenantId.limits.enabledModules.includes("policies"));
 
+  const canViewPolicies = true; // All authenticated users can view policies
+
   const canViewOverview = user?.role === "Admin" || user?.role === "HR";
 
   return (
@@ -61,7 +63,8 @@ export default function LeaveDashboard() {
           </div>
         </div>
 
-        {!canManagePolicies || activeTab === "my-leaves" ? (
+        {activeTab === "my-leaves" ||
+        (!canManagePolicies && activeTab !== "policies") ? (
           <LeaveBalance />
         ) : null}
 
@@ -90,7 +93,7 @@ export default function LeaveDashboard() {
               Approvals
             </button>
           )}
-          {canManagePolicies && (
+          {canViewPolicies && (
             <button
               onClick={() => setActiveTab("policies")}
               className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -121,7 +124,7 @@ export default function LeaveDashboard() {
         <div className="mt-4">
           {activeTab === "my-leaves" && <LeaveList />}
           {activeTab === "approvals" && <LeaveApproval />}
-          {activeTab === "policies" && canManagePolicies && <LeavePolicyList />}
+          {activeTab === "policies" && <LeavePolicyList />}
           {activeTab === "overview" && <HRLeaveOverview />}
         </div>
       </div>

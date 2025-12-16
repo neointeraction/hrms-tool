@@ -16,11 +16,14 @@ import {
   Landmark,
   LogOut,
   Grid,
+  Monitor,
 } from "lucide-react";
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Input } from "../../components/common/Input";
 import { DocumentsTab } from "./components/DocumentsTab";
+import { AssetsTab } from "./components/AssetsTab";
+import { useAuth } from "../../context/AuthContext";
 
 interface AddEditEmployeeProps {
   isOpen: boolean;
@@ -28,8 +31,6 @@ interface AddEditEmployeeProps {
   employee?: any;
   viewMode?: boolean;
 }
-
-import { useAuth } from "../../context/AuthContext";
 
 const ALL_TABS = [
   "Basic Info",
@@ -40,6 +41,7 @@ const ALL_TABS = [
   "Contact",
   "Bank Details",
   "Documents",
+  "Assets",
   "Separation",
   "Additional",
 ];
@@ -53,6 +55,7 @@ const TAB_ICONS: Record<string, React.ElementType> = {
   Contact: Phone,
   "Bank Details": Landmark,
   Documents: FileText,
+  Assets: Monitor,
   Separation: LogOut,
   Additional: Grid,
 };
@@ -785,6 +788,22 @@ export default function AddEditEmployee({
                   </p>
                   <p className="text-sm">
                     Documents can only be uploaded for existing employees.
+                  </p>
+                </div>
+              ))}
+
+            {/* Assets */}
+            {activeTab === "Assets" &&
+              (employee ? (
+                <AssetsTab employeeId={employee._id} readOnly={viewMode} />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-text-secondary">
+                  <Monitor size={48} className="mb-4 text-text-muted" />
+                  <p className="text-lg font-medium">
+                    Please save the employee first
+                  </p>
+                  <p className="text-sm">
+                    Assets can only be assigned to existing employees.
                   </p>
                 </div>
               ))}

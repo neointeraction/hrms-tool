@@ -7,10 +7,14 @@ import {
   Network,
   Search,
   Mail,
+  Phone,
+  Smartphone,
 } from "lucide-react";
 import { Avatar } from "../../../components/common/Avatar";
 import { Skeleton } from "../../../components/common/Skeleton";
+import { Tooltip } from "../../../components/common/Tooltip";
 import { Input } from "../../../components/common/Input";
+import { useNotification } from "../../../context/NotificationContext";
 
 interface Employee {
   _id: string;
@@ -20,6 +24,8 @@ interface Employee {
   department?: string;
   email?: string;
   phoneNumber?: string;
+  workPhone?: string;
+  personalMobile?: string;
   profilePicture?: string;
   isOnline?: boolean;
   reportingManager?: {
@@ -112,6 +118,7 @@ const TreeNode = ({ node }: { node: Employee }) => {
 };
 
 export default function TeamHierarchy() {
+  const { showToast } = useNotification();
   const [view, setView] = useState<"hierarchy" | "directory">("hierarchy");
   const [tree, setTree] = useState<Employee[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -292,29 +299,34 @@ export default function TeamHierarchy() {
                 {filteredEmployees.map((emp) => (
                   <div
                     key={emp._id}
-                    className="bg-bg-card border border-border rounded-xl p-5 hover:shadow-md transition-shadow group flex flex-col items-center text-center"
+                    className="group relative bg-bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center p-4"
                   >
-                    <div className="w-20 h-20 rounded-full mb-3 border-4 border-bg-main relative">
-                      <Avatar
-                        src={
-                          emp.profilePicture
-                            ? emp.profilePicture.startsWith("http")
-                              ? emp.profilePicture
-                              : `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
-                                  "//uploads",
-                                  "/uploads"
-                                )
-                            : undefined
-                        }
-                        name={`${emp.firstName} ${emp.lastName}`}
-                        alt={emp.firstName}
-                        className="w-full h-full"
-                        size="lg"
-                      />
-                      {/* Online Status Indicator */}
-                      <div className="absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center bg-white">
+                    {/* Top Accent Bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-primary to-brand-secondary opacity-80" />
+
+                    <div className="mt-2 mb-3 relative">
+                      <div className="w-16 h-16 rounded-full border-2 border-white dark:border-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
+                        <Avatar
+                          src={
+                            emp.profilePicture
+                              ? emp.profilePicture.startsWith("http")
+                                ? emp.profilePicture
+                                : `${ASSET_BASE_URL}${emp.profilePicture}`.replace(
+                                    "//uploads",
+                                    "/uploads"
+                                  )
+                              : undefined
+                          }
+                          name={`${emp.firstName} ${emp.lastName}`}
+                          alt={emp.firstName}
+                          className="w-full h-full"
+                          size="md"
+                        />
+                      </div>
+                      {/* Online Status */}
+                      <div className="absolute bottom-0 right-0 p-0.5 bg-bg-card rounded-full">
                         <div
-                          className={`w-3 h-3 rounded-full ${
+                          className={`w-3 h-3 rounded-full border-2 border-bg-card ${
                             emp.isOnline ? "bg-status-success" : "bg-gray-300"
                           }`}
                           title={emp.isOnline ? "Online" : "Offline"}
@@ -322,24 +334,73 @@ export default function TeamHierarchy() {
                       </div>
                     </div>
 
-                    <h3 className="font-bold text-text-primary text-base mb-1">
-                      {emp.firstName} {emp.lastName}
-                    </h3>
-                    <p className="text-brand-primary text-sm font-medium mb-1">
-                      {emp.designation}
-                    </p>
-                    <p className="text-text-secondary text-xs mb-4">
-                      {emp.department || "General"}
-                    </p>
+                    <div className="w-full mb-3">
+                      <h3 className="font-bold text-text-primary text-sm truncate px-1">
+                        {emp.firstName} {emp.lastName}
+                      </h3>
+                      <p className="text-brand-primary text-xs font-medium truncate px-1 mb-1">
+                        {emp.designation}
+                      </p>
+                      <span className="inline-block px-2 py-0.5 bg-bg-secondary text-text-secondary text-xs rounded-full truncate max-w-full">
+                        {emp.department || "General"}
+                      </span>
+                    </div>
 
-                    <div className="w-full pt-4 border-t border-border flex justify-center gap-4 text-text-muted">
-                      <a
-                        href={`mailto:${emp.email || "#"}`}
-                        className="hover:text-brand-primary transition-colors p-2 hover:bg-brand-primary/5 rounded-full"
-                        title="Email"
-                      >
-                        <Mail size={18} />
-                      </a>
+                    {/* Contact Actions - Horizontal Row */}
+                    <div className="w-full flex items-center justify-center gap-2 mt-auto pt-3 border-t border-border/50">
+                      {emp.workPhone && (
+                        <Tooltip
+                          content={`Work: ${emp.workPhone} (Click to copy)`}
+                        >
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(emp.workPhone!);
+                              showToast(
+                                "Work phone copied to clipboard",
+                                "success"
+                              );
+                            }}
+                            className="p-2 rounded-full bg-bg-hover text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                          >
+                            <Phone size={14} />
+                          </button>
+                        </Tooltip>
+                      )}
+
+                      {emp.personalMobile && (
+                        <Tooltip
+                          content={`Mobile: ${emp.personalMobile} (Click to copy)`}
+                        >
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                emp.personalMobile!
+                              );
+                              showToast(
+                                "Mobile number copied to clipboard",
+                                "success"
+                              );
+                            }}
+                            className="p-2 rounded-full bg-bg-hover text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                          >
+                            <Smartphone size={14} />
+                          </button>
+                        </Tooltip>
+                      )}
+
+                      <Tooltip content={`Email: ${emp.email} (Click to copy)`}>
+                        <button
+                          onClick={() => {
+                            if (emp.email) {
+                              navigator.clipboard.writeText(emp.email);
+                              showToast("Email copied to clipboard", "success");
+                            }
+                          }}
+                          className="p-2 rounded-full bg-bg-hover text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                        >
+                          <Mail size={14} />
+                        </button>
+                      </Tooltip>
                     </div>
                   </div>
                 ))}

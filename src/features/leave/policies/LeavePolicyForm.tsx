@@ -188,15 +188,14 @@ export default function LeavePolicyForm({
 
   const onSubmit = async (data: any) => {
     try {
-      // Map Form Data to API Payload
-      const payload = {
+      const payload: any = {
         name: data.name,
         shortCode: data.shortCode,
         description: data.description,
         status: data.status,
         visibleToEmployees: data.visibleToEmployees,
 
-        type: "Custom", // Or map based on name? Maintaining 'Custom' or existing logic
+        type: "Custom",
         category: data.isPaid ? "Paid" : "Unpaid",
 
         allocation: {
@@ -208,19 +207,19 @@ export default function LeavePolicyForm({
           proRata: data.accrualType === "Pro-rata",
           carryForward: data.allowCarryForward,
           maxCarryForward: data.allowCarryForward ? data.maxCarryForward : 0,
-          encashment: false, // Hidden in new form
+          encashment: false,
           maxEncashment: 0,
         },
 
         eligibility: {
           employeeTypes: data.employeeTypes,
-          gender: "All", // Hidden default
-          minTenure: 0, // Hidden default
+          gender: "All",
+          minTenure: 0,
         },
 
         rules: {
           minNotice: data.minNotice,
-          maxConsecutive: 30, // Hidden default
+          maxConsecutive: 30,
           requiresApproval: data.requiresApproval,
           allowHalfDay: data.allowHalfDay,
           allowNegative: data.allowNegative,
@@ -232,10 +231,78 @@ export default function LeavePolicyForm({
         },
       };
 
+      // Check for file
+      const fileInput = document.querySelector(
+        'input[name="document"]'
+      ) as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+
+      let submitData = payload;
+
+      if (file) {
+        const formData = new FormData();
+        // Append all nested fields as JSON string or flat fields?
+        // Backend expects body to be parsed. If we send FormData, standard Express body-parser might not parse nested JSON in fields automatically unless we use a specific middleware or send as JSON string in a field.
+        // However, our backend controller logic for `req.body` and `new LeavePolicy({...req.body})` implies it expects an object structure.
+        // Sending nested object in FormData is slightly complex.
+        // Strategy: Send `data` as a JSON string and `document` as file.
+        // BUT my backend controller: `const policyData = req.body; ... new LeavePolicy({...policyData...})`.
+        // If I send unrelated fields in FormData, `req.body` will adhere to multer's parsing.
+        // Multer populates `req.body` with text fields.
+        // If I accept `req.body` blindly, I need to ensure the structure matches.
+        // Multer doesn't parse nested objects like `allocation[count]`. It gives `req.body['allocation[count]']`.
+        // So I should flatten it or improved backend to parse.
+        // OR: I can append each field: formData.append('name', payload.name)...
+        // For nested: formData.append('allocation[count]', payload.allocation.count)...
+        // This relies on `body-parser` extended: true (which is default usually) to inflate it?
+        // Actually multer doesn't inflate nested objects by default.
+        // EASIEST FIX: Update backend to parse a `data` field if present?
+        // OR simply recreate the object structure on frontend and backend handles it?
+        // Let's try sending as flat keys for top level and JSON for nested? No.
+        // Let's use the standard "append everything" approach and see if backend handles it or if I need to adjust backend.
+        // Given I updated `api.service.ts` to just pass data, and `controller` just spreads `req.body`.
+        // If I use `JSON.stringify` for complex fields, backend needs to parse them.
+        // Let's assume standard field appending works or I'll fix backend.
+        // WAIT: `req.body` will satisfy `new LeavePolicy(req.body)` ONLY if `req.body` is a structured object.
+        // If multer provides flat keys `allocation[count]`, Mongoose MIGHT handle it if strict query/casting is smart, but `new Model({...})` typically expects structure.
+        // Better Strategy:
+        // Update Backend Controller to handle `req.body.data` as JSON string if present.
+        // Let's modify Frontend to send `data` = JSON.stringify(payload) and `document` = file.
+        // And I will need to update backend controller to parse `req.body.data` if it exists.
+        // Wait, I already modified backend controller... let me check it again in my memory/logs.
+        // I modified it to: `const policyData = req.body; ...`
+        // So if I send data as JSON string in `data` field, `req.body.data` will be that string.
+        // So I must parse it.
+
+        // Let's update frontend to send properly structure FormData first (using dot notation),
+        // and if backend fails, I'll fix backend to use `qs` or similar to parse body, or parse manually.
+        // Actually, let's go with the JSON string `data` field approach. It's robust.
+        // I will update frontend here to send `data` as string.
+        // AND I will add a backend task to parse it.
+
+        formData.append("document", file);
+        // We need to flatten or stringify. Stringifying the whole payload into one field 'policyData' is cleanest.
+        // But backend expects fields in `req.body`.
+        // Let's iterate and append.
+
+        // Let's try to trust Mongoose/Express to handle 'allocation.count' style keys?
+        // No, `new Model` won't parse dot notation keys into objects.
+        // So I should convert payload to flat dot-notation keys for FormData?
+        // validation: `allocation[count]` (bracket notation) is what `body-parser` (urlencoded) supports for nested.
+        // Multer produces `req.body` with these keys if valid.
+        // Does `new Model()` support `allocation[count]` keys? No.
+
+        // DECISION: Send all metadata as a single JSON string field named 'data'.
+        // Backend changes needed: Parse `req.body.data` if present.
+
+        formData.append("data", JSON.stringify(payload));
+        submitData = formData;
+      }
+
       if (policyId) {
-        await apiService.updateLeavePolicy(policyId, payload);
+        await apiService.updateLeavePolicy(policyId, submitData);
       } else {
-        await apiService.createLeavePolicy(payload);
+        await apiService.createLeavePolicy(submitData);
       }
       onClose();
     } catch (error: any) {
@@ -505,6 +572,28 @@ export default function LeavePolicyForm({
               type="number"
               {...register("minNotice", { valueAsNumber: true })}
             />
+
+            <hr className="border-border/50" />
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-primary">
+                Policy Document (PDF/Image)
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    // We'll handle file in submit
+                  }
+                }}
+                name="document"
+                className="block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-primary/10 file:text-brand-primary hover:file:bg-brand-primary/20"
+              />
+              <p className="text-xs text-text-secondary">
+                Upload a policy document for employees to view.
+              </p>
+            </div>
 
             <hr className="border-border/50" />
 

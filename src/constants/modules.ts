@@ -20,6 +20,11 @@ export const MODULES = [
   { key: "feedback", label: "Feedback", shortLabel: "Feedback" },
   { key: "social", label: "Social Wall", shortLabel: "Social Wall" },
   {
+    key: "appreciation",
+    label: "Appreciation",
+    shortLabel: "Appreciation",
+  },
+  {
     key: "email_automation",
     label: "Email Automation",
     shortLabel: "Email Auto",

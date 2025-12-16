@@ -193,7 +193,7 @@ export default function MainLayout() {
     "/audit": "audit",
     "/organization": "organization",
     "/miscellaneous/feedback": "feedback",
-    "/miscellaneous/appreciation": "social", // Mapping legacy path to 'social' key
+    "/miscellaneous/appreciation": "appreciation",
     "/miscellaneous/email-automation": "email_automation",
     "/tasks": "tasks",
     "/ai-configuration": "ai_chatbot",

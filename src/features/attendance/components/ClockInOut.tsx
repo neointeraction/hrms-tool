@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Clock, Coffee, LogIn, LogOut, Loader2 } from "lucide-react";
+import { Clock, Coffee, LogIn, LogOut, Loader2, Play } from "lucide-react";
 import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 
@@ -169,7 +169,7 @@ export default function ClockInOut() {
             {actionLoading ? (
               <Loader2 className="animate-spin" size={20} />
             ) : (
-              <LogIn size={20} />
+              <Play size={20} />
             )}
             Clock In
           </button>

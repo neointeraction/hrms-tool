@@ -39,24 +39,26 @@ export default function Miscellaneous() {
         {(!user?.tenantId ||
           typeof user.tenantId === "string" ||
           !user.tenantId.limits ||
-          user.tenantId.limits.enabledModules.includes("appreciation")) && (
-          <div
-            onClick={() => navigate("/miscellaneous/appreciation")}
-            className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
-                <Award className="text-brand-primary" size={24} />
+          user.tenantId.limits.enabledModules.includes("appreciation")) &&
+          (!user?.accessibleModules ||
+            user.accessibleModules.includes("appreciation")) && (
+            <div
+              onClick={() => navigate("/miscellaneous/appreciation")}
+              className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
+                  <Award className="text-brand-primary" size={24} />
+                </div>
+                <h3 className="text-lg font-semibold text-text-primary">
+                  Appreciation Center
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-text-primary">
-                Appreciation Center
-              </h3>
+              <p className="text-text-secondary text-sm">
+                Recognize and celebrate your colleagues with virtual badges.
+              </p>
             </div>
-            <p className="text-text-secondary text-sm">
-              Recognize and celebrate your colleagues with virtual badges.
-            </p>
-          </div>
-        )}
+          )}
 
         {/* Email Automation - HR Only (RoleGuard handles access) */}
         {(user?.role === "HR" ||
