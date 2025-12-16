@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  Plus,
-  Search,
-  FileText,
-  Trash2,
-  Edit2,
-  AlertCircle,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Search, FileText, Trash2, Edit2 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { DocumentTypeModal } from "../components/DocumentTypeModal";
 import { Button } from "../../../components/common/Button";
