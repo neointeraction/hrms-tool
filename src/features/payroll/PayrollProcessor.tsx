@@ -8,8 +8,10 @@ import { Skeleton } from "../../components/common/Skeleton";
 export default function PayrollProcessor() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [payrolls, setPayrolls] = useState<any[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState("June");
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toLocaleString("default", { month: "long" })
+  );
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
   const [isListLoading, setIsListLoading] = useState(true);
 
@@ -98,10 +100,13 @@ export default function PayrollProcessor() {
           <Select
             value={selectedYear}
             onChange={(value) => setSelectedYear(Number(value))}
-            options={[
-              { value: 2024, label: "2024" },
-              { value: 2025, label: "2025" },
-            ]}
+            options={(() => {
+              const currentYear = new Date().getFullYear();
+              return Array.from({ length: 100 }, (_, i) => {
+                const year = currentYear - 50 + i;
+                return { value: year, label: String(year) };
+              });
+            })()}
           />
         </div>
         <div className="ml-auto text-sm text-text-secondary">
