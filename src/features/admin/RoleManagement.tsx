@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import {
-  Shield,
-  Plus,
-  Edit2,
-  Trash2,
-  AlertCircle,
-  Search,
-  Filter,
-  MoreVertical,
-} from "lucide-react";
+import { Shield, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { Input } from "../../components/common/Input";
