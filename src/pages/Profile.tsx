@@ -18,25 +18,40 @@ import {
   GraduationCap,
   Users2,
   Landmark,
+  Lock,
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
 import { Input } from "../components/common/Input";
 import { ConfirmationModal } from "../components/common/ConfirmationModal";
 import { Skeleton } from "../components/common/Skeleton";
+import { DocumentsTab } from "../features/employee/components/DocumentsTab";
+import { ChangePasswordModal } from "../components/common/ChangePasswordModal";
 
-const TABS = [
+const ALL_TABS = [
   "Basic Info",
   "Work Info",
   "Personal",
   "Contact",
   "Identity",
   "Bank Details",
+  "Documents",
   "Additional",
 ];
 
 export default function Profile() {
   const { user, refreshUser } = useAuth();
+
+  const TABS = ALL_TABS.filter((tab) => {
+    if (
+      tab === "Documents" &&
+      !user?.accessibleModules?.includes("documents")
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -104,6 +119,9 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showPasswordSuccessModal, setShowPasswordSuccessModal] =
+    useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   // Fetch employee data on component mount
   useEffect(() => {
@@ -274,6 +292,15 @@ export default function Profile() {
       alert(err.message || "Failed to update profile. Please try again.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (data: any) => {
+    try {
+      await apiService.updateCurrentUser(data);
+      setShowPasswordSuccessModal(true);
+    } catch (error: any) {
+      throw error; // Let modal handle error display
     }
   };
 
@@ -478,7 +505,16 @@ export default function Profile() {
               </p>
             </div>
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  leftIcon={<Lock size={16} />}
+                  onClick={() => setShowChangePasswordModal(true)}
+                >
+                  Change Password
+                </Button>
+                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Button
@@ -839,7 +875,7 @@ export default function Profile() {
                     </div>
                     <div>
                       <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <Landmark size={16} />
+                        <Building2 size={16} />
                         IFSC Code
                       </label>
                       {isEditing ? (
@@ -858,6 +894,14 @@ export default function Profile() {
                       )}
                     </div>
                   </div>
+                )}
+
+                {/* Documents Tab */}
+                {activeTab === "Documents" && employeeId && (
+                  <DocumentsTab
+                    employeeId={employeeId}
+                    roleName={profileData.role}
+                  />
                 )}
 
                 {/* Additional */}
@@ -1180,8 +1224,24 @@ export default function Profile() {
             variant="info" // Changed from success to info to match type definition
             showCancel={false}
           />
+          <ConfirmationModal
+            isOpen={showPasswordSuccessModal}
+            onClose={() => setShowPasswordSuccessModal(false)}
+            onConfirm={() => setShowPasswordSuccessModal(false)}
+            title="Success"
+            message="Password changed successfully"
+            variant="success"
+            confirmText="OK"
+            showCancel={false}
+          />
         </>
       )}
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+        onSubmit={handlePasswordChange}
+      />
     </div>
   );
 }

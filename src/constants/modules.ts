@@ -26,7 +26,9 @@ export const MODULES = [
   },
   { key: "tasks", label: "Task", shortLabel: "Tasks" },
   { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
+  { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
   { key: "policies", label: "Policy Management", shortLabel: "Policies" },
+  { key: "documents", label: "Document Management", shortLabel: "Documents" },
 ];
 
 export const MODULE_KEYS = MODULES.map((m) => m.key);

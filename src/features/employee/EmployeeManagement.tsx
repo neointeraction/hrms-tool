@@ -1,16 +1,30 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Eye, Trash2, Lock, UserX, UserCheck } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Eye,
+  Trash2,
+  Lock,
+  UserX,
+  UserCheck,
+  Upload,
+} from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Button } from "../../components/common/Button";
 import AddEditEmployee from "./AddEditEmployee";
+import { BulkUploadModal } from "./components/BulkUploadModal";
+
+import { useAuth } from "../../context/AuthContext";
 
 export default function EmployeeManagement() {
+  const { user } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState(false);
 
@@ -141,9 +155,21 @@ export default function EmployeeManagement() {
             Manage detailed employee records
           </p>
         </div>
-        <Button onClick={handleAddEmployee} leftIcon={<Plus size={20} />}>
-          Add Employee
-        </Button>
+        <div className="flex gap-2">
+          {(!user?.accessibleModules ||
+            user.accessibleModules.includes("documents")) && (
+            <Button
+              onClick={() => setIsBulkModalOpen(true)}
+              variant="outline"
+              leftIcon={<Upload size={20} />}
+            >
+              Bulk Upload
+            </Button>
+          )}
+          <Button onClick={handleAddEmployee} leftIcon={<Plus size={20} />}>
+            Add Employee
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -301,6 +327,13 @@ export default function EmployeeManagement() {
           onClose={handleCloseModal}
           employee={selectedEmployee}
           viewMode={viewMode}
+        />
+      )}
+
+      {isBulkModalOpen && (
+        <BulkUploadModal
+          isOpen={isBulkModalOpen}
+          onClose={() => setIsBulkModalOpen(false)}
         />
       )}
 

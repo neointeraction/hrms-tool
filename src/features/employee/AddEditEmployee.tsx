@@ -2,10 +2,25 @@ import { useState, useEffect } from "react";
 import { Modal } from "../../components/common/Modal";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { PasswordInput } from "../../components/common/PasswordInput";
-import { Plus, Trash2, Upload } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Upload,
+  FileText,
+  User,
+  Briefcase,
+  Network,
+  UserCircle,
+  Fingerprint,
+  Phone,
+  Landmark,
+  LogOut,
+  Grid,
+} from "lucide-react";
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Input } from "../../components/common/Input";
+import { DocumentsTab } from "./components/DocumentsTab";
 
 interface AddEditEmployeeProps {
   isOpen: boolean;
@@ -14,7 +29,9 @@ interface AddEditEmployeeProps {
   viewMode?: boolean;
 }
 
-const TABS = [
+import { useAuth } from "../../context/AuthContext";
+
+const ALL_TABS = [
   "Basic Info",
   "Work Info",
   "Hierarchy",
@@ -22,9 +39,23 @@ const TABS = [
   "Identity",
   "Contact",
   "Bank Details",
+  "Documents",
   "Separation",
   "Additional",
 ];
+
+const TAB_ICONS: Record<string, React.ElementType> = {
+  "Basic Info": User,
+  "Work Info": Briefcase,
+  Hierarchy: Network,
+  Personal: UserCircle,
+  Identity: Fingerprint,
+  Contact: Phone,
+  "Bank Details": Landmark,
+  Documents: FileText,
+  Separation: LogOut,
+  Additional: Grid,
+};
 
 export default function AddEditEmployee({
   isOpen,
@@ -32,6 +63,18 @@ export default function AddEditEmployee({
   employee,
   viewMode = false,
 }: AddEditEmployeeProps) {
+  const { user } = useAuth();
+
+  const TABS = ALL_TABS.filter((tab) => {
+    if (
+      tab === "Documents" &&
+      !user?.accessibleModules?.includes("documents")
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<any[]>([]);
@@ -345,7 +388,8 @@ export default function AddEditEmployee({
           ? "Edit Employee"
           : "Add New Employee"
       }
-      maxWidth="max-w-4xl"
+      maxWidth="max-w-6xl"
+      bodyClassName="flex flex-col md:flex-row h-full overflow-hidden p-0"
       footer={
         !viewMode ? (
           <div className="flex justify-end gap-3 w-full">
@@ -368,26 +412,30 @@ export default function AddEditEmployee({
         ) : undefined
       }
     >
-      <div className="flex flex-col">
-        {/* Tabs */}
-        <div className="flex overflow-x-auto border-b border-border mb-4">
-          {TABS.map((tab) => (
+      {/* Sidebar Tabs */}
+      <div className="w-full md:w-64 bg-bg-main/30 border-b md:border-b-0 md:border-r border-border overflow-x-auto md:overflow-y-auto shrink-0 flex md:flex-col p-2 space-y-1">
+        {TABS.map((tab) => {
+          const Icon = TAB_ICONS[tab] || User;
+          return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium text-left transition-colors flex items-center gap-3 whitespace-nowrap rounded-lg w-full ${
                 activeTab === tab
-                  ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-text-secondary hover:text-text-primary"
+                  ? "bg-brand-primary text-white shadow-sm"
+                  : "text-text-secondary hover:text-text-primary hover:bg-bg-hover"
               }`}
             >
+              <Icon size={18} />
               {tab}
             </button>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Form Content */}
-        <form onSubmit={handleSubmit} className="pr-2">
+      {/* Form Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             {/* Basic Info */}
             {activeTab === "Basic Info" && (
@@ -720,6 +768,26 @@ export default function AddEditEmployee({
                 </div>
               </div>
             )}
+
+            {/* Documents */}
+            {activeTab === "Documents" &&
+              (employee ? (
+                <DocumentsTab
+                  employeeId={employee._id}
+                  readOnly={viewMode}
+                  roleName={formData.role}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-text-secondary">
+                  <FileText size={48} className="mb-4 text-text-muted" />
+                  <p className="text-lg font-medium">
+                    Please save the employee first
+                  </p>
+                  <p className="text-sm">
+                    Documents can only be uploaded for existing employees.
+                  </p>
+                </div>
+              ))}
 
             {/* Separation */}
             {activeTab === "Separation" && (

@@ -4,6 +4,7 @@ export interface MenuItem {
   to: string;
   label: string;
   roles: Role[];
+  module?: string;
 }
 
 export const menuItems: MenuItem[] = [
@@ -28,6 +29,12 @@ export const menuItems: MenuItem[] = [
     to: "/roles",
     label: "Role Management",
     roles: ["Admin", "HR"],
+  },
+  {
+    to: "/settings/documents",
+    label: "Document Management",
+    roles: ["Admin", "HR"],
+    module: "documents",
   },
   {
     to: "/assets",

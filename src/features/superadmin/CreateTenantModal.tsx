@@ -390,7 +390,8 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
                 key={module.key}
                 label={module.shortLabel || module.label}
                 checked={formData.limits.enabledModules.includes(module.key)}
-                onChange={(checked) => {
+                onChange={(e) => {
+                  const checked = e.target.checked;
                   const currentModules = formData.limits.enabledModules;
                   setFormData({
                     ...formData,

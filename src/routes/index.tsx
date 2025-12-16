@@ -26,6 +26,7 @@ import {
   CompanySettings,
   SubscriptionPage,
   UsageDashboard,
+  DocumentSettings,
 } from "../features/settings";
 import Miscellaneous from "../pages/Miscellaneous";
 import Feedback from "../pages/Feedback";
@@ -256,6 +257,16 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard allowedRoles={["Admin"]}>
             <CompanySettings />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/settings/documents",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <ModuleGuard module="documents">
+              <DocumentSettings />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },

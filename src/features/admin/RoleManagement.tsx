@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Shield, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
+import {
+  Shield,
+  Plus,
+  Edit2,
+  Trash2,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { Input } from "../../components/common/Input";
@@ -21,6 +28,7 @@ interface Role {
   name: string;
   permissions: Permission[];
   accessibleModules: string[];
+  mandatoryDocuments?: string[];
 }
 
 export default function RoleManagement() {
@@ -28,6 +36,7 @@ export default function RoleManagement() {
   const [availablePermissions, setAvailablePermissions] = useState<
     Permission[]
   >([]);
+  const [availableDocTypes, setAvailableDocTypes] = useState<any[]>([]);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +46,7 @@ export default function RoleManagement() {
   const [roleName, setRoleName] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
 
   // Filter modules available to the tenant
@@ -64,12 +74,16 @@ export default function RoleManagement() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [rolesData, permissionsData] = await Promise.all([
+      const [rolesData, permissionsData, docTypesData] = await Promise.all([
         apiService.getRoles(),
         apiService.getPermissions(),
+        apiService.getAllDocumentTypes(),
       ]);
       setRoles(rolesData);
       setAvailablePermissions(permissionsData);
+      if (docTypesData.success) {
+        setAvailableDocTypes(docTypesData.data);
+      }
       setError(null);
     } catch (err) {
       setError("Failed to fetch data");
@@ -89,11 +103,13 @@ export default function RoleManagement() {
       setRoleName(role.name);
       setSelectedPermissions(role.permissions.map((p) => p._id));
       setSelectedModules(role.accessibleModules || []);
+      setSelectedDocuments(role.mandatoryDocuments || []);
     } else {
       setEditingRole(null);
       setRoleName("");
       setSelectedPermissions([]);
       setSelectedModules([]);
+      setSelectedDocuments([]);
     }
     setIsModalOpen(true);
   };
@@ -103,6 +119,14 @@ export default function RoleManagement() {
       prev.includes(permissionId)
         ? prev.filter((id) => id !== permissionId)
         : [...prev, permissionId]
+    );
+  };
+
+  const handleToggleDocument = (docId: string) => {
+    setSelectedDocuments((prev) =>
+      prev.includes(docId)
+        ? prev.filter((id) => id !== docId)
+        : [...prev, docId]
     );
   };
 
@@ -116,6 +140,7 @@ export default function RoleManagement() {
         name: roleName,
         permissions: selectedPermissions,
         accessibleModules: selectedModules,
+        mandatoryDocuments: selectedDocuments,
       };
 
       if (editingRole) {
@@ -183,21 +208,41 @@ export default function RoleManagement() {
             ),
           },
           {
+            header: "Mandatory Documents",
+            render: (role) => (
+              <div className="flex flex-wrap gap-1">
+                {role.mandatoryDocuments &&
+                role.mandatoryDocuments.length > 0 ? (
+                  <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-100">
+                    {role.mandatoryDocuments.length} Documents Required
+                  </span>
+                ) : (
+                  <span className="text-xs text-text-secondary">None</span>
+                )}
+              </div>
+            ),
+          },
+          {
             header: "Permissions",
             render: (role) => (
               <div className="flex flex-wrap gap-1">
                 {role.permissions.length > 0 ? (
-                  role.permissions.map((p) => (
+                  role.permissions.slice(0, 3).map((p) => (
                     <span
                       key={p._id}
                       className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary text-xs rounded-full"
                     >
-                      {p.name}
+                      {p.name.split(":")[1] || p.name}
                     </span>
                   ))
                 ) : (
                   <span className="text-sm text-text-secondary">
                     No permissions
+                  </span>
+                )}
+                {role.permissions.length > 3 && (
+                  <span className="text-xs text-text-secondary">
+                    +{role.permissions.length - 3} more
                   </span>
                 )}
               </div>
@@ -208,7 +253,7 @@ export default function RoleManagement() {
             render: (role) => (
               <div className="flex flex-wrap gap-1">
                 {role.accessibleModules && role.accessibleModules.length > 0 ? (
-                  role.accessibleModules.slice(0, 5).map((moduleKey) => {
+                  role.accessibleModules.slice(0, 3).map((moduleKey) => {
                     const moduleLabel =
                       MODULES.find((m) => m.key === moduleKey)?.label ||
                       moduleKey;
@@ -227,9 +272,9 @@ export default function RoleManagement() {
                   </span>
                 )}
                 {role.accessibleModules &&
-                  role.accessibleModules.length > 5 && (
+                  role.accessibleModules.length > 3 && (
                     <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-full border border-gray-200 dark:border-gray-700">
-                      +{role.accessibleModules.length - 5} more
+                      +{role.accessibleModules.length - 3} more
                     </span>
                   )}
               </div>
@@ -282,6 +327,31 @@ export default function RoleManagement() {
               className="bg-bg-main"
               required
             />
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-text-secondary mb-2">
+              Mandatory Documents Checklist
+            </h3>
+            <div className="border border-border rounded-lg p-4 bg-bg-main/50 max-h-48 overflow-y-auto grid grid-cols-2 gap-3">
+              {availableDocTypes.length > 0 ? (
+                availableDocTypes.map((doc) => (
+                  <Checkbox
+                    key={doc._id}
+                    label={doc.name}
+                    checked={selectedDocuments.includes(doc._id)}
+                    onChange={() => handleToggleDocument(doc._id)}
+                  />
+                ))
+              ) : (
+                <p className="col-span-2 text-sm text-text-secondary text-center">
+                  No document types available. Configure them in Settings.
+                </p>
+              )}
+            </div>
+            <p className="text-xs text-text-secondary mt-1">
+              Select documents that employees with this role MUST upload.
+            </p>
           </div>
 
           <div>

@@ -24,6 +24,7 @@ import {
   Package,
   Grid,
   Hash,
+  FileText,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -85,6 +86,11 @@ export default function MainLayout() {
       to: "/roles",
       icon: Shield,
       label: "Role Management",
+    },
+    {
+      to: "/settings/documents",
+      icon: FileText,
+      label: "Document Management",
     },
     {
       to: "/attendance",
@@ -183,6 +189,7 @@ export default function MainLayout() {
     "/employees": "employees",
     "/employee-management": "employees",
     "/roles": "roles",
+    "/settings/documents": "documents",
     "/audit": "audit",
     "/organization": "organization",
     "/miscellaneous/feedback": "feedback",

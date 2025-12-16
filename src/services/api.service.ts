@@ -88,6 +88,21 @@ class ApiService {
     return response.json();
   }
 
+  async updateCurrentUser(data: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update profile");
+    }
+
+    return response.json();
+  }
+
   async getAllEmployees(): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/employees`, {
       method: "GET",
@@ -1934,6 +1949,95 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to check new posts");
+    return response.json();
+  }
+
+  // --- Document Management ---
+  async createDocumentType(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/documents/types`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create document type");
+    }
+    return response.json();
+  }
+
+  async getAllDocumentTypes(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/documents/types`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch document types");
+    return response.json();
+  }
+
+  async updateDocumentType(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/documents/types/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update document type");
+    }
+    return response.json();
+  }
+
+  async deleteDocumentType(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/documents/types/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete document type");
+    return response.json();
+  }
+
+  async uploadEmployeeDocument(formData: FormData): Promise<any> {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(`${API_BASE_URL}/documents/employee/upload`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to upload document");
+    }
+    return response.json();
+  }
+
+  async getEmployeeDocuments(employeeId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/documents/employee/${employeeId}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch employee documents");
+    return response.json();
+  }
+
+  async restoreDocumentVersion(
+    id: string,
+    versionNumber: number
+  ): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/documents/employee/restore/${id}/${versionNumber}`,
+      {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to restore document version");
     return response.json();
   }
 }

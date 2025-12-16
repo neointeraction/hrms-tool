@@ -354,7 +354,8 @@ const EditTenantModal = ({
                 checked={
                   formData.limits?.enabledModules?.includes(module.key) || false
                 }
-                onChange={(checked) => {
+                onChange={(e) => {
+                  const checked = e.target.checked;
                   const currentModules = formData.limits?.enabledModules || [];
                   setFormData({
                     ...formData,
