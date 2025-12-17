@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Users,
-  User,
   UserCircle2,
   Shield,
   Menu,
@@ -26,6 +25,8 @@ import {
   Hash,
   FileText,
   Badge,
+  Sparkles,
+  CalendarClock,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -37,7 +38,6 @@ import { Tooltip } from "../components/common/Tooltip";
 import { Avatar } from "../components/common/Avatar";
 import { useNotification } from "../context/NotificationContext";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
-import { useRef } from "react";
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
@@ -99,9 +99,14 @@ export default function MainLayout() {
       label: "Attendance & Time Tracking",
     },
     {
+      to: "/shifts",
+      icon: CalendarClock,
+      label: "Shift Management",
+    },
+    {
       to: "/designations",
       icon: Badge,
-      label: "Designations",
+      label: "Designation Management",
     },
     {
       to: "/audit",
@@ -134,6 +139,11 @@ export default function MainLayout() {
       label: "Social Wall",
     },
     {
+      to: "/ai-configuration",
+      icon: Sparkles,
+      label: "AI Chatbot Configuration",
+    },
+    {
       to: "/superadmin/tenants",
       icon: Building2,
       label: "Tenant Management",
@@ -144,9 +154,14 @@ export default function MainLayout() {
       label: "Platform Analytics",
     },
     {
+      to: "/superadmin/users",
+      icon: Users,
+      label: "User Management",
+    },
+    {
       to: "/superadmin/settings",
       icon: Settings,
-      label: "Settings",
+      label: "Platform Settings",
     },
     {
       to: "/miscellaneous",
@@ -167,6 +182,50 @@ export default function MainLayout() {
       to: "/settings",
       icon: Settings,
       label: "System Settings",
+    },
+  ];
+
+  const sidebarStructure = [
+    {
+      title: "Overview",
+      items: ["/"],
+    },
+    {
+      title: "People Management",
+      items: ["/employee-management", "/roles", "/designations"],
+    },
+    {
+      title: "Time & Attendance",
+      items: ["/attendance", "/shifts", "/leave"],
+    },
+    {
+      title: "Work & Payroll",
+      items: ["/projects", "/payroll"],
+    },
+    {
+      title: "Resources",
+      items: ["/settings/documents", "/assets"],
+    },
+    {
+      title: "Intelligence & Monitoring",
+      items: ["/ai-configuration", "/audit"],
+    },
+    {
+      title: "Organization Structure",
+      items: ["/organization"],
+    },
+    {
+      title: "System",
+      items: ["/settings", "/miscellaneous"],
+    },
+    {
+      title: "Platform Administration",
+      items: [
+        "/superadmin/analytics",
+        "/superadmin/tenants",
+        "/superadmin/users",
+        "/superadmin/settings",
+      ],
     },
   ];
 
@@ -204,6 +263,7 @@ export default function MainLayout() {
     "/miscellaneous/email-automation": "email_automation",
     "/tasks": "tasks",
     "/ai-configuration": "ai_chatbot",
+    "/shifts": "shifts",
   };
 
   const filteredRoutes = accessibleRoutes.filter((route) => {
@@ -224,13 +284,6 @@ export default function MainLayout() {
     // Check for Role-based module access
     // If not Super Admin, and user has accessibleModules defined, we enforce it.
     if ((user?.role as string) !== "Super Admin" && user?.accessibleModules) {
-      // console.log(
-      //   "Filtering route:",
-      //   route.to,
-      //   "User Modules:",
-      //   user.accessibleModules
-      // );
-
       // Social wall check
       if (route.to === "/social" && !user.accessibleModules.includes("social"))
         return false;
@@ -255,16 +308,6 @@ export default function MainLayout() {
     return true;
   });
 
-  const navItems = filteredRoutes
-    .filter((route) => route.to !== "/social") // Social wall is handled separately in header usually, but we check availability above
-    .map((route) => {
-      const navItem = allNavItems.find((item) => item.to === route.to);
-      return {
-        ...route,
-        icon: navItem?.icon || User,
-      };
-    });
-
   const getBreadcrumbs = () => {
     const path = location.pathname;
 
@@ -280,6 +323,8 @@ export default function MainLayout() {
       "/assets/inventory": ["Asset Management", "Inventory"],
       "/my-assets": ["My Assets"],
       "/social": ["Social Wall"],
+      "/shifts": ["Shift Management"],
+      "/ai-configuration": ["AI Chatbot Configuration"],
     };
 
     // Check if we have a specific mapping
@@ -287,16 +332,15 @@ export default function MainLayout() {
       return breadcrumbMap[path];
     }
 
-    // Fallback: try to find in navItems
-    const item = navItems.find((item) => item.to === path);
+    // Fallback: try to find in allNavItems
+    const item = allNavItems.find((item) => item.to === path);
     return item ? [item.label] : ["Page"];
   };
+
   // Mobile Profile State
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const mobileProfileRef = useRef<HTMLDivElement>(null!);
   useOnClickOutside(mobileProfileRef, () => setIsMobileProfileOpen(false));
-
-  // ... (existing code)
 
   return (
     <div className="min-h-screen bg-bg-main flex flex-col md:flex-row transition-colors duration-200">
@@ -413,25 +457,56 @@ export default function MainLayout() {
           )}
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={() => setIsSidebarOpen(false)}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-brand-primary/10 text-brand-primary"
-                    : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-                )
-              }
-            >
-              <item.icon size={20} />
-              {item.label}
-            </NavLink>
-          ))}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+          {sidebarStructure.map((section) => {
+            // Find accessible items for this section
+            const sectionItems = section.items
+              .map((path) => {
+                // Check if route is accessible (filteredRoutes contains accessible routes objects)
+                const isAccessible = filteredRoutes.some((r) => r.to === path);
+                if (!isAccessible) return null;
+
+                // Find full item details
+                return allNavItems.find((item) => item.to === path);
+              })
+              .filter(Boolean) as typeof allNavItems;
+
+            if (sectionItems.length === 0) return null;
+
+            return (
+              <div key={section.title}>
+                <h3 className="px-4 text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2 mt-2">
+                  {section.title}
+                </h3>
+                <div className="space-y-1">
+                  {sectionItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all group",
+                          isActive
+                            ? "bg-brand-primary/10 text-brand-primary"
+                            : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                        )
+                      }
+                    >
+                      <item.icon
+                        size={18}
+                        className={cn(
+                          "transition-colors",
+                          "group-hover:text-current"
+                        )}
+                      />
+                      {item.label}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </nav>
 
         <div className="p-4 border-t border-border space-y-4">

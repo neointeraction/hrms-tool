@@ -37,6 +37,12 @@ export const menuItems: MenuItem[] = [
     module: "employees",
   },
   {
+    to: "/shifts",
+    label: "Shift Management",
+    roles: ["Admin", "HR"],
+    module: "shifts",
+  },
+  {
     to: "/settings/documents",
     label: "Document Management",
     roles: ["Admin", "HR"],
@@ -66,7 +72,14 @@ export const menuItems: MenuItem[] = [
   {
     to: "/attendance",
     label: "Attendance & Time Tracking",
-    roles: ["Employee", "HR", "Project Manager", "Intern", "Consultant"],
+    roles: [
+      "Admin",
+      "Employee",
+      "HR",
+      "Project Manager",
+      "Intern",
+      "Consultant",
+    ],
   },
   {
     to: "/audit",

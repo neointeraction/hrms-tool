@@ -83,6 +83,7 @@ export default function AddEditEmployee({
   const [roles, setRoles] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
   const [designations, setDesignations] = useState<any[]>([]);
+  const [shifts, setShifts] = useState<any[]>([]);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -99,6 +100,7 @@ export default function AddEditEmployee({
     location: "",
     designation: "",
     designationId: "",
+    shiftId: "",
     role: "",
     employmentType: "",
     employeeStatus: "Active",
@@ -149,6 +151,7 @@ export default function AddEditEmployee({
           reportingManager:
             employee.reportingManager?._id || employee.reportingManager || "",
           designationId: employee.designationId || "",
+          shiftId: employee.shiftId?._id || employee.shiftId || "",
           dateOfJoining: employee.dateOfJoining
             ? employee.dateOfJoining.split("T")[0]
             : "",
@@ -185,6 +188,7 @@ export default function AddEditEmployee({
           location: "",
           designation: "",
           designationId: "",
+          shiftId: "",
           role: "",
           employmentType: "",
           employeeStatus: "Active",
@@ -235,9 +239,13 @@ export default function AddEditEmployee({
       console.log("Roles received:", rolesData);
       console.log("Roles count:", rolesData?.length);
 
+      console.log("Roles count:", rolesData?.length);
+
       setRoles(rolesData || []);
       setManagers(employeesData);
       setDesignations(designationsData || []);
+      const shiftsData = await apiService.getShifts();
+      setShifts(shiftsData || []);
     } catch (err) {
       console.error("Failed to fetch dropdowns", err);
     }
@@ -559,6 +567,21 @@ export default function AddEditEmployee({
                     options={roles.map((r) => ({
                       value: r.name,
                       label: r.name,
+                    }))}
+                    disabled={viewMode}
+                    className="disabled:opacity-60"
+                  />
+                </div>
+                <div>
+                  <Select
+                    label="Shift"
+                    value={formData.shiftId}
+                    onChange={(value) =>
+                      handleChange({ target: { name: "shiftId", value } })
+                    }
+                    options={shifts.map((s) => ({
+                      value: s._id,
+                      label: `${s.name} (${s.startTime} - ${s.endTime})`,
                     }))}
                     disabled={viewMode}
                     className="disabled:opacity-60"

@@ -21,6 +21,7 @@ import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
 import RoleManagement from "../features/admin/RoleManagement";
 import DesignationManagement from "../features/admin/DesignationManagement";
+import ShiftManagement from "../features/admin/ShiftManagement";
 import UserManagement from "../features/superadmin/UserManagement";
 import SuperAdminSettings from "../features/superadmin/Settings";
 import {
@@ -121,6 +122,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "shifts",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <ModuleGuard module="shifts">
+              <ShiftManagement />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
         path: "profile",
         element: (
           <RoleGuard
@@ -143,6 +154,7 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard
             allowedRoles={[
+              "Admin",
               "Employee",
               "HR",
               "Project Manager",

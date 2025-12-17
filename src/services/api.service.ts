@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -458,6 +458,71 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to delete designation");
+    }
+
+    return response.json();
+  }
+
+  // Shift Management
+  async getShifts(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/shifts`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch shifts");
+    }
+
+    return response.json();
+  }
+
+  async createShift(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shifts`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create shift");
+    }
+
+    return response.json();
+  }
+
+  async updateShift(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shifts/${id}`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update shift");
+    }
+
+    return response.json();
+  }
+
+  async deleteShift(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/shifts/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete shift");
     }
 
     return response.json();

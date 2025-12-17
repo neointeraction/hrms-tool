@@ -9,16 +9,18 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
+import { useGreeting } from "../../../hooks/useGreeting";
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
+  const { text } = useGreeting();
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary">
-            Welcome, {user?.name.split(" ")[0]}! 👋
+          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+            {text}, {user?.name.split(" ")[0]}!{" "}
           </h1>
           <p className="text-text-secondary mt-1">
             Financial Overview & Payroll Status

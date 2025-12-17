@@ -11,8 +11,8 @@ import { PasswordInput } from "../components/common/PasswordInput";
 import { Input } from "../components/common/Input";
 
 export default function Login() {
-  const [email, setEmail] = useState("shameer@neointeraction.com"); // Default for demo
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState(""); // Default for demo
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -247,7 +247,7 @@ export default function Login() {
                 type="button"
                 onClick={() => {
                   setEmail("shameer@neointeraction.com");
-                  setPassword("Welcome@123");
+                  setPassword("password");
                 }}
                 className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
               >

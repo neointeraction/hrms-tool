@@ -22,7 +22,7 @@ import { Skeleton } from "../../../components/common/Skeleton";
 
 export default function PMDashboard() {
   const { user } = useAuth();
-  const greeting = useGreeting();
+  const { text } = useGreeting();
   const [teamStatus, setTeamStatus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
@@ -124,8 +124,8 @@ export default function PMDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary">
-            {greeting}, {user?.name.split(" ")[0]}! 🚀
+          <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+            {text}, {user?.name.split(" ")[0]}!{" "}
           </h1>
           <p className="text-text-secondary mt-1">
             Project status and team overview for today
@@ -175,117 +175,173 @@ export default function PMDashboard() {
           !user.tenantId.limits ||
           (user.tenantId.limits.enabledModules.includes("attendance") &&
             user.accessibleModules?.includes("attendance"))) && (
-          <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-brand-primary/10 rounded-lg text-brand-primary">
-                  <Users size={24} />
+          <div className="bg-bg-card rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2 overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10 flex items-center justify-center border border-brand-primary/20">
+                  <Users className="text-brand-primary" size={20} />
                 </div>
-                <h2 className="text-lg font-semibold text-text-primary">
-                  Live Team Status
-                </h2>
+                <div>
+                  <h2 className="text-lg font-bold text-text-primary">
+                    Live Team Status
+                  </h2>
+                  <p className="text-xs text-text-secondary">
+                    {teamStatus.length} Active Members
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex gap-2 text-xs sm:text-sm hidden xl:flex">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                    <span className="w-1.5 h-1.5 rounded-full bg-status-success" />
-                    <span className="text-text-primary font-bold">
-                      {counts.clockedIn}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                    <span className="w-1.5 h-1.5 rounded-full bg-status-warning" />
-                    <span className="text-text-primary font-bold">
-                      {counts.onBreak}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-main rounded-full border border-border">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                    <span className="text-text-primary font-bold">
-                      {counts.clockedOut}
-                    </span>
-                  </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto bg-bg-main p-1 rounded-lg border border-border">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-status-success bg-status-success/10 border border-status-success/20">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-status-success"></span>
+                  </span>
+                  {counts.clockedIn} Working
                 </div>
-
-                {/* Pagination Controls */}
-                {teamStatus.length > 3 && (
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setPage((p) => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                      className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <ChevronLeft size={20} className="text-text-secondary" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        setPage((p) =>
-                          Math.min(Math.ceil(teamStatus.length / 3) - 1, p + 1)
-                        )
-                      }
-                      disabled={page >= Math.ceil(teamStatus.length / 3) - 1}
-                      className="p-1 rounded-full hover:bg-bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <ChevronRight size={20} className="text-text-secondary" />
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-status-warning bg-status-warning/10 border border-status-warning/20">
+                  <span className="w-2 h-2 rounded-full bg-status-warning" />
+                  {counts.onBreak} On Break
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-text-muted bg-bg-card border border-border">
+                  <span className="w-2 h-2 rounded-full bg-text-muted" />
+                  {counts.clockedOut} Offline
+                </div>
               </div>
             </div>
 
-            {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="bg-bg-main p-3 rounded-lg border border-border h-[90px]"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <Skeleton className="w-8 h-8 rounded-full" />
-                      <Skeleton className="w-16 h-5 rounded-full" />
-                    </div>
-                    <div className="space-y-2">
-                      <Skeleton className="w-24 h-3" />
-                      <Skeleton className="w-16 h-3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[90px]">
-                {teamStatus.slice(page * 3, (page + 1) * 3).map((member) => (
-                  <div
-                    key={member.employeeId}
-                    className="bg-bg-main p-3 rounded-lg border border-border hover:border-brand-primary/30 transition-all group animate-in fade-in duration-300"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="w-8 h-8 rounded-full bg-brand-secondary/10 text-brand-secondary flex items-center justify-center font-bold text-xs">
-                        {member.name
-                          .split(" ")
-                          .map((n: string) => n[0])
-                          .join("")
-                          .substring(0, 2)}
+            <div className="p-6 flex-1 bg-bg-main/30">
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-bg-card p-4 rounded-xl border border-border h-[100px] flex flex-col justify-between"
+                    >
+                      <div className="flex items-start justify-between">
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <Skeleton className="w-16 h-5 rounded-full" />
                       </div>
-                      {getStatusBadge(member.status)}
+                      <div className="space-y-2">
+                        <Skeleton className="w-24 h-3" />
+                        <Skeleton className="w-16 h-3" />
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-text-primary truncate text-xs">
-                        {member.name}
-                      </h3>
-                      <p className="text-xs text-text-secondary truncate">
-                        {member.role || "Member"}
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {teamStatus
+                      .slice(page * 3, (page + 1) * 3)
+                      .map((member) => (
+                        <div
+                          key={member.employeeId}
+                          className="group relative bg-bg-card p-4 rounded-xl border border-border hover:border-brand-primary/50 hover:shadow-md transition-all duration-300 ease-out hover:-translate-y-1"
+                        >
+                          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="w-8 h-8 p-0 rounded-full hover:bg-bg-main"
+                            >
+                              <ChevronRight
+                                size={16}
+                                className="text-brand-primary"
+                              />
+                            </Button>
+                          </div>
+
+                          <div className="flex items-start gap-4 mb-3">
+                            <div
+                              className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold border-2 transition-colors ${
+                                member.status === "clocked-in"
+                                  ? "border-status-success/30 bg-status-success/10 text-status-success"
+                                  : member.status === "on-break"
+                                  ? "border-status-warning/30 bg-status-warning/10 text-status-warning"
+                                  : "border-border bg-bg-main text-text-muted"
+                              }`}
+                            >
+                              {member.name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .substring(0, 2)}
+                            </div>
+                            <div className="flex-1 min-w-0 pt-1">
+                              <h3
+                                className="font-semibold text-text-primary truncate"
+                                title={member.name}
+                              >
+                                {member.name}
+                              </h3>
+                              <p className="text-xs text-text-secondary truncate">
+                                {member.role || "Team Member"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                            {getStatusBadge(member.status)}
+                            <span className="text-[10px] font-mono text-text-muted">
+                              ID: {member.employeeId.slice(-4)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    {teamStatus.length === 0 && (
+                      <div className="col-span-full flex flex-col items-center justify-center py-12 text-center bg-bg-card rounded-xl border border-dashed border-border">
+                        <div className="w-16 h-16 bg-bg-main rounded-full flex items-center justify-center mb-4 text-text-muted">
+                          <Users size={32} />
+                        </div>
+                        <h3 className="text-base font-medium text-text-primary">
+                          No Team Members Found
+                        </h3>
+                        <p className="text-sm text-text-secondary mt-1">
+                          Your team list is currently empty.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Pagination */}
+                  {teamStatus.length > 3 && (
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+                      <p className="text-xs text-text-secondary">
+                        Showing {page * 3 + 1}-
+                        {Math.min((page + 1) * 3, teamStatus.length)} of{" "}
+                        {teamStatus.length}
                       </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setPage((p) => Math.max(0, p - 1))}
+                          disabled={page === 0}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-bg-card hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-text-secondary"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            setPage((p) =>
+                              Math.min(
+                                Math.ceil(teamStatus.length / 3) - 1,
+                                p + 1
+                              )
+                            )
+                          }
+                          disabled={
+                            page >= Math.ceil(teamStatus.length / 3) - 1
+                          }
+                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-bg-card hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-text-secondary"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {teamStatus.length === 0 && (
-                  <div className="col-span-full text-center py-8 text-xs text-text-secondary border border-border border-dashed rounded-lg bg-bg-main/50">
-                    No team members found.
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </>
+              )}
+            </div>
           </div>
         )}
 

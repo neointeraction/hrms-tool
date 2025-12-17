@@ -31,7 +31,13 @@ export const MODULES = [
   },
   { key: "tasks", label: "Task", shortLabel: "Tasks" },
   { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
-  { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
+  { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheet" },
+  { key: "shifts", label: "Shift Management", shortLabel: "Shifts" },
+  {
+    key: "attendance",
+    label: "Attendance & Time Tracking",
+    shortLabel: "Attendance",
+  },
   { key: "policies", label: "Policy Management", shortLabel: "Policies" },
   { key: "documents", label: "Document Management", shortLabel: "Documents" },
 ];
