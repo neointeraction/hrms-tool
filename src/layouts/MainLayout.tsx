@@ -25,6 +25,7 @@ import {
   Grid,
   Hash,
   FileText,
+  Badge,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -96,6 +97,11 @@ export default function MainLayout() {
       to: "/attendance",
       icon: Clock,
       label: "Attendance & Time Tracking",
+    },
+    {
+      to: "/designations",
+      icon: Badge,
+      label: "Designations",
     },
     {
       to: "/audit",
@@ -189,6 +195,7 @@ export default function MainLayout() {
     "/employees": "employees",
     "/employee-management": "employees",
     "/roles": "roles",
+    "/designations": "employees",
     "/settings/documents": "documents",
     "/audit": "audit",
     "/organization": "organization",

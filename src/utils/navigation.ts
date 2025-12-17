@@ -31,6 +31,12 @@ export const menuItems: MenuItem[] = [
     roles: ["Admin", "HR"],
   },
   {
+    to: "/designations",
+    label: "Designation Management",
+    roles: ["Admin", "HR"],
+    module: "employees",
+  },
+  {
     to: "/settings/documents",
     label: "Document Management",
     roles: ["Admin", "HR"],

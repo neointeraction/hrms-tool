@@ -20,6 +20,7 @@ import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
 import { TenantList, Analytics } from "../features/superadmin";
 import RoleManagement from "../features/admin/RoleManagement";
+import DesignationManagement from "../features/admin/DesignationManagement";
 import UserManagement from "../features/superadmin/UserManagement";
 import SuperAdminSettings from "../features/superadmin/Settings";
 import {
@@ -105,6 +106,16 @@ export const router = createBrowserRouter([
           <RoleGuard allowedRoles={["Admin", "HR"]}>
             <ModuleGuard module="roles">
               <RoleManagement />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "designations",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR"]}>
+            <ModuleGuard module="employees">
+              <DesignationManagement />
             </ModuleGuard>
           </RoleGuard>
         ),

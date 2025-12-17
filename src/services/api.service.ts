@@ -398,6 +398,71 @@ class ApiService {
     return response.json();
   }
 
+  // Designation Management
+  async getDesignations(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/designations`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch designations");
+    }
+
+    return response.json();
+  }
+
+  async createDesignation(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/designations`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create designation");
+    }
+
+    return response.json();
+  }
+
+  async updateDesignation(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/designations/${id}`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update designation");
+    }
+
+    return response.json();
+  }
+
+  async deleteDesignation(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/designations/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete designation");
+    }
+
+    return response.json();
+  }
+
   // Role Management
   async createRole(data: {
     name: string;

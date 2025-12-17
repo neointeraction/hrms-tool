@@ -82,6 +82,7 @@ export default function AddEditEmployee({
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<any[]>([]);
   const [managers, setManagers] = useState<any[]>([]);
+  const [designations, setDesignations] = useState<any[]>([]);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -97,6 +98,7 @@ export default function AddEditEmployee({
     department: "",
     location: "",
     designation: "",
+    designationId: "",
     role: "",
     employmentType: "",
     employeeStatus: "Active",
@@ -146,6 +148,7 @@ export default function AddEditEmployee({
           ...employee,
           reportingManager:
             employee.reportingManager?._id || employee.reportingManager || "",
+          designationId: employee.designationId || "",
           dateOfJoining: employee.dateOfJoining
             ? employee.dateOfJoining.split("T")[0]
             : "",
@@ -181,6 +184,7 @@ export default function AddEditEmployee({
           department: "",
           location: "",
           designation: "",
+          designationId: "",
           role: "",
           employmentType: "",
           employeeStatus: "Active",
@@ -223,15 +227,17 @@ export default function AddEditEmployee({
   const fetchDropdowns = async () => {
     try {
       console.log("Fetching roles and employees...");
-      const [rolesData, employeesData] = await Promise.all([
+      const [rolesData, employeesData, designationsData] = await Promise.all([
         apiService.getRoles(),
         apiService.getEmployees(),
+        apiService.getDesignations(),
       ]);
       console.log("Roles received:", rolesData);
       console.log("Roles count:", rolesData?.length);
 
       setRoles(rolesData || []);
       setManagers(employeesData);
+      setDesignations(designationsData || []);
     } catch (err) {
       console.error("Failed to fetch dropdowns", err);
     }
@@ -528,7 +534,21 @@ export default function AddEditEmployee({
                   "Remote",
                   "Bangalore",
                 ])}
-                {renderInput("Designation", "designation")}
+                <div>
+                  <Select
+                    label="Designation"
+                    value={formData.designationId}
+                    onChange={(value) =>
+                      handleChange({ target: { name: "designationId", value } })
+                    }
+                    options={designations.map((d) => ({
+                      value: d._id,
+                      label: d.name,
+                    }))}
+                    disabled={viewMode}
+                    className="disabled:opacity-60"
+                  />
+                </div>
                 <div>
                   <Select
                     label="Role"
