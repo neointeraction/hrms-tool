@@ -148,7 +148,14 @@ export default function UpcomingHolidayWidget() {
               <div className="inline-block w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             </div>
           ) : upcomingHoliday ? (
-            <div className="text-center space-y-2 mt-8">
+            <div
+              className="text-center space-y-2 mt-8"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               {/* Holiday Name */}
               <div className="space-y-0.5">
                 <p className="text-white/80 font-semibold uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5">
@@ -157,7 +164,8 @@ export default function UpcomingHolidayWidget() {
                   <Sparkles size={10} />
                 </p>
                 <h3
-                  className="text-4xl font-black drop-shadow-lg line-clamp-2"
+                  className="text-4xl font-black drop-shadow-lg line-clamp-2 m-4"
+                  style={{ marginTop: 8, marginBottom: 8 }}
                   title={upcomingHoliday.name}
                 >
                   {upcomingHoliday.name}
