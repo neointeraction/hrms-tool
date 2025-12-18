@@ -200,10 +200,10 @@ export default function AttendanceWidget() {
             Time Tracking
           </h2>
           {status === "clocked-in" && (
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-green-600">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-green-600 dark:text-green-400">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 dark:bg-green-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500 dark:bg-green-600"></span>
               </span>
               LIVE
             </span>

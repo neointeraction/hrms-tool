@@ -65,7 +65,7 @@ export default function ProjectDetails() {
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-border rounded-lg p-6">
+      <div className="bg-bg-card border border-border rounded-lg p-6">
         <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -76,7 +76,7 @@ export default function ProjectDetails() {
                 className={`px-2 py-0.5 rounded text-xs font-bold border ${
                   project.status === "Active"
                     ? "bg-status-success/10 text-status-success border-status-success/20"
-                    : "bg-gray-100 text-gray-500 border-gray-200"
+                    : "bg-bg-subtle text-text-muted border-border"
                 }`}
               >
                 {project.status}

@@ -121,7 +121,11 @@ export const generatePayslipPDF = async (slip: any, user: any) => {
   doc.setFont("helvetica", "normal");
   doc.text("Designation", col1, infoY + lineHeight * 2);
   doc.setFont("helvetica", "bold");
-  doc.text(user?.designation || "N/A", col2, infoY + lineHeight * 2);
+  doc.text(
+    slip?.employee?.designation || user?.designation || "N/A",
+    col2,
+    infoY + lineHeight * 2
+  );
 
   doc.setFont("helvetica", "normal");
   doc.text("Department", col1, infoY + lineHeight * 3);
@@ -153,35 +157,54 @@ export const generatePayslipPDF = async (slip: any, user: any) => {
   doc.setFont("helvetica", "normal");
   doc.text("Bank Name", col3, infoY + lineHeight * 3);
   doc.setFont("helvetica", "bold");
-  doc.text(user?.bankName || "N/A", col4, infoY + lineHeight * 3);
+  doc.text(
+    slip?.employee?.bankDetails?.bankName ||
+      user?.bankDetails?.bankName ||
+      "N/A",
+    col4,
+    infoY + lineHeight * 3
+  );
 
   doc.setFont("helvetica", "normal");
   doc.text("Bank Account No", col3, infoY + lineHeight * 4);
   doc.setFont("helvetica", "bold");
-  doc.text(user?.bankAccountNo || "N/A", col4, infoY + lineHeight * 4);
+  doc.text(
+    slip?.employee?.bankDetails?.accountNumber ||
+      user?.bankDetails?.accountNumber ||
+      "N/A",
+    col4,
+    infoY + lineHeight * 4
+  );
 
   // --- Earnings Table ---
   let finalY = infoY + lineHeight * 6;
 
+  // Build dynamic earnings rows
+  const earningsRows: any[] = [
+    ["Basic Pay", slip.basicPay.toFixed(2)],
+    ["House Rent Allowance", slip.hra.toFixed(2)],
+  ];
+
+  // Add dynamic allowances from salary structure
+  if (slip.allowances && Array.isArray(slip.allowances)) {
+    slip.allowances.forEach((allowance: any) => {
+      earningsRows.push([allowance.name, allowance.amount.toFixed(2)]);
+    });
+  }
+
+  // Add Gross Earnings total row
+  earningsRows.push([
+    { content: "Gross Earnings", styles: { fontStyle: "bold" } },
+    {
+      content: slip.grossSalary.toFixed(2),
+      styles: { fontStyle: "bold" },
+    },
+  ]);
+
   autoTable(doc, {
     startY: finalY,
     head: [["Earnings", "Amount INR"]],
-    body: [
-      ["Basic Pay", slip.basicPay.toFixed(2)],
-      ["House Rent Allowance", slip.hra.toFixed(2)],
-      ["Transport and Conveyance", "1,500.00"], // Mock/Fixed
-      [
-        "Special Allowance",
-        (slip.grossSalary - slip.basicPay - slip.hra - 1500).toFixed(2),
-      ],
-      [
-        { content: "Gross Earnings", styles: { fontStyle: "bold" } },
-        {
-          content: slip.grossSalary.toFixed(2),
-          styles: { fontStyle: "bold" },
-        },
-      ],
-    ],
+    body: earningsRows,
     theme: "plain",
     headStyles: {
       fillColor: [220, 220, 220],

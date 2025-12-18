@@ -79,8 +79,11 @@ export default function PayrollSummaryWidget() {
     <div className="bg-bg-card rounded-lg shadow-sm border border-border p-6 h-full flex flex-col justify-between transition-all hover:shadow-md">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 bg-green-50 rounded-lg">
-            <DollarSign className="text-green-600" size={20} />
+          <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <DollarSign
+              className="text-green-600 dark:text-green-400"
+              size={20}
+            />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">
             Payroll & Salary

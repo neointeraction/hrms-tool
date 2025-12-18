@@ -17,6 +17,7 @@ export interface Column<T> {
   header: string;
   accessorKey?: keyof T;
   searchKey?: keyof T; // New prop for search-only accessor
+  accessorFn?: (item: T) => any; // New prop for custom accessor function
   render?: (item: T) => React.ReactNode;
   className?: string;
   enableSorting?: boolean;
@@ -49,10 +50,14 @@ export function Table<T extends { _id: string } | { id: string }>({
   const tableColumns = useMemo(() => {
     return columns.map((col) => {
       const columnId =
-        (col.accessorKey as string) || (col.searchKey as string) || col.header;
+        (col.accessorKey as string) ||
+        (col.searchKey as string) ||
+        col.header ||
+        "col-" + Math.random().toString(36).substr(2, 9);
 
       return columnHelper.accessor(
         (row) => {
+          if (col.accessorFn) return col.accessorFn(row);
           if (col.accessorKey) return row[col.accessorKey];
           if (col.searchKey) return row[col.searchKey];
           return null;

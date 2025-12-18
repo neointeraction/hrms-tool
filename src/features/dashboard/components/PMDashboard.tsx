@@ -96,21 +96,21 @@ export default function PMDashboard() {
     switch (status) {
       case "clocked-in":
         return (
-          <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-full border border-green-200 dark:border-green-800">
             <Clock size={12} />
             Working
           </span>
         );
       case "on-break":
         return (
-          <span className="flex items-center gap-1 text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/20 px-2 py-1 rounded-full border border-yellow-200 dark:border-yellow-800">
             <Coffee size={12} />
             Break
           </span>
         );
       default:
         return (
-          <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+          <span className="text-xs font-medium text-text-muted bg-bg-main px-2 py-1 rounded-full border border-border">
             Off
           </span>
         );
@@ -281,7 +281,7 @@ export default function PMDashboard() {
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                          <div className="flex items-center justify-between pt-3 border-t border-border">
                             {getStatusBadge(member.status)}
                             <span className="text-[10px] font-mono text-text-muted">
                               ID: {member.employeeId.slice(-4)}
@@ -368,7 +368,7 @@ export default function PMDashboard() {
         {/* We keep approvals always visible as they might be relevant for projects logic, but specific subsections depend on modules */}
         <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg">
+            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-lg border border-yellow-200 dark:border-yellow-800">
               <CheckSquare size={20} />
             </div>
             <h2 className="text-lg font-semibold text-text-primary">
@@ -393,7 +393,7 @@ export default function PMDashboard() {
                 className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-800">
                     <Clock size={18} />
                   </div>
                   <div>
@@ -423,7 +423,7 @@ export default function PMDashboard() {
                 className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800">
                     <Coffee size={18} />
                   </div>
                   <div>
@@ -444,7 +444,7 @@ export default function PMDashboard() {
 
             {totalPending === 0 && (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-green-50 dark:bg-green-900/10 text-green-500 dark:text-green-400 rounded-full flex items-center justify-center mb-3">
                   <CheckSquare size={24} />
                 </div>
                 <p className="text-text-primary font-medium">All caught up!</p>
@@ -465,7 +465,7 @@ export default function PMDashboard() {
           <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg border border-blue-200 dark:border-blue-800">
                   <Briefcase size={20} />
                 </div>
                 <h2 className="text-lg font-semibold text-text-primary">

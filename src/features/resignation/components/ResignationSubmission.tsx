@@ -87,9 +87,9 @@ export default function ResignationSubmission() {
   if (resignation) {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+        <div className="bg-bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+          <div className="p-6 border-b border-border bg-bg-secondary/50 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
               <FileText className="text-brand-primary" />
               Resignation Status
             </h2>
@@ -105,28 +105,28 @@ export default function ResignationSubmission() {
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-text-secondary">
                   Submitted On
                 </p>
-                <p className="font-semibold text-gray-900 flex items-center gap-2">
-                  <CalendarDays size={16} className="text-gray-400" />
+                <p className="font-semibold text-text-primary flex items-center gap-2">
+                  <CalendarDays size={16} className="text-text-muted" />
                   {format(new Date(resignation.submittedDate), "MMM dd, yyyy")}
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-text-secondary">
                   Proposed Last Working Day
                 </p>
-                <p className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Briefcase size={16} className="text-gray-400" />
+                <p className="font-semibold text-text-primary flex items-center gap-2">
+                  <Briefcase size={16} className="text-text-muted" />
                   {format(new Date(resignation.lastWorkingDay), "MMM dd, yyyy")}
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-500">Reason</p>
-              <div className="p-4 bg-gray-50 rounded-lg text-gray-700 text-sm italic border border-gray-100">
+              <p className="text-sm font-medium text-text-secondary">Reason</p>
+              <div className="p-4 bg-bg-secondary rounded-lg text-text-secondary text-sm italic border border-border">
                 "{resignation.reason}"
               </div>
             </div>
@@ -134,10 +134,10 @@ export default function ResignationSubmission() {
             {/* Manager Comments */}
             {resignation.comments && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-text-secondary">
                   Admin/Manager Comments
                 </p>
-                <div className="p-4 bg-blue-50/50 rounded-lg text-gray-700 text-sm border border-blue-100">
+                <div className="p-4 bg-blue-50/50 rounded-lg text-text-secondary text-sm border border-blue-100 dark:bg-blue-900/10 dark:text-blue-200 dark:border-blue-900/30">
                   {resignation.comments}
                 </div>
               </div>
@@ -162,18 +162,18 @@ export default function ResignationSubmission() {
   // View: Submission Form
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-          <h2 className="text-xl font-bold text-gray-900">
+      <div className="bg-bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+        <div className="p-6 border-b border-border bg-gradient-to-r from-bg-secondary to-bg-card">
+          <h2 className="text-xl font-bold text-text-primary">
             Submit Resignation
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-text-secondary mt-1">
             Please fill in the details below to initiate the exit process.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex gap-3 items-start">
+          <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex gap-3 items-start dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30">
             <AlertTriangle className="shrink-0 mt-0.5" size={18} />
             <div>
               <p className="font-semibold mb-1">Important Notice</p>
@@ -199,14 +199,14 @@ export default function ResignationSubmission() {
                   onChange={(e) =>
                     setFormData({ ...formData, lastWorkingDay: e.target.value })
                   }
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-text-primary"
                 />
                 <CalendarDays
-                  className="absolute left-3 top-2.5 text-gray-400"
+                  className="absolute left-3 top-2.5 text-text-muted"
                   size={18}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 You can request an earlier date, but it is subject to approval
                 and possible buyout.
               </p>
@@ -224,12 +224,12 @@ export default function ResignationSubmission() {
                   setFormData({ ...formData, reason: e.target.value })
                 }
                 placeholder="Please share your reason for resignation..."
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none"
+                className="w-full p-3 bg-bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all resize-none text-text-primary"
               />
             </div>
 
             <div
-              className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex items-start gap-3 p-4 border border-border rounded-lg hover:bg-bg-secondary transition-colors cursor-pointer"
               onClick={() =>
                 setFormData({
                   ...formData,
@@ -241,13 +241,13 @@ export default function ResignationSubmission() {
                 className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                   formData.agreedToTerms
                     ? "bg-brand-primary border-brand-primary text-white"
-                    : "border-gray-300 bg-white"
+                    : "border-border bg-bg-card"
                 }`}
               >
                 {formData.agreedToTerms && <CheckCircle2 size={14} />}
               </div>
               <input type="checkbox" className="hidden" />
-              <p className="text-sm text-gray-600 select-none">
+              <p className="text-sm text-text-secondary select-none">
                 I understand that submitting this form initiates the formal exit
                 process. I agree to complete the handover obligations during my
                 notice period.
@@ -255,7 +255,7 @@ export default function ResignationSubmission() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-100 flex justify-end">
+          <div className="pt-4 border-t border-border flex justify-end">
             <button
               type="submit"
               disabled={submitting || !formData.agreedToTerms}

@@ -10,6 +10,7 @@ import {
 import { format } from "date-fns";
 import { apiService } from "../../../services/api.service";
 import { useAppStore } from "../../../store/useAppStore";
+import { Skeleton } from "../../../components/common/Skeleton";
 
 export default function UpcomingHolidayWidget() {
   const [view, setView] = useState<"holiday" | "celebrations">("holiday");
@@ -144,8 +145,15 @@ export default function UpcomingHolidayWidget() {
           </div>
 
           {loading ? (
-            <div className="text-center py-8">
-              <div className="inline-block w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <div className="flex flex-col items-center mt-8 space-y-4">
+              {/* Label Mock */}
+              <Skeleton className="h-3 w-24 bg-white/20 rounded-full" />
+              {/* Title Mock */}
+              <Skeleton className="h-10 w-48 bg-white/20 rounded-lg" />
+              {/* Date Mock */}
+              <Skeleton className="h-12 w-40 bg-white/20 rounded-xl mt-2" />
+              {/* Countdown Mock */}
+              <Skeleton className="h-6 w-32 bg-white/20 rounded-lg" />
             </div>
           ) : upcomingHoliday ? (
             <div
@@ -209,10 +217,10 @@ export default function UpcomingHolidayWidget() {
   return (
     <div className="bg-bg-card rounded-xl shadow-lg border border-border h-full flex flex-col transition-all duration-300 overflow-hidden relative group">
       {/* Header */}
-      <div className="p-4 border-b border-border flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
+      <div className="p-4 border-b border-border flex justify-between items-center bg-gradient-to-r from-bg-secondary/50 to-bg-card">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500/10 to-purple-500/10 flex items-center justify-center border border-pink-100 shadow-sm">
-            <Cake className="text-pink-500" size={20} />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500/10 to-purple-500/10 flex items-center justify-center border border-pink-100 dark:border-transparent shadow-sm">
+            <Cake className="text-pink-500 dark:text-pink-400" size={20} />
           </div>
           <div>
             <h2 className="text-base font-bold text-text-primary leading-tight">
@@ -226,7 +234,7 @@ export default function UpcomingHolidayWidget() {
         {/* Toggle Button */}
         <button
           onClick={() => setView("holiday")}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-50 rounded-lg transition-all text-text-secondary hover:text-brand-primary border border-gray-200 shadow-sm hover:shadow"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card hover:bg-bg-main rounded-lg transition-all text-text-secondary hover:text-brand-primary border border-border shadow-sm hover:shadow"
           title="View Holidays"
         >
           <Calendar size={14} />
@@ -235,19 +243,19 @@ export default function UpcomingHolidayWidget() {
       </div>
 
       {/* Tabs */}
-      <div className="p-1 mx-4 mt-4 bg-gray-100/80 rounded-lg flex p-1 border border-gray-200">
+      <div className="p-1 mx-4 mt-4 bg-bg-main rounded-lg flex p-1 border border-border">
         <button
           onClick={() => setActiveTab("birthdays")}
           className={`flex-1 py-1.5 text-xs font-bold rounded-md flex items-center justify-center gap-1.5 transition-all shadow-sm ${
             activeTab === "birthdays"
-              ? "bg-white text-pink-600 shadow-sm ring-1 ring-black/5"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 shadow-none"
+              ? "bg-bg-card text-pink-600 shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+              : "text-text-secondary hover:text-text-primary hover:bg-bg-card/50 shadow-none"
           }`}
         >
           <Cake
             size={14}
             className={
-              activeTab === "birthdays" ? "text-pink-500" : "text-gray-400"
+              activeTab === "birthdays" ? "text-pink-500" : "text-text-muted"
             }
           />
           Birthdays ({eventsData.birthdays.length})
@@ -256,14 +264,16 @@ export default function UpcomingHolidayWidget() {
           onClick={() => setActiveTab("anniversaries")}
           className={`flex-1 py-1.5 text-xs font-bold rounded-md flex items-center justify-center gap-1.5 transition-all shadow-sm ${
             activeTab === "anniversaries"
-              ? "bg-white text-amber-600 shadow-sm ring-1 ring-black/5"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/50 shadow-none"
+              ? "bg-bg-card text-amber-600 shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+              : "text-text-secondary hover:text-text-primary hover:bg-bg-card/50 shadow-none"
           }`}
         >
           <Award
             size={14}
             className={
-              activeTab === "anniversaries" ? "text-amber-500" : "text-gray-400"
+              activeTab === "anniversaries"
+                ? "text-amber-500"
+                : "text-text-muted"
             }
           />
           Work ({eventsData.anniversaries.length})
@@ -272,15 +282,30 @@ export default function UpcomingHolidayWidget() {
 
       <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
         {loading ? (
-          <div className="text-center py-8 text-sm text-text-secondary">
-            <div className="inline-block w-5 h-5 border-2 border-gray-300 border-t-brand-primary rounded-full animate-spin mb-2"></div>
-            <p className="text-xs">Loading events...</p>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-2.5 bg-bg-card border border-border rounded-xl"
+              >
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-10 h-10 rounded-full" />
+                  <div className="space-y-1.5">
+                    <Skeleton className="w-24 h-3.5" />
+                    <Skeleton className="w-16 h-2.5" />
+                  </div>
+                </div>
+                <Skeleton className="w-12 h-6 rounded-lg" />
+              </div>
+            ))}
           </div>
         ) : currentEvents.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center py-4">
             <div
               className={`p-4 rounded-full mb-3 ${
-                activeTab === "birthdays" ? "bg-pink-50/50" : "bg-amber-50/50"
+                activeTab === "birthdays"
+                  ? "bg-pink-50/50 dark:bg-pink-900/10"
+                  : "bg-amber-50/50 dark:bg-amber-900/10"
               }`}
             >
               {activeTab === "birthdays" ? (
@@ -298,7 +323,7 @@ export default function UpcomingHolidayWidget() {
             {currentEvents.map((item: any) => (
               <div
                 key={item.id}
-                className="group flex items-center justify-between p-2.5 bg-white hover:bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-all shadow-sm hover:shadow-md"
+                className="group flex items-center justify-between p-2.5 bg-bg-card hover:bg-bg-subtle rounded-xl border border-border hover:border-text-muted/20 transition-all shadow-sm hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -306,7 +331,7 @@ export default function UpcomingHolidayWidget() {
                       <img
                         src={`http://localhost:5001/${item.profilePicture}`}
                         alt={item.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-bg-card shadow-sm"
                       />
                     ) : (
                       <div
@@ -319,7 +344,7 @@ export default function UpcomingHolidayWidget() {
                         {item.name.charAt(0)}
                       </div>
                     )}
-                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-gray-50">
+                    <div className="absolute -bottom-1 -right-1 bg-bg-card rounded-full p-0.5 shadow-sm border border-border">
                       {activeTab === "birthdays" ? (
                         <Cake size={10} className="text-pink-500" />
                       ) : (

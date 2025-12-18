@@ -44,7 +44,7 @@ const TreeNode = ({ node }: { node: Employee }) => {
     <div className="flex flex-col items-center">
       <div
         className={`
-          flex flex-col items-center p-3 rounded-lg border bg-white shadow-sm hover:shadow-md transition-all
+          flex flex-col items-center p-3 rounded-lg border border-border bg-bg-card shadow-sm hover:shadow-md transition-all
           ${hasChildren ? "cursor-pointer" : ""}
           w-48 relative z-10
         `}
@@ -82,7 +82,7 @@ const TreeNode = ({ node }: { node: Employee }) => {
 
         {/* Expand/Collapse Indicator */}
         {hasChildren && (
-          <div className="absolute -bottom-3 bg-white rounded-full p-0.5 border border-border">
+          <div className="absolute -bottom-3 bg-bg-card rounded-full p-0.5 border border-border">
             {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </div>
         )}
@@ -302,10 +302,9 @@ export default function TeamHierarchy() {
                     className="group relative bg-bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center p-4"
                   >
                     {/* Top Accent Bar */}
-                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-primary to-brand-secondary opacity-80" />
 
                     <div className="mt-2 mb-3 relative">
-                      <div className="w-16 h-16 rounded-full border-2 border-white dark:border-gray-800 shadow-md ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
+                      <div className="w-16 h-16 rounded-full border-2 border-white dark:border-bg-card shadow-md ring-1 ring-black/5 dark:ring-white/10 overflow-hidden">
                         <Avatar
                           src={
                             emp.profilePicture
@@ -347,7 +346,7 @@ export default function TeamHierarchy() {
                     </div>
 
                     {/* Contact Actions - Horizontal Row */}
-                    <div className="w-full flex items-center justify-center gap-2 mt-auto pt-3 border-t border-border/50">
+                    <div className="w-full flex items-center justify-center gap-2 mt-auto pt-3 border-t border-border">
                       {emp.workPhone && (
                         <Tooltip
                           content={`Work: ${emp.workPhone} (Click to copy)`}

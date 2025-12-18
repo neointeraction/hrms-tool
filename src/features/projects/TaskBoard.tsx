@@ -55,7 +55,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
         <div key={status} className="bg-bg-main rounded-lg p-4 min-w-[250px]">
           <h3 className="font-semibold text-text-secondary text-sm mb-3 flex justify-between">
             {status}
-            <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+            <span className="bg-bg-subtle text-text-muted px-2 py-0.5 rounded-full text-xs">
               {tasks.filter((t) => t.status === status).length}
             </span>
           </h3>
@@ -65,7 +65,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
               .map((task) => (
                 <div
                   key={task._id}
-                  className="bg-white border border-border rounded p-3 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  className="bg-bg-card border border-border rounded p-3 shadow-sm hover:shadow-md transition-all cursor-pointer"
                 >
                   <div className="flex justify-between items-start mb-1">
                     <h4 className="font-medium text-sm text-text-primary mb-1">
@@ -97,7 +97,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
                   )}
 
                   {/* Move actions (Simplified without drag/drop) */}
-                  <div className="flex justify-end gap-1 mt-3 pt-2 border-t border-gray-100">
+                  <div className="flex justify-end gap-1 mt-3 pt-2 border-t border-border">
                     {status !== "To Do" && (
                       <button
                         onClick={() =>
@@ -106,7 +106,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
                             columns[columns.indexOf(status) - 1]
                           )
                         }
-                        className="text-[10px] px-1 bg-gray-100 rounded hover:bg-gray-200"
+                        className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
                       >
                         &lt; Back
                       </button>
@@ -119,7 +119,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
                             columns[columns.indexOf(status) + 1]
                           )
                         }
-                        className="text-[10px] px-1 bg-gray-100 rounded hover:bg-gray-200"
+                        className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
                       >
                         Next &gt;
                       </button>
@@ -128,7 +128,7 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
                 </div>
               ))}
             {tasks.filter((t) => t.status === status).length === 0 && (
-              <div className="text-center py-4 text-xs text-gray-400 border border-dashed border-gray-200 rounded">
+              <div className="text-center py-4 text-xs text-text-muted border border-dashed border-border rounded">
                 No tasks
               </div>
             )}

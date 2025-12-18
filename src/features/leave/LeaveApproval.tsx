@@ -97,7 +97,7 @@ export default function LeaveApproval() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-lg border border-border p-4 shadow-sm flex flex-col h-[280px]"
+            className="bg-bg-card rounded-lg border border-border p-4 shadow-sm flex flex-col h-[280px]"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export default function LeaveApproval() {
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {requests.length === 0 ? (
-          <div className="col-span-full text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+          <div className="col-span-full text-center py-12 bg-bg-main rounded-lg border border-dashed border-border">
             <div className="flex flex-col items-center justify-center text-text-muted">
               <Check className="w-12 h-12 mb-2 opacity-20" />
               <p>No pending approvals found.</p>
@@ -144,7 +144,7 @@ export default function LeaveApproval() {
           requests.map((request) => (
             <div
               key={request._id}
-              className="bg-white rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
+              className="bg-bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -215,17 +215,19 @@ export default function LeaveApproval() {
       {/* Confirmation Modal */}
       {selectedRequest && actionType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-bg-card rounded-lg shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div
               className={`p-4 border-b ${
                 actionType === "approve"
-                  ? "bg-green-50 border-green-100"
-                  : "bg-red-50 border-red-100"
+                  ? "bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-900/30"
+                  : "bg-red-50 border-red-100 dark:bg-red-900/20 dark:border-red-900/30"
               } flex items-center justify-between`}
             >
               <h3
                 className={`font-semibold ${
-                  actionType === "approve" ? "text-green-800" : "text-red-800"
+                  actionType === "approve"
+                    ? "text-green-800 dark:text-green-300"
+                    : "text-red-800 dark:text-red-300"
                 } flex items-center gap-2`}
               >
                 {actionType === "approve" ? (
@@ -239,17 +241,17 @@ export default function LeaveApproval() {
               </h3>
               <button
                 onClick={closeActionModal}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-text-muted hover:text-text-primary transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-secondary">
                 You are about to <strong>{actionType}</strong> the leave request
                 for
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-text-primary">
                   {" "}
                   {selectedRequest.employee?.firstName}{" "}
                   {selectedRequest.employee?.lastName}
@@ -281,7 +283,7 @@ export default function LeaveApproval() {
               )}
             </div>
 
-            <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
+            <div className="p-4 border-t border-border flex justify-end gap-3 bg-bg-secondary/50">
               <Button
                 variant="ghost"
                 onClick={closeActionModal}

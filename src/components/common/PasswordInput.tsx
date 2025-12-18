@@ -25,7 +25,7 @@ export function PasswordInput({
       <input
         type={showPassword ? "text" : "password"}
         className={cn(
-          "w-full rounded-lg border bg-bg-card text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:border-transparent focus:ring-brand-primary h-[38px]",
+          "w-full rounded-lg border border-border bg-bg-card text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:border-transparent focus:ring-brand-primary h-[38px]",
           Icon ? "pl-10" : "px-3",
           "pr-10 py-2 text-sm",
           className

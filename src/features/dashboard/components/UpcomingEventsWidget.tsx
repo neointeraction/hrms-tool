@@ -46,8 +46,11 @@ export default function UpcomingEventsWidget() {
     <div className="bg-bg-card rounded-lg shadow-sm border border-border h-full flex flex-col">
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-pink-50 rounded-lg">
-            <PartyPopper className="text-pink-500" size={24} />
+          <div className="p-2 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+            <PartyPopper
+              className="text-pink-500 dark:text-pink-400"
+              size={24}
+            />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">
             Celebrations
@@ -61,8 +64,8 @@ export default function UpcomingEventsWidget() {
           onClick={() => setActiveTab("birthdays")}
           className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
             activeTab === "birthdays"
-              ? "text-pink-600 border-b-2 border-pink-500 bg-pink-50/50"
-              : "text-text-secondary hover:bg-gray-50"
+              ? "text-pink-600 dark:text-pink-400 border-b-2 border-pink-500 bg-pink-50/50 dark:bg-pink-900/10"
+              : "text-text-secondary hover:bg-bg-hover"
           }`}
         >
           <Cake
@@ -77,8 +80,8 @@ export default function UpcomingEventsWidget() {
           onClick={() => setActiveTab("anniversaries")}
           className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
             activeTab === "anniversaries"
-              ? "text-amber-600 border-b-2 border-amber-500 bg-amber-50/50"
-              : "text-text-secondary hover:bg-gray-50"
+              ? "text-amber-600 dark:text-amber-400 border-b-2 border-amber-500 bg-amber-50/50 dark:bg-amber-900/10"
+              : "text-text-secondary hover:bg-bg-hover"
           }`}
         >
           <Award
@@ -96,7 +99,9 @@ export default function UpcomingEventsWidget() {
           <div className="h-full flex flex-col items-center justify-center text-center py-8">
             <div
               className={`p-4 rounded-full mb-3 ${
-                activeTab === "birthdays" ? "bg-pink-50" : "bg-amber-50"
+                activeTab === "birthdays"
+                  ? "bg-pink-50 dark:bg-pink-900/10"
+                  : "bg-amber-50 dark:bg-amber-900/10"
               }`}
             >
               {activeTab === "birthdays" ? (
@@ -122,7 +127,7 @@ export default function UpcomingEventsWidget() {
                       <img
                         src={`http://localhost:5001/${item.profilePicture}`}
                         alt={item.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-bg-card shadow-sm"
                       />
                     ) : (
                       <div
@@ -135,7 +140,7 @@ export default function UpcomingEventsWidget() {
                         {item.name.charAt(0)}
                       </div>
                     )}
-                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                    <div className="absolute -bottom-1 -right-1 bg-bg-card rounded-full p-0.5 shadow-sm">
                       {activeTab === "birthdays" ? (
                         <Cake size={10} className="text-pink-500" />
                       ) : (
@@ -158,8 +163,8 @@ export default function UpcomingEventsWidget() {
                   <div
                     className={`text-xs font-bold px-2 py-1 rounded-full ${
                       activeTab === "birthdays"
-                        ? "bg-pink-100 text-pink-700"
-                        : "bg-amber-100 text-amber-700"
+                        ? "bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300"
+                        : "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
                     }`}
                   >
                     {new Date(item.date).toLocaleDateString("en-US", {

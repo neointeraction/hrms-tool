@@ -15,12 +15,12 @@ import {
   Heart,
   X,
   Lock,
-  LogOut,
   Camera,
   Globe,
   Award,
   BookOpen,
   Users2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
@@ -371,7 +371,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen pb-8 animate-in fade-in duration-500 bg-gray-50/30">
+    <div className="min-h-screen pb-8 animate-in fade-in duration-500 bg-gray-50/30 dark:bg-bg-main">
       {/* Header with Actions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -397,14 +397,6 @@ export default function Profile() {
                   onClick={() => setIsEditing(true)}
                 >
                   Edit Profile
-                </Button>
-                <Button
-                  variant="danger"
-                  className="shadow-sm"
-                  leftIcon={<LogOut size={16} />}
-                  onClick={() => navigate("/resignation/submit")}
-                >
-                  Resignation
                 </Button>
               </>
             ) : (
@@ -433,18 +425,18 @@ export default function Profile() {
         </div>
 
         {error && !loading && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 dark:bg-red-900/20 dark:border-red-900/50 dark:text-red-400">
             <p className="font-medium">Failed to load profile</p>
             <p className="text-sm">{error}</p>
           </div>
         )}
 
         {/* Profile Summary Card - Full Width Top */}
-        <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-6 mb-6">
+        <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 mb-6">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Avatar */}
             <div className="relative group shrink-0">
-              <div className="w-32 h-32 rounded-full border-4 border-bg-card shadow-lg overflow-hidden bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold">
+              <div className="w-32 h-32 rounded-full border-4 border-bg-card shadow-lg overflow-hidden bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold dark:border-border">
                 {previewUrl ? (
                   <img
                     src={previewUrl}
@@ -473,7 +465,7 @@ export default function Profile() {
 
             {/* Basic Info */}
             <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-6">
                 <div>
                   <h2 className="text-2xl font-bold text-text-primary">
                     {profileData.firstName} {profileData.lastName}
@@ -481,42 +473,115 @@ export default function Profile() {
                   <p className="text-text-secondary font-medium text-lg mt-1">
                     {profileData.designation}
                   </p>
-                  <div className="mt-2 text-xs font-semibold text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full inline-block">
-                    {profileData.role}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="text-xs font-semibold text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full inline-block">
+                      {profileData.role}
+                    </div>
+                    <div
+                      className={`text-xs font-semibold px-3 py-1 rounded-full inline-block ${
+                        profileData.employeeStatus === "Active"
+                          ? "text-green-700 bg-green-50 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20"
+                          : "text-gray-700 bg-gray-50 border border-gray-200 dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20"
+                      }`}
+                    >
+                      {profileData.employeeStatus}
+                    </div>
                   </div>
                 </div>
 
                 {/* Key Details Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 mt-4 md:mt-0 md:bg-gray-50/50 md:p-4 md:rounded-lg md:border md:border-border/30">
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 md:bg-gray-50/50 md:p-4 md:rounded-lg md:border md:border-border dark:md:bg-white/5">
                   <div className="flex items-center gap-2 text-sm text-text-secondary">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 dark:bg-blue-900/20 dark:text-blue-400">
+                      <IdCard size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Employee ID
+                      </p>
+                      <span className="font-medium text-text-primary">
+                        {profileData.employeeId}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0 dark:bg-purple-900/20 dark:text-purple-400">
+                      <Calendar size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Joined On
+                      </p>
+                      <span className="font-medium text-text-primary">
+                        {profileData.dateOfJoining || "Not Set"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0 dark:bg-green-900/20 dark:text-green-400">
+                      <Users2 size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Reporting To
+                      </p>
+                      <span
+                        className="font-medium text-text-primary truncate max-w-[120px] block"
+                        title={profileData.reportingManagerName}
+                      >
+                        {profileData.reportingManagerName || "None"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 shrink-0 dark:bg-orange-900/20 dark:text-orange-400">
                       <MapPin size={16} />
                     </div>
-                    <span
-                      className="truncate max-w-[150px]"
-                      title={profileData.location}
-                    >
-                      {profileData.location || "No Location"}
-                    </span>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Location
+                      </p>
+                      <span
+                        className="font-medium text-text-primary truncate max-w-[120px] block"
+                        title={profileData.location}
+                      >
+                        {profileData.location || "Not Set"}
+                      </span>
+                    </div>
                   </div>
+
                   <div className="flex items-center gap-2 text-sm text-text-secondary">
-                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 shrink-0 dark:bg-pink-900/20 dark:text-pink-400">
                       <Mail size={16} />
                     </div>
-                    <span
-                      className="truncate max-w-[150px]"
-                      title={profileData.email}
-                    >
-                      {profileData.email}
-                    </span>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Email
+                      </p>
+                      <span
+                        className="font-medium text-text-primary truncate max-w-[120px] block"
+                        title={profileData.email}
+                      >
+                        {profileData.email}
+                      </span>
+                    </div>
                   </div>
+
                   <div className="flex items-center gap-2 text-sm text-text-secondary">
-                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 dark:bg-indigo-900/20 dark:text-indigo-400">
                       <Phone size={16} />
                     </div>
-                    <span className="truncate">
-                      {profileData.workPhone || "No Work Phone"}
-                    </span>
+                    <div>
+                      <p className="text-xs text-text-muted font-medium">
+                        Work Phone
+                      </p>
+                      <span className="font-medium text-text-primary">
+                        {profileData.workPhone || "Not Set"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -527,7 +592,7 @@ export default function Profile() {
         <div className="grid grid-cols-12 gap-6">
           {/* Vertical Tabs Navigation */}
           <div className="col-span-12 md:col-span-3">
-            <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-3 sticky top-6">
+            <div className="bg-bg-card rounded-xl shadow-sm border border-border p-3 sticky top-6">
               <nav className="space-y-1">
                 {TABS.map((tab) => (
                   <button
@@ -552,7 +617,7 @@ export default function Profile() {
 
           {/* Content Area */}
           <div className="col-span-12 md:col-span-9">
-            <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-6 min-h-[600px]">
+            <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 min-h-[600px]">
               {activeTab === "Basic Info" && (
                 <div className="space-y-6">
                   <SectionHeader title="Basic Details" icon={User} />
@@ -626,7 +691,7 @@ export default function Profile() {
                             name="reportingManager"
                             value={profileData.reportingManager || ""}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none"
+                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none dark:bg-bg-main dark:border-border dark:text-text-primary"
                           >
                             <option value="">Select Manager</option>
                             {employees
@@ -813,8 +878,10 @@ export default function Profile() {
                       )}
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-text-muted italic">
-                      No custom fields available.
+                    <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-200 dark:bg-gray-800/10 dark:border-gray-700">
+                      <p className="text-text-secondary text-sm">
+                        No custom fields available.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -822,6 +889,39 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Danger Zone */}
+        {!isEditing && (
+          <div className="mt-8 border border-red-200 rounded-xl overflow-hidden bg-white shadow-sm dark:bg-bg-card dark:border-red-900/50">
+            <div className="bg-red-50/50 px-6 py-4 border-b border-red-100 dark:bg-red-900/10 dark:border-red-900/30">
+              <h3 className="text-lg font-bold text-red-900 flex items-center gap-2 dark:text-red-400">
+                <AlertTriangle
+                  className="text-red-600 dark:text-red-400"
+                  size={20}
+                />
+                Danger Zone
+              </h3>
+            </div>
+            <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-base font-semibold text-gray-900 dark:text-text-primary">
+                  Resign from your position
+                </h4>
+                <p className="text-sm text-gray-500 mt-1 max-w-xl dark:text-text-secondary">
+                  Initiating this action will start the formal resignation
+                  process. This action cannot be undone once approved.
+                </p>
+              </div>
+              <Button
+                variant="danger"
+                className="shrink-0 bg-red-600 border border-red-600 text-white hover:bg-red-700 hover:border-red-700 shadow-sm dark:hover:bg-red-800"
+                onClick={() => navigate("/resignation/submit")}
+              >
+                Submit Resignation
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Success Modal */}
@@ -861,7 +961,7 @@ export default function Profile() {
 const SectionHeader = ({ title, icon: Icon, className }: any) => (
   <div
     className={cn(
-      "flex items-center gap-2 mb-4 pb-2 border-b border-border/50",
+      "flex items-center gap-2 mb-4 pb-2 border-b border-border",
       className
     )}
   >
@@ -895,26 +995,64 @@ const InputField = ({ label, name, value, onChange, isEditing }: any) => (
 );
 
 const ProfileSkeleton = () => (
-  <div className="min-h-screen pb-8 animate-pulse bg-gray-50/30">
+  <div className="min-h-screen pb-8 animate-pulse bg-gray-50/30 dark:bg-bg-main">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-      <div className="h-8 w-48 bg-gray-300 rounded mb-6" />
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-3">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-            <div className="w-32 h-32 rounded-full bg-gray-300 mx-auto" />
-            <div className="mt-4 space-y-3">
-              <div className="h-6 w-32 bg-gray-300 mx-auto rounded" />
-              <div className="h-4 w-24 bg-gray-200 mx-auto rounded" />
+      <div className="flex justify-between items-center mb-6">
+        <div className="space-y-2">
+          <div className="h-8 w-48 bg-gray-200 rounded dark:bg-gray-700" />
+          <div className="h-4 w-64 bg-gray-100 rounded dark:bg-gray-800" />
+        </div>
+        <div className="flex gap-3">
+          <div className="h-9 w-32 bg-gray-200 rounded-lg dark:bg-gray-700" />
+          <div className="h-9 w-32 bg-gray-200 rounded-lg dark:bg-gray-700" />
+        </div>
+      </div>
+
+      {/* Header Card Skeleton */}
+      <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 mb-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="w-32 h-32 rounded-full bg-gray-200 shrink-0 dark:bg-gray-700" />
+          <div className="flex-1 w-full">
+            <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+              <div className="space-y-3 text-center md:text-left">
+                <div className="h-8 w-64 bg-gray-200 rounded mx-auto md:mx-0 dark:bg-gray-700" />
+                <div className="h-5 w-48 bg-gray-100 rounded mx-auto md:mx-0 dark:bg-gray-800" />
+                <div className="h-6 w-24 bg-gray-100 rounded-full mx-auto md:mx-0 dark:bg-gray-800" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+              <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
+              <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
+              <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
             </div>
           </div>
         </div>
-        <div className="lg:col-span-9">
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 md:col-span-3">
-              <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-200 h-96" />
+      </div>
+
+      {/* Content Grid Skeleton */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 md:col-span-3">
+          <div className="bg-bg-card rounded-xl shadow-sm border border-border p-3 h-96">
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="h-10 bg-gray-100 rounded-lg w-full dark:bg-gray-800"
+                />
+              ))}
             </div>
-            <div className="col-span-12 md:col-span-9">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[600px]" />
+          </div>
+        </div>
+        <div className="col-span-12 md:col-span-9">
+          <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 h-[600px]">
+            <div className="h-6 w-48 bg-gray-200 rounded mb-8 dark:bg-gray-700" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 w-24 bg-gray-100 rounded dark:bg-gray-800" />
+                  <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-900 dark:border-gray-800" />
+                </div>
+              ))}
             </div>
           </div>
         </div>

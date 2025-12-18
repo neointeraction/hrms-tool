@@ -147,7 +147,7 @@ export function Tooltip({
   const tooltipContent = (
     <div
       ref={tooltipRef}
-      className={`fixed z-[9999] px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg animate-in fade-in zoom-in-95 duration-200`}
+      className={`fixed z-[9999] px-3 py-1.5 text-xs font-medium text-text-primary bg-bg-card border border-border rounded shadow-lg animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap`}
       style={{
         top: coords.top,
         left: coords.left,
@@ -164,7 +164,7 @@ export function Tooltip({
       {content}
       {/* Arrow (Simplified) */}
       <div
-        className={`absolute w-2 h-2 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 transform rotate-45 ${
+        className={`absolute w-2 h-2 bg-bg-card border-l border-t border-border transform rotate-45 ${
           position === "top"
             ? "bottom-[-5px] left-1/2 -translate-x-1/2 -rotate-135 border-l-0 border-t-0 border-r border-b"
             : position === "bottom"

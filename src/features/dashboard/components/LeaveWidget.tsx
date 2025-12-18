@@ -75,14 +75,14 @@ export default function LeaveWidget() {
   const getTypeColor = (type: string) => {
     const t = type.toLowerCase();
     if (t.includes("casual"))
-      return "from-blue-500/10 to-blue-600/10 border-blue-200";
+      return "from-blue-500/10 to-blue-600/10 border-blue-200 dark:border-blue-800";
     if (t.includes("sick") || t.includes("medical"))
-      return "from-red-500/10 to-red-600/10 border-red-200";
+      return "from-red-500/10 to-red-600/10 border-red-200 dark:border-red-800";
     if (t.includes("floating"))
-      return "from-purple-500/10 to-purple-600/10 border-purple-200";
+      return "from-purple-500/10 to-purple-600/10 border-purple-200 dark:border-purple-800";
     if (t.includes("maternity") || t.includes("paternity"))
-      return "from-pink-500/10 to-pink-600/10 border-pink-200";
-    return "from-gray-500/10 to-gray-600/10 border-gray-200";
+      return "from-pink-500/10 to-pink-600/10 border-pink-200 dark:border-pink-800";
+    return "from-gray-500/10 to-gray-600/10 border-gray-200 dark:border-gray-700";
   };
 
   return (
@@ -91,8 +91,11 @@ export default function LeaveWidget() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500/10 to-yellow-500/10 flex items-center justify-center border border-orange-200">
-              <CalendarDays className="text-orange-600" size={20} />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500/10 to-yellow-500/10 flex items-center justify-center border border-orange-200 dark:border-transparent">
+              <CalendarDays
+                className="text-orange-600 dark:text-orange-400"
+                size={20}
+              />
             </div>
             Leave Status
           </h2>
@@ -141,7 +144,7 @@ export default function LeaveWidget() {
                     <div className="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
 
                     <div className="relative z-10 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform mb-2">
+                      <div className="w-10 h-10 rounded-lg bg-bg-card flex items-center justify-center shadow-md group-hover:scale-110 transition-transform mb-2">
                         {getIcon(stat.type)}
                       </div>
                       <p className="text-xs font-bold text-text-primary mb-2 line-clamp-1">
@@ -223,16 +226,16 @@ export default function LeaveWidget() {
                           }
                           name={`${leave.employee.firstName} ${leave.employee.lastName}`}
                           alt={leave.employee.firstName}
-                          className="w-11 h-11 border-3 border-bg-card ring-2 ring-white"
+                          className="w-11 h-11 border-3 border-bg-card ring-2 ring-bg-card"
                           size="lg"
                         />
 
                         {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-lg">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-bg-sidebar border border-border text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-lg">
                           <div className="font-medium text-[11px]">
                             {leave.employee.firstName} {leave.employee.lastName}
                           </div>
-                          <div className="text-gray-300 text-[10px]">
+                          <div className="text-text-secondary text-[10px]">
                             {leave.type}
                           </div>
                         </div>
@@ -240,7 +243,7 @@ export default function LeaveWidget() {
                     ))}
                     {remainingCount > 0 && (
                       <div
-                        className="w-11 h-11 rounded-full border-3 border-bg-card ring-2 ring-white bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-xs font-bold text-white hover:scale-110 cursor-pointer transition-transform z-0 shadow-md"
+                        className="w-11 h-11 rounded-full border-3 border-bg-card ring-2 ring-bg-card bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-xs font-bold text-white hover:scale-110 cursor-pointer transition-transform z-0 shadow-md"
                         title={`${remainingCount} more on leave`}
                         onClick={() => navigate("/leave")}
                       >
@@ -262,8 +265,11 @@ export default function LeaveWidget() {
               </div>
             ) : (
               <div className="text-center py-6 space-y-2">
-                <div className="w-14 h-14 mx-auto rounded-full bg-green-100 flex items-center justify-center">
-                  <Users className="text-green-600" size={28} />
+                <div className="w-14 h-14 mx-auto rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <Users
+                    className="text-green-600 dark:text-green-400"
+                    size={28}
+                  />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-text-primary">
