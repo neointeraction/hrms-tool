@@ -9,11 +9,11 @@ import {
   FileText,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
-import { useAuth } from "../../../context/AuthContext";
+// import { useAuth } from "../../../context/AuthContext";
 import { format, addDays } from "date-fns";
 
 export default function ResignationSubmission() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [resignation, setResignation] = useState<any>(null);
@@ -24,7 +24,7 @@ export default function ResignationSubmission() {
     agreedToTerms: false,
   });
 
-  const [noticePeriodDays, setNoticePeriodDays] = useState(30); // Default, can be fetched later
+  const [noticePeriodDays] = useState(30); // Default, can be fetched later
 
   useEffect(() => {
     fetchResignationStatus();
