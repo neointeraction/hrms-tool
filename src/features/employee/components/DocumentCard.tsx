@@ -40,11 +40,13 @@ export const DocumentCard = ({
   const getStatusColor = () => {
     if (!isUploaded)
       return isMandatory
-        ? "bg-red-50 border-red-200"
-        : "bg-gray-50 border-gray-200";
-    if (isExpired) return "bg-red-50 border-red-200";
-    if (isExpiringSoon) return "bg-amber-50 border-amber-200";
-    return "bg-green-50 border-green-200";
+        ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/30"
+        : "bg-bg-subtle dark:bg-bg-main border-border";
+    if (isExpired)
+      return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/30";
+    if (isExpiringSoon)
+      return "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-900/30";
+    return "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-900/30";
   };
 
   const getStatusIcon = () => {
@@ -78,7 +80,7 @@ export const DocumentCard = ({
     >
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2.5">
-          <div className={`p-1.5 rounded-lg bg-white/60`}>
+          <div className={`p-1.5 rounded-lg bg-white/60 dark:bg-white/10`}>
             <FileText size={18} className="text-text-primary" />
           </div>
           <div>
@@ -118,7 +120,7 @@ export const DocumentCard = ({
               <button
                 type="button"
                 onClick={() => onView(document)}
-                className="flex-1 py-1 px-2 bg-white border border-border rounded text-xs text-text-primary hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                className="flex-1 py-1 px-2 bg-bg-card border border-border rounded text-xs text-text-primary hover:bg-bg-hover transition-colors font-medium shadow-sm"
               >
                 View
               </button>
@@ -132,7 +134,7 @@ export const DocumentCard = ({
                     "_blank"
                   )
                 }
-                className="flex-none py-1 px-2 bg-white border border-border rounded text-xs text-text-primary hover:bg-gray-50 transition-colors shadow-sm flex items-center justify-center"
+                className="flex-none py-1 px-2 bg-bg-card border border-border rounded text-xs text-text-primary hover:bg-bg-hover transition-colors shadow-sm flex items-center justify-center"
                 title="Download"
               >
                 <Download size={14} />
@@ -141,7 +143,7 @@ export const DocumentCard = ({
                 <button
                   type="button"
                   onClick={() => onUpload(docType._id)}
-                  className="flex-1 py-1 px-2 bg-white border border-border rounded text-xs text-text-primary hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                  className="flex-1 py-1 px-2 bg-bg-card border border-border rounded text-xs text-text-primary hover:bg-bg-hover transition-colors font-medium shadow-sm"
                 >
                   Update
                 </button>
@@ -152,7 +154,7 @@ export const DocumentCard = ({
               <button
                 type="button"
                 onClick={() => onUpload(docType._id)}
-                className="w-full py-1.5 px-3 bg-white border border-border rounded-lg text-xs text-brand-primary hover:bg-brand-primary/5 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
+                className="w-full py-1.5 px-3 bg-bg-card border border-border rounded-lg text-xs text-brand-primary hover:bg-brand-primary/5 transition-colors font-medium shadow-sm flex items-center justify-center gap-2"
               >
                 <Upload size={14} />
                 Upload Document

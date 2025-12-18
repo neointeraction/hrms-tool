@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { apiService } from "../../../services/api.service";
 import { DocumentCard } from "./DocumentCard";
 import { Modal } from "../../../components/common/Modal";
+import { Skeleton } from "../../../components/common/Skeleton";
 import { FileText, Download, CheckCircle } from "lucide-react";
 import { ASSET_BASE_URL } from "../../../services/api.service";
 
@@ -104,8 +105,33 @@ export const DocumentsTab = ({
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       {loading ? (
-        <div className="flex justify-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+        <div className="space-y-6">
+          {/* Skeleton for category section */}
+          {[1, 2].map((section) => (
+            <div key={section} className="space-y-3">
+              <Skeleton className="h-6 w-40" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map((card) => (
+                  <div
+                    key={card}
+                    className="border border-border rounded-xl p-3 bg-bg-card"
+                  >
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <Skeleton className="w-8 h-8 rounded-lg" />
+                      <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-7 flex-1 rounded" />
+                      <Skeleton className="h-7 w-8 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         (Object.entries(categorizedDocs) as [string, any[]][]).map(
@@ -177,7 +203,7 @@ export const DocumentsTab = ({
         >
           <div className="space-y-6">
             <div className="flex gap-4 h-[60vh]">
-              <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden border border-border flex items-center justify-center">
+              <div className="flex-1 bg-bg-subtle dark:bg-bg-main rounded-lg overflow-hidden border border-border flex items-center justify-center">
                 {/* Viewer */}
                 {viewDocument.versions[
                   viewDocument.versions.length - 1
@@ -280,7 +306,7 @@ const DocumentUploadModal = ({
     >
       {isSuccess ? (
         <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
-          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-4">
             <CheckCircle size={32} />
           </div>
           <h3 className="text-xl font-semibold text-text-primary mb-2">
@@ -344,7 +370,7 @@ const DocumentUploadModal = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg disabled:opacity-50"
+              className="px-4 py-2 text-text-secondary hover:bg-bg-hover rounded-lg disabled:opacity-50"
             >
               Cancel
             </button>
