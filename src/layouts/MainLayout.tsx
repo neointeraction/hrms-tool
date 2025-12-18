@@ -183,6 +183,16 @@ export default function MainLayout() {
       icon: Settings,
       label: "System Settings",
     },
+    {
+      to: "/resignation/submit",
+      icon: LogOut,
+      label: "My Resignation",
+    },
+    {
+      to: "/resignation/manage",
+      icon: LogOut,
+      label: "Exit Management",
+    },
   ];
 
   const sidebarStructure = [
@@ -192,7 +202,12 @@ export default function MainLayout() {
     },
     {
       title: "People Management",
-      items: ["/employee-management", "/roles", "/designations"],
+      items: [
+        "/employee-management",
+        "/roles",
+        "/designations",
+        "/resignation/manage",
+      ],
     },
     {
       title: "Time & Attendance",
@@ -264,6 +279,8 @@ export default function MainLayout() {
     "/tasks": "tasks",
     "/ai-configuration": "ai_chatbot",
     "/shifts": "shifts",
+    "/resignation/manage": "employees", // Group with employee module or create new module
+    "/resignation/submit": "employees", // Everyone should have access if they have employee module access? Or base access.
   };
 
   const filteredRoutes = accessibleRoutes.filter((route) => {
@@ -295,6 +312,14 @@ export default function MainLayout() {
       if (
         (user.role === "Admin" || user.isCompanyAdmin) &&
         (module === "roles" || module === "employees")
+      ) {
+        return true;
+      }
+
+      // Exemption: Project Manager should have access to Resignation Management
+      if (
+        user.role === "Project Manager" &&
+        route.to === "/resignation/manage"
       ) {
         return true;
       }
@@ -419,6 +444,7 @@ export default function MainLayout() {
                     My Profile
                   </button>
                 )}
+
                 <button
                   onClick={() => {
                     logout();
@@ -624,6 +650,7 @@ export default function MainLayout() {
                         My Profile
                       </button>
                     )}
+
                     <button
                       onClick={() => {
                         logout();

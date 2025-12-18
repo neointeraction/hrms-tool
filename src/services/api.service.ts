@@ -802,6 +802,122 @@ class ApiService {
     return response.json();
   }
 
+  // Resignation
+  async submitResignation(data: {
+    lastWorkingDay: string;
+    reason: string;
+  }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/resignations`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to submit resignation");
+    }
+
+    return response.json();
+  }
+
+  async getMyResignation(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/resignations/me`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch resignation status");
+    }
+
+    return response.json();
+  }
+
+  async getPendingResignations(status?: string): Promise<any[]> {
+    const query = status ? `?status=${status}` : "";
+    const response = await fetch(
+      `${API_BASE_URL}/resignations/pending${query}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch resignations");
+    }
+
+    return response.json();
+  }
+
+  async updateResignationStatus(
+    id: string,
+    data: { status: string; comments?: string; lastWorkingDay?: string }
+  ): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/resignations/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update resignation status");
+    }
+
+    return response.json();
+  }
+
+  // Clearance
+  async getClearance(resignationId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/clearance/resignation/${resignationId}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch clearance data");
+    }
+
+    return response.json();
+  }
+
+  async updateClearanceItem(
+    clearanceId: string,
+    data: {
+      type: "asset" | "task";
+      itemId: string;
+      status: string;
+      remarks?: string;
+    }
+  ): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/clearance/${clearanceId}/item`,
+      {
+        method: "PATCH",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update clearance item");
+    }
+
+    return response.json();
+  }
+
   async uploadAssetInvoice(id: string, file: File): Promise<any> {
     const formData = new FormData();
     formData.append("invoice", file);

@@ -14,6 +14,8 @@ import Attendance from "../features/attendance/Attendance";
 import AuditTrail from "../features/admin/AuditTrail";
 import LeaveDashboard from "../features/leave/LeaveDashboard";
 import PayrollDashboard from "../features/payroll/PayrollDashboard";
+import ResignationSubmission from "../features/resignation/components/ResignationSubmission";
+import ResignationManagement from "../features/resignation/components/ResignationManagement";
 import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
@@ -77,8 +79,35 @@ export const router = createBrowserRouter([
           </RoleGuard>
         ),
       },
+      // Resignation Routes
       {
-        index: true,
+        path: "resignation/submit",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Employee",
+              "Admin",
+              "HR",
+              "Project Manager",
+              "Contractor",
+              "Intern",
+              "Accountant",
+            ]}
+          >
+            <ResignationSubmission />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "resignation/manage",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR", "Project Manager"]}>
+            <ResignationManagement />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "*",
         element: <Navigate to="/" replace />,
       },
       {

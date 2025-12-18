@@ -6,7 +6,7 @@ export type Role =
   | "Employee"
   | "Intern"
   | "Consultant"
-  | "Super Admin"
+  | "Contractor"
   | "Super Admin";
 
 export interface User {

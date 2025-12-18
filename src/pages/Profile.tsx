@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { apiService, ASSET_BASE_URL } from "../services/api.service";
 import {
@@ -13,20 +14,20 @@ import {
   IdCard,
   Heart,
   X,
-  Plus,
-  Trash2,
-  GraduationCap,
-  Users2,
-  Landmark,
   Lock,
+  LogOut,
+  Camera,
+  Globe,
+  Award,
+  BookOpen,
+  Users2,
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
 import { Input } from "../components/common/Input";
-import { ConfirmationModal } from "../components/common/ConfirmationModal";
-import { Skeleton } from "../components/common/Skeleton";
 import { DocumentsTab } from "../features/employee/components/DocumentsTab";
 import { ChangePasswordModal } from "../components/common/ChangePasswordModal";
+import { cn } from "../utils/cn";
 
 const ALL_TABS = [
   "Basic Info",
@@ -36,11 +37,12 @@ const ALL_TABS = [
   "Identity",
   "Bank Details",
   "Documents",
-  "Additional",
+  "Custom Fields",
 ];
 
 export default function Profile() {
   const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
 
   const TABS = ALL_TABS.filter((tab) => {
     if (
@@ -105,6 +107,7 @@ export default function Profile() {
     // Additional
     workExperience: [],
     education: [],
+    customFields: {},
 
     // Bank Details
     bankDetails: {
@@ -119,8 +122,6 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showPasswordSuccessModal, setShowPasswordSuccessModal] =
-    useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   // Fetch employee data on component mount
@@ -129,29 +130,18 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       try {
-        // Get current user's employee record
         const response = await apiService.getCurrentUser();
         const userId = response.user.id || response.user._id;
 
-        console.log("Profile: Current User ID:", userId);
-
-        // Fetch all employees and find the current user's record
         const employeesResponse: any = await apiService.getEmployees();
         const allEmployees = Array.isArray(employeesResponse)
           ? employeesResponse
           : employeesResponse.employees || [];
 
-        console.log("Profile: Total Employees:", allEmployees.length);
-
         const employeeRecord = allEmployees.find(
           (emp: any) =>
             (emp.user?._id || emp.user) === userId ||
             (emp.user?._id || emp.user)?.toString() === userId?.toString()
-        );
-
-        console.log(
-          "Profile: Found Employee Record:",
-          employeeRecord ? "Yes" : "No"
         );
 
         if (employeeRecord) {
@@ -203,6 +193,7 @@ export default function Profile() {
             personalEmail: employeeRecord.personalEmail || "",
             workExperience: employeeRecord.workExperience || [],
             education: employeeRecord.education || [],
+            customFields: employeeRecord.customFields || {},
             bankDetails: employeeRecord.bankDetails || {
               accountName: "",
               accountNumber: "",
@@ -221,7 +212,7 @@ export default function Profile() {
         }
       } catch (err: any) {
         console.error("Failed to fetch employee data:", err);
-        setError(err.message || "Failed to load profile data");
+        setError("Failed to load profile data");
       } finally {
         setLoading(false);
       }
@@ -263,29 +254,24 @@ export default function Profile() {
     try {
       const formData = new FormData();
 
-      // Append all profile data
       Object.keys(profileData).forEach((key) => {
         const value = (profileData as any)[key];
         if (Array.isArray(value)) {
           formData.append(key, JSON.stringify(value));
-        } else if (key === "bankDetails") {
+        } else if (key === "bankDetails" || key === "customFields") {
           formData.append(key, JSON.stringify(value));
         } else if (value !== null && value !== undefined) {
           formData.append(key, value);
         }
       });
 
-      // Append file if selected
       if (selectedFile) {
         formData.append("profilePicture", selectedFile);
       }
 
       await apiService.updateEmployee(employeeId, formData);
       setIsEditing(false);
-
-      // Update global user state (Header, etc.)
       await refreshUser();
-
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Failed to update profile:", err);
@@ -295,50 +281,9 @@ export default function Profile() {
     }
   };
 
-  const handlePasswordChange = async (data: any) => {
-    try {
-      await apiService.updateCurrentUser(data);
-      setShowPasswordSuccessModal(true);
-    } catch (error: any) {
-      throw error; // Let modal handle error display
-    }
-  };
-
   const handleCancel = () => {
-    // Reset to original values
     setIsEditing(false);
     setSelectedFile(null);
-    // Ideally revert previewUrl to original, but we need to store original URL.
-    // For simplicity, we just keep current preview or could refetch.
-  };
-
-  const handleArrayChange = (
-    arrayName: string,
-    index: number,
-    field: string,
-    value: any
-  ) => {
-    setProfileData((prev) => {
-      const newArray = [...(prev as any)[arrayName]];
-      newArray[index] = { ...newArray[index], [field]: value };
-      return { ...prev, [arrayName]: newArray };
-    });
-  };
-
-  const addArrayItem = (arrayName: string, initialItem: any) => {
-    setProfileData((prev) => ({
-      ...prev,
-      [arrayName]: [...(prev as any)[arrayName], initialItem],
-    }));
-  };
-
-  const removeArrayItem = (arrayName: string, index: number) => {
-    setProfileData((prev) => ({
-      ...prev,
-      [arrayName]: (prev as any)[arrayName].filter(
-        (_: any, i: number) => i !== index
-      ),
-    }));
   };
 
   const handleBankDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,6 +296,16 @@ export default function Profile() {
     }));
   };
 
+  const handleCustomFieldChange = (label: string, value: any) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      customFields: {
+        ...prev.customFields,
+        [label]: value,
+      },
+    }));
+  };
+
   const renderField = (
     label: string,
     name: string,
@@ -359,28 +314,10 @@ export default function Profile() {
     type = "text"
   ) => {
     const Icon = icon;
-    // Input component can handle label, but here the structure is a bit mixed.
-    // Let's use Input for formatting.
-    // Actually, Input takes leftIcon which is ReactNode.
-    // The current renderField puts icon in the label.
-    // Let's keep the label external for consistency with other non-input views (read-only view uses the same label structure?)
-    // No, read-only view doesn't show label?
-    // Wait, line 336 shows label. Both read-only and edit show label.
-    // If I use Input label, it will show label inside the Input component wrapper.
-    // Let's look at lines 336-339. It renders a label.
-    // If I use <Input label={...} /> it renders a label.
-    // So I can replace the whole block effectively?
-    // But read-only state (line 352) uses the same label function? No, line 335 starts the div. Label is always rendered.
-    // So if isEditing is false, we still need the label.
-    // So I should validly use Input only for the input part, and pass `label={undefined}` or just not pass it,
-    // BUT Input handles styling well.
-    // Let's keep the external label for now to minimize visual regression on read-only state,
-    // and just replace the <input> with <Input className="..." />.
-    // Actually Input component has a label prop but it is optional.
     return (
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-          {Icon && <Icon size={16} />}
+      <div className="group">
+        <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+          {Icon && <Icon size={14} className="text-brand-primary" />}
           {label}
         </label>
         {isEditing ? (
@@ -392,11 +329,12 @@ export default function Profile() {
               name={name}
               value={value}
               onChange={handleChange}
+              className="bg-bg-main"
             />
           )
         ) : (
-          <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-            {value || "N/A"}
+          <p className="text-text-primary text-sm font-medium leading-relaxed break-words min-h-[24px]">
+            {value || <span className="text-text-disabled">Not Set</span>}
           </p>
         )}
       </div>
@@ -405,8 +343,8 @@ export default function Profile() {
 
   const renderTextArea = (label: string, name: string, value: string) => {
     return (
-      <div className="col-span-2">
-        <label className="block text-sm font-medium text-text-secondary mb-2">
+      <div className="col-span-1 md:col-span-2 group">
+        <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
           {label}
         </label>
         {isEditing ? (
@@ -414,111 +352,66 @@ export default function Profile() {
             name={name}
             value={value}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-            rows={3}
+            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main text-sm"
+            rows={4}
           />
         ) : (
-          <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg whitespace-pre-wrap">
-            {value || "N/A"}
+          <p className="text-text-primary text-sm whitespace-pre-wrap leading-relaxed bg-bg-main/50 p-4 rounded-lg border border-border/50">
+            {value || (
+              <span className="text-text-disabled">No Description</span>
+            )}
           </p>
         )}
       </div>
     );
   };
+
+  if (loading) {
+    return <ProfileSkeleton />;
+  }
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Loading State */}
-      {/* Loading State - Skeleton */}
-      {loading && (
-        <div className="space-y-6">
-          {/* Header Skeleton */}
-          <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
-            </div>
-            <Skeleton className="h-10 w-32 rounded-lg" />
+    <div className="min-h-screen pb-8 animate-in fade-in duration-500 bg-gray-50/30">
+      {/* Header with Actions */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-text-primary">My Profile</h1>
+            <p className="text-text-secondary mt-1">
+              Manage your personal information
+            </p>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar Skeleton */}
-            <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border lg:col-span-1 h-fit">
-              <div className="flex flex-col items-center space-y-4">
-                <Skeleton className="w-32 h-32 rounded-full" />
-                <div className="space-y-2 w-full flex flex-col items-center">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-                <div className="w-full space-y-3 mt-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex justify-between">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-20" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Main Content Skeleton */}
-            <div className="lg:col-span-3 bg-bg-card rounded-lg shadow-sm border border-border">
-              {/* Tabs Skeleton */}
-              <div className="flex border-b border-border p-1">
-                {[1, 2, 3, 4].map((i) => (
-                  <Skeleton key={i} className="h-10 w-24 mr-4 rounded-t-lg" />
-                ))}
-              </div>
-
-              {/* Form Fields Skeleton */}
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-10 w-full rounded-lg" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !loading && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          <p className="font-medium">Failed to load profile</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
-
-      {/* Profile Content */}
-      {!loading && !error && (
-        <>
-          {/* Header */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-text-primary">
-                My Profile
-              </h1>
-              <p className="text-text-secondary mt-1">
-                Manage your personal information
-              </p>
-            </div>
+          <div className="flex flex-wrap gap-3">
             {!isEditing ? (
-              <div className="flex gap-2">
+              <>
                 <Button
                   variant="secondary"
+                  className="bg-bg-card border border-border shadow-sm hover:bg-bg-hover"
                   leftIcon={<Lock size={16} />}
                   onClick={() => setShowChangePasswordModal(true)}
                 >
                   Change Password
                 </Button>
-                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
-              </div>
+                <Button
+                  className="shadow-sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit Profile
+                </Button>
+                <Button
+                  variant="danger"
+                  className="shadow-sm"
+                  leftIcon={<LogOut size={16} />}
+                  onClick={() => navigate("/resignation/submit")}
+                >
+                  Resignation
+                </Button>
+              </>
             ) : (
-              <div className="flex gap-2">
+              <>
                 <Button
                   variant="secondary"
+                  className="bg-bg-card border border-border shadow-sm hover:bg-bg-hover"
                   onClick={handleCancel}
                   disabled={saving}
                   leftIcon={<X size={16} />}
@@ -526,6 +419,7 @@ export default function Profile() {
                   Cancel
                 </Button>
                 <Button
+                  className="shadow-sm"
                   onClick={handleSave}
                   disabled={saving}
                   isLoading={saving}
@@ -533,122 +427,152 @@ export default function Profile() {
                 >
                   Save Changes
                 </Button>
-              </div>
+              </>
             )}
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Avatar Section */}
-            <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border lg:col-span-1">
-              <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-full bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold overflow-hidden mb-4 relative group">
-                  {previewUrl ? (
-                    <img
-                      src={previewUrl}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span>
-                      {profileData.firstName?.[0]}
-                      {profileData.lastName?.[0]}
-                    </span>
-                  )}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <p className="font-medium">Failed to load profile</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
 
-                  {isEditing && (
-                    <label className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                      />
-                      <span className="text-white text-xs font-medium">
-                        Change Photo
-                      </span>
-                    </label>
-                  )}
+        {/* Profile Summary Card - Full Width Top */}
+        <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-6 mb-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+            {/* Avatar */}
+            <div className="relative group shrink-0">
+              <div className="w-32 h-32 rounded-full border-4 border-bg-card shadow-lg overflow-hidden bg-brand-secondary flex items-center justify-center text-white text-4xl font-bold">
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>
+                    {profileData.firstName?.[0]}
+                    {profileData.lastName?.[0]}
+                  </span>
+                )}
+              </div>
+              {isEditing && (
+                <label className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  <Camera className="text-white drop-shadow-lg" size={32} />
+                </label>
+              )}
+            </div>
+
+            {/* Basic Info */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-text-primary">
+                    {profileData.firstName} {profileData.lastName}
+                  </h2>
+                  <p className="text-text-secondary font-medium text-lg mt-1">
+                    {profileData.designation}
+                  </p>
+                  <div className="mt-2 text-xs font-semibold text-brand-primary bg-brand-primary/10 px-3 py-1 rounded-full inline-block">
+                    {profileData.role}
+                  </div>
                 </div>
-                {/* ... Rest of avatar section */}
-                <h3 className="text-lg font-semibold text-text-primary text-center">
-                  {profileData.firstName} {profileData.lastName}
-                </h3>
-                <p className="text-sm text-text-secondary capitalize">
-                  {profileData.designation || user?.role}
-                </p>
-                <div className="mt-4 w-full space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-secondary">Employee ID</span>
-                    <span className="font-medium text-text-primary">
-                      {profileData.employeeId}
+
+                {/* Key Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 mt-4 md:mt-0 md:bg-gray-50/50 md:p-4 md:rounded-lg md:border md:border-border/30">
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                      <MapPin size={16} />
+                    </div>
+                    <span
+                      className="truncate max-w-[150px]"
+                      title={profileData.location}
+                    >
+                      {profileData.location || "No Location"}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-secondary">Status</span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {profileData.employeeStatus}
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+                      <Mail size={16} />
+                    </div>
+                    <span
+                      className="truncate max-w-[150px]"
+                      title={profileData.email}
+                    >
+                      {profileData.email}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-secondary">Role</span>
-                    <span className="font-medium text-text-primary capitalize">
-                      {profileData.role}
+                  <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                      <Phone size={16} />
+                    </div>
+                    <span className="truncate">
+                      {profileData.workPhone || "No Work Phone"}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Profile Content */}
-            <div className="lg:col-span-3 bg-bg-card rounded-lg shadow-sm border border-border">
-              {/* Tabs */}
-              <div className="flex overflow-x-auto border-b border-border">
+        <div className="grid grid-cols-12 gap-6">
+          {/* Vertical Tabs Navigation */}
+          <div className="col-span-12 md:col-span-3">
+            <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-3 sticky top-6">
+              <nav className="space-y-1">
                 {TABS.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                    className={cn(
+                      "w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between",
                       activeTab === tab
-                        ? "border-brand-primary text-brand-primary"
-                        : "border-transparent text-text-secondary hover:text-text-primary"
-                    }`}
+                        ? "bg-brand-primary text-white shadow-sm"
+                        : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                    )}
                   >
                     {tab}
+                    {activeTab === tab && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                    )}
                   </button>
                 ))}
-              </div>
+              </nav>
+            </div>
+          </div>
 
-              {/* Tab Content */}
-              <div className="p-6">
-                {/* Basic Info */}
-                {activeTab === "Basic Info" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Content Area */}
+          <div className="col-span-12 md:col-span-9">
+            <div className="bg-bg-card rounded-xl shadow-sm border border-border/60 p-6 min-h-[600px]">
+              {activeTab === "Basic Info" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Basic Details" icon={User} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     {renderField(
                       "First Name",
                       "firstName",
-                      profileData.firstName,
-                      User
+                      profileData.firstName
                     )}
-                    {renderField(
-                      "Last Name",
-                      "lastName",
-                      profileData.lastName,
-                      User
-                    )}
+                    {renderField("Last Name", "lastName", profileData.lastName)}
                     {renderField("Nick Name", "nickName", profileData.nickName)}
-                    {renderField(
-                      "Email Address",
-                      "email",
-                      profileData.email,
-                      Mail,
-                      "email"
-                    )}
+                    {renderField("Email", "email", profileData.email, Mail)}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Work Info */}
-                {activeTab === "Work Info" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeTab === "Work Info" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Employment Details" icon={Briefcase} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     {renderField(
                       "Department",
                       "department",
@@ -656,16 +580,16 @@ export default function Profile() {
                       Building2
                     )}
                     {renderField(
+                      "Designation",
+                      "designation",
+                      profileData.designation,
+                      Award
+                    )}
+                    {renderField(
                       "Location",
                       "location",
                       profileData.location,
                       MapPin
-                    )}
-                    {renderField(
-                      "Designation",
-                      "designation",
-                      profileData.designation,
-                      Briefcase
                     )}
                     {renderField(
                       "Employment Type",
@@ -675,7 +599,8 @@ export default function Profile() {
                     {renderField(
                       "Source of Hire",
                       "sourceOfHire",
-                      profileData.sourceOfHire
+                      profileData.sourceOfHire,
+                      Globe
                     )}
                     {renderField(
                       "Date of Joining",
@@ -687,43 +612,49 @@ export default function Profile() {
                     {renderField(
                       "Total Experience",
                       "totalExperience",
-                      profileData.totalExperience
+                      profileData.totalExperience,
+                      BookOpen
                     )}
-                    {/* Reporting Manager - Custom Dropdown */}
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <Users2 size={16} />
+                    <div className="group">
+                      <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                        <Users2 size={14} className="text-brand-primary" />
                         Reporting Manager
                       </label>
                       {isEditing ? (
-                        <select
-                          name="reportingManager"
-                          value={profileData.reportingManager || ""}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                        >
-                          <option value="">Select Manager</option>
-                          {employees
-                            .filter((emp) => emp._id !== employeeId)
-                            .map((emp) => (
-                              <option key={emp._id} value={emp._id}>
-                                {emp.firstName} {emp.lastName} ({emp.employeeId}
-                                )
-                              </option>
-                            ))}
-                        </select>
+                        <div className="relative">
+                          <select
+                            name="reportingManager"
+                            value={profileData.reportingManager || ""}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none"
+                          >
+                            <option value="">Select Manager</option>
+                            {employees
+                              .filter((emp) => emp._id !== employeeId)
+                              .map((emp) => (
+                                <option key={emp._id} value={emp._id}>
+                                  {emp.firstName} {emp.lastName} (
+                                  {emp.employeeId})
+                                </option>
+                              ))}
+                          </select>
+                        </div>
                       ) : (
-                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-                          {profileData.reportingManagerName || "N/A"}
+                        <p className="text-text-primary text-sm font-medium leading-relaxed">
+                          {profileData.reportingManagerName || (
+                            <span className="text-text-disabled">None</span>
+                          )}
                         </p>
                       )}
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Personal */}
-                {activeTab === "Personal" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeTab === "Personal" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Personal Information" icon={Heart} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     {renderField(
                       "Date of Birth",
                       "dateOfBirth",
@@ -735,26 +666,27 @@ export default function Profile() {
                     {renderField(
                       "Marital Status",
                       "maritalStatus",
-                      profileData.maritalStatus,
-                      Heart
+                      profileData.maritalStatus
                     )}
+                    <div className="col-span-full border-t border-border my-2"></div>
                     {renderTextArea("About Me", "aboutMe", profileData.aboutMe)}
                     {renderTextArea(
-                      "Expertise / Ask Me",
+                      "Expertise / Ask Me About",
                       "expertise",
                       profileData.expertise
                     )}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Contact */}
-                {activeTab === "Contact" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeTab === "Contact" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Contact Information" icon={Phone} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     {renderField(
                       "Work Phone",
                       "workPhone",
-                      profileData.workPhone,
-                      Phone
+                      profileData.workPhone
                     )}
                     {renderField(
                       "Extension",
@@ -770,16 +702,15 @@ export default function Profile() {
                     {renderField(
                       "Personal Mobile",
                       "personalMobile",
-                      profileData.personalMobile,
-                      Phone
+                      profileData.personalMobile
                     )}
                     {renderField(
                       "Personal Email",
                       "personalEmail",
                       profileData.personalEmail,
-                      Mail,
-                      "email"
+                      Mail
                     )}
+                    <div className="col-span-full border-t border-border my-2"></div>
                     {renderTextArea(
                       "Present Address",
                       "presentAddress",
@@ -791,457 +722,203 @@ export default function Profile() {
                       profileData.permanentAddress
                     )}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Identity */}
-                {activeTab === "Identity" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {renderField("UAN", "uan", profileData.uan, IdCard)}
-                    {renderField("PAN", "pan", profileData.pan, IdCard)}
-                    {renderField(
-                      "Aadhaar",
-                      "aadhaar",
-                      profileData.aadhaar,
-                      IdCard
-                    )}
+              {activeTab === "Identity" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Identity Documents" icon={IdCard} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    {renderField("UAN", "uan", profileData.uan)}
+                    {renderField("PAN", "pan", profileData.pan)}
+                    {renderField("Aadhaar", "aadhaar", profileData.aadhaar)}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Bank Details */}
-                {activeTab === "Bank Details" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <User size={16} />
-                        Account Name
-                      </label>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          name="accountName"
-                          value={
-                            (profileData as any).bankDetails?.accountName || ""
-                          }
-                          onChange={handleBankDetailChange}
-                        />
-                      ) : (
-                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-                          {(profileData as any).bankDetails?.accountName ||
-                            "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <IdCard size={16} />
-                        Account Number
-                      </label>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          name="accountNumber"
-                          value={
-                            (profileData as any).bankDetails?.accountNumber ||
-                            ""
-                          }
-                          onChange={handleBankDetailChange}
-                        />
-                      ) : (
-                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-                          {(profileData as any).bankDetails?.accountNumber ||
-                            "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <Landmark size={16} />
-                        Bank Name
-                      </label>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          name="bankName"
-                          value={
-                            (profileData as any).bankDetails?.bankName || ""
-                          }
-                          onChange={handleBankDetailChange}
-                        />
-                      ) : (
-                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-                          {(profileData as any).bankDetails?.bankName || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                        <Building2 size={16} />
-                        IFSC Code
-                      </label>
-                      {isEditing ? (
-                        <Input
-                          type="text"
-                          name="ifscCode"
-                          value={
-                            (profileData as any).bankDetails?.ifscCode || ""
-                          }
-                          onChange={handleBankDetailChange}
-                        />
-                      ) : (
-                        <p className="text-text-primary px-3 py-2 bg-bg-main rounded-lg">
-                          {(profileData as any).bankDetails?.ifscCode || "N/A"}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Documents Tab */}
-                {activeTab === "Documents" && employeeId && (
-                  <DocumentsTab
-                    employeeId={employeeId}
-                    roleName={profileData.role}
+              {activeTab === "Bank Details" && (
+                <div className="space-y-6">
+                  <SectionHeader
+                    title="Financial Information"
+                    icon={Building2}
                   />
-                )}
-
-                {/* Additional */}
-                {activeTab === "Additional" && (
-                  <div className="space-y-6">
-                    {/* Work Experience */}
-                    <div>
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="flex items-center gap-2 font-semibold text-text-primary">
-                          <Briefcase size={18} />
-                          Work Experience
-                        </h3>
-                        {isEditing && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              addArrayItem("workExperience", {
-                                companyName: "",
-                                jobTitle: "",
-                                fromDate: "",
-                                toDate: "",
-                                description: "",
-                              })
-                            }
-                            className="text-brand-primary text-sm flex items-center gap-1 hover:text-brand-secondary"
-                          >
-                            <Plus size={16} /> Add Experience
-                          </button>
-                        )}
-                      </div>
-                      {profileData.workExperience.length === 0 ? (
-                        <p className="text-text-secondary text-sm">
-                          No work experience added yet.
-                        </p>
-                      ) : (
-                        <div className="space-y-3">
-                          {profileData.workExperience.map(
-                            (exp: any, idx: number) =>
-                              isEditing ? (
-                                <div
-                                  key={idx}
-                                  className="border border-border rounded-lg p-4 relative"
-                                >
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      removeArrayItem("workExperience", idx)
-                                    }
-                                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                  <div className="grid grid-cols-2 gap-3">
-                                    <input
-                                      type="text"
-                                      placeholder="Company Name"
-                                      value={exp.companyName || ""}
-                                      onChange={(e) =>
-                                        handleArrayChange(
-                                          "workExperience",
-                                          idx,
-                                          "companyName",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                    />
-                                    <input
-                                      type="text"
-                                      placeholder="Job Title"
-                                      value={exp.jobTitle || ""}
-                                      onChange={(e) =>
-                                        handleArrayChange(
-                                          "workExperience",
-                                          idx,
-                                          "jobTitle",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                    />
-                                    <DatePicker
-                                      placeholder="From Date"
-                                      value={
-                                        exp.fromDate
-                                          ? new Date(exp.fromDate)
-                                              .toISOString()
-                                              .split("T")[0]
-                                          : ""
-                                      }
-                                      onChange={(e) =>
-                                        handleArrayChange(
-                                          "workExperience",
-                                          idx,
-                                          "fromDate",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-
-                                    <DatePicker
-                                      placeholder="To Date"
-                                      value={
-                                        exp.toDate
-                                          ? new Date(exp.toDate)
-                                              .toISOString()
-                                              .split("T")[0]
-                                          : ""
-                                      }
-                                      onChange={(e) =>
-                                        handleArrayChange(
-                                          "workExperience",
-                                          idx,
-                                          "toDate",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-
-                                    <textarea
-                                      placeholder="Description"
-                                      value={exp.description || ""}
-                                      onChange={(e) =>
-                                        handleArrayChange(
-                                          "workExperience",
-                                          idx,
-                                          "description",
-                                          e.target.value
-                                        )
-                                      }
-                                      className="col-span-2 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                      rows={2}
-                                    />
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  key={idx}
-                                  className="border border-border rounded-lg p-4 bg-bg-main"
-                                >
-                                  <div className="font-medium text-text-primary">
-                                    {exp.jobTitle || "N/A"}
-                                  </div>
-                                  <div className="text-sm text-text-secondary">
-                                    {exp.companyName || "N/A"}
-                                  </div>
-                                  <div className="text-xs text-text-muted mt-1">
-                                    {exp.fromDate
-                                      ? new Date(
-                                          exp.fromDate
-                                        ).toLocaleDateString()
-                                      : "N/A"}{" "}
-                                    -{" "}
-                                    {exp.toDate
-                                      ? new Date(
-                                          exp.toDate
-                                        ).toLocaleDateString()
-                                      : "Present"}
-                                  </div>
-                                  {exp.description && (
-                                    <div className="text-sm text-text-secondary mt-2">
-                                      {exp.description}
-                                    </div>
-                                  )}
-                                </div>
-                              )
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Education */}
-                    <div>
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="flex items-center gap-2 font-semibold text-text-primary">
-                          <GraduationCap size={18} />
-                          Education
-                        </h3>
-                        {isEditing && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              addArrayItem("education", {
-                                instituteName: "",
-                                degree: "",
-                                specialization: "",
-                                dateOfCompletion: "",
-                              })
-                            }
-                            className="text-brand-primary text-sm flex items-center gap-1 hover:text-brand-secondary"
-                          >
-                            <Plus size={16} /> Add Education
-                          </button>
-                        )}
-                      </div>
-                      {profileData.education.length === 0 ? (
-                        <p className="text-text-secondary text-sm">
-                          No education records added yet.
-                        </p>
-                      ) : (
-                        <div className="space-y-3">
-                          {profileData.education.map((edu: any, idx: number) =>
-                            isEditing ? (
-                              <div
-                                key={idx}
-                                className="border border-border rounded-lg p-4 relative"
-                              >
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    removeArrayItem("education", idx)
-                                  }
-                                  className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                                <div className="grid grid-cols-2 gap-3">
-                                  <input
-                                    type="text"
-                                    placeholder="Institute Name"
-                                    value={edu.instituteName || ""}
-                                    onChange={(e) =>
-                                      handleArrayChange(
-                                        "education",
-                                        idx,
-                                        "instituteName",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                  />
-                                  <input
-                                    type="text"
-                                    placeholder="Degree"
-                                    value={edu.degree || ""}
-                                    onChange={(e) =>
-                                      handleArrayChange(
-                                        "education",
-                                        idx,
-                                        "degree",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                  />
-                                  <input
-                                    type="text"
-                                    placeholder="Specialization"
-                                    value={edu.specialization || ""}
-                                    onChange={(e) =>
-                                      handleArrayChange(
-                                        "education",
-                                        idx,
-                                        "specialization",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                  />
-                                  <input
-                                    type="date"
-                                    placeholder="Date of Completion"
-                                    value={
-                                      edu.dateOfCompletion
-                                        ? new Date(edu.dateOfCompletion)
-                                            .toISOString()
-                                            .split("T")[0]
-                                        : ""
-                                    }
-                                    onChange={(e) =>
-                                      handleArrayChange(
-                                        "education",
-                                        idx,
-                                        "dateOfCompletion",
-                                        e.target.value
-                                      )
-                                    }
-                                    className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <div
-                                key={idx}
-                                className="border border-border rounded-lg p-4 bg-bg-main"
-                              >
-                                <div className="font-medium text-text-primary">
-                                  {edu.degree || "N/A"}
-                                </div>
-                                <div className="text-sm text-text-secondary">
-                                  {edu.instituteName || "N/A"}
-                                </div>
-                                <div className="text-xs text-text-muted mt-1">
-                                  {edu.specialization || "N/A"} -{" "}
-                                  {edu.dateOfCompletion
-                                    ? new Date(
-                                        edu.dateOfCompletion
-                                      ).toLocaleDateString()
-                                    : "N/A"}
-                                </div>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <InputField
+                      label="Account Name"
+                      name="accountName"
+                      value={profileData.bankDetails?.accountName}
+                      onChange={handleBankDetailChange}
+                      isEditing={isEditing}
+                    />
+                    <InputField
+                      label="Account Number"
+                      name="accountNumber"
+                      value={profileData.bankDetails?.accountNumber}
+                      onChange={handleBankDetailChange}
+                      isEditing={isEditing}
+                    />
+                    <InputField
+                      label="Bank Name"
+                      name="bankName"
+                      value={profileData.bankDetails?.bankName}
+                      onChange={handleBankDetailChange}
+                      isEditing={isEditing}
+                    />
+                    <InputField
+                      label="IFSC Code"
+                      name="ifscCode"
+                      value={profileData.bankDetails?.ifscCode}
+                      onChange={handleBankDetailChange}
+                      isEditing={isEditing}
+                    />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
+              {activeTab === "Documents" && (
+                <DocumentsTab employeeId={employeeId || ""} />
+              )}
+
+              {activeTab === "Custom Fields" && (
+                <div className="space-y-6">
+                  <SectionHeader
+                    title="Additional Information"
+                    icon={BookOpen}
+                  />
+                  {Object.keys(profileData.customFields).length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(profileData.customFields).map(
+                        ([key, value]) => (
+                          <div key={key} className="group">
+                            <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                              {key}
+                            </label>
+                            {isEditing ? (
+                              <Input
+                                value={value as string}
+                                onChange={(
+                                  e: React.ChangeEvent<HTMLInputElement>
+                                ) =>
+                                  handleCustomFieldChange(key, e.target.value)
+                                }
+                                className="bg-bg-main"
+                              />
+                            ) : (
+                              <p className="text-text-primary text-sm font-medium leading-relaxed">
+                                {value as string}
+                              </p>
+                            )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-text-muted italic">
+                      No custom fields available.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
+        </div>
+      </div>
 
-          <ConfirmationModal
-            isOpen={showSuccessModal}
-            onClose={() => setShowSuccessModal(false)}
-            onConfirm={() => setShowSuccessModal(false)}
-            title="Success"
-            message="Profile updated successfully!"
-            confirmText="OK"
-            variant="info" // Changed from success to info to match type definition
-            showCancel={false}
-          />
-          <ConfirmationModal
-            isOpen={showPasswordSuccessModal}
-            onClose={() => setShowPasswordSuccessModal(false)}
-            onConfirm={() => setShowPasswordSuccessModal(false)}
-            title="Success"
-            message="Password changed successfully"
-            variant="success"
-            confirmText="OK"
-            showCancel={false}
-          />
-        </>
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-bg-card p-6 rounded-xl shadow-xl max-w-sm w-full mx-4 text-center">
+            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Save size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-text-primary mb-2">
+              Profile Updated!
+            </h3>
+            <p className="text-text-secondary text-sm mb-6">
+              Your profile changes have been saved successfully.
+            </p>
+            <Button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
       )}
-      {/* Change Password Modal */}
+
       <ChangePasswordModal
         isOpen={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
-        onSubmit={handlePasswordChange}
+        // @ts-ignore
+        user={{ ...user, _id: user?.id || user?._id }}
       />
     </div>
   );
 }
+
+// Helper Components
+const SectionHeader = ({ title, icon: Icon, className }: any) => (
+  <div
+    className={cn(
+      "flex items-center gap-2 mb-4 pb-2 border-b border-border/50",
+      className
+    )}
+  >
+    {Icon && <Icon size={18} className="text-brand-primary" />}
+    <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+  </div>
+);
+
+const InputField = ({ label, name, value, onChange, isEditing }: any) => (
+  <div className="group">
+    <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+      {label}
+    </label>
+    {isEditing ? (
+      <Input
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="bg-bg-main"
+      />
+    ) : (
+      <p className="text-text-primary text-sm font-medium leading-relaxed">
+        {value || (
+          <span className="text-text-disabled text-xs normal-case">
+            Not Set
+          </span>
+        )}
+      </p>
+    )}
+  </div>
+);
+
+const ProfileSkeleton = () => (
+  <div className="min-h-screen pb-8 animate-pulse bg-gray-50/30">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div className="h-8 w-48 bg-gray-300 rounded mb-6" />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-3">
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+            <div className="w-32 h-32 rounded-full bg-gray-300 mx-auto" />
+            <div className="mt-4 space-y-3">
+              <div className="h-6 w-32 bg-gray-300 mx-auto rounded" />
+              <div className="h-4 w-24 bg-gray-200 mx-auto rounded" />
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-9">
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 md:col-span-3">
+              <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-200 h-96" />
+            </div>
+            <div className="col-span-12 md:col-span-9">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[600px]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);

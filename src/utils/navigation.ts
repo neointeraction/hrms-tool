@@ -187,6 +187,26 @@ export const menuItems: MenuItem[] = [
       "Consultant",
     ],
   },
+  {
+    to: "/resignation/submit",
+    label: "My Resignation",
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
+    module: "employees",
+  },
+  {
+    to: "/resignation/manage",
+    label: "Exit Management",
+    roles: ["Admin", "HR", "Project Manager"],
+    module: "employees",
+  },
 ];
 
 /**
