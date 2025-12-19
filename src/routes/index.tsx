@@ -438,6 +438,7 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard
             allowedRoles={[
+              "Admin",
               "HR",
               "Accountant",
               "Project Manager",

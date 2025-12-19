@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Users,
-  CheckSquare,
   Briefcase,
   Clock,
   Coffee,
@@ -25,19 +24,16 @@ export default function PMDashboard() {
   const { text } = useGreeting();
   const [teamStatus, setTeamStatus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
-  const [pendingLeavesCount, setPendingLeavesCount] = useState(0);
   const [projects, setProjects] = useState<any[]>([]);
+  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   const [page, setPage] = useState(0);
 
   useEffect(() => {
     fetchTeamStatus();
-    fetchPendingApprovals();
     fetchProjects();
     // Refresh every 30 seconds
     const interval = setInterval(() => {
       fetchTeamStatus();
-      fetchPendingApprovals();
       fetchProjects();
     }, 30000);
     return () => clearInterval(interval);
@@ -51,24 +47,6 @@ export default function PMDashboard() {
       // console.error("Failed to fetch team status:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchPendingApprovals = async () => {
-    try {
-      const [timesheets, leaves] = await Promise.all([
-        apiService
-          .getPendingTimesheetApprovals()
-          .catch(() => ({ timesheets: [] })),
-        apiService
-          .getPendingLeaveApprovals()
-          .catch(() => ({ leaveRequests: [] })),
-      ]);
-
-      setPendingApprovalsCount(timesheets.timesheets?.length || 0);
-      setPendingLeavesCount(leaves.leaveRequests?.length || 0);
-    } catch (error) {
-      // console.error("Failed to fetch pending approvals:", error);
     }
   };
 
@@ -118,7 +96,6 @@ export default function PMDashboard() {
   };
 
   const counts = getStatusCounts();
-  const totalPending = pendingApprovalsCount + pendingLeavesCount;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -175,7 +152,7 @@ export default function PMDashboard() {
           !user.tenantId.limits ||
           (user.tenantId.limits.enabledModules.includes("attendance") &&
             user.accessibleModules?.includes("attendance"))) && (
-          <div className="bg-bg-card rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2 overflow-hidden flex flex-col">
+          <div className="bg-bg-card rounded-xl shadow-sm border border-border md:col-span-2 lg:col-span-2 overflow-hidden flex flex-col h-full">
             <div className="p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-primary/10 to-brand-secondary/10 flex items-center justify-center border border-brand-primary/20">
@@ -345,125 +322,14 @@ export default function PMDashboard() {
           </div>
         )}
 
-        {/* Appreciation Widget (Wall of Fame) */}
-
-        {/* Payroll Summary Widget */}
-        {(!user?.tenantId ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          (user.tenantId.limits.enabledModules.includes("payroll") &&
-            user.accessibleModules?.includes("payroll"))) && (
-          <PayrollSummaryWidget />
-        )}
-
-        {/* Feedback Widget */}
-        <FeedbackWidget />
-      </div>
-
-      {/* Approvals and Projects Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Approvals Widget */}
-        {/* We keep approvals always visible as they might be relevant for projects logic, but specific subsections depend on modules */}
-        <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <CheckSquare size={20} />
-            </div>
-            <h2 className="text-lg font-semibold text-text-primary">
-              Pending Approvals
-            </h2>
-            {totalPending > 0 && (
-              <span className="ml-auto px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">
-                {totalPending} New
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            {pendingApprovalsCount > 0 &&
-            (!user?.tenantId ||
-              typeof user.tenantId === "string" ||
-              !user.tenantId.limits ||
-              (user.tenantId.limits.enabledModules.includes("attendance") &&
-                user.accessibleModules?.includes("attendance"))) ? (
-              <div
-                onClick={() => (window.location.href = "/attendance")}
-                className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-800">
-                    <Clock size={18} />
-                  </div>
-                  <div>
-                    <p className="font-medium text-text-primary group-hover:text-brand-primary transition-colors">
-                      Timesheets
-                    </p>
-                    <p className="text-xs text-text-secondary">
-                      {pendingApprovalsCount} submission
-                      {pendingApprovalsCount !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
-                <Button size="sm" variant="outline" className="text-xs">
-                  Review
-                </Button>
-              </div>
-            ) : null}
-
-            {pendingLeavesCount > 0 &&
-            (!user?.tenantId ||
-              typeof user.tenantId === "string" ||
-              !user.tenantId.limits ||
-              (user.tenantId.limits.enabledModules.includes("leave") &&
-                user.accessibleModules?.includes("leave"))) ? (
-              <div
-                onClick={() => (window.location.href = "/leave")}
-                className="p-4 bg-bg-main hover:bg-bg-hover border border-border rounded-xl flex justify-between items-center cursor-pointer transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-200 dark:border-purple-800">
-                    <Coffee size={18} />
-                  </div>
-                  <div>
-                    <p className="font-medium text-text-primary group-hover:text-brand-primary transition-colors">
-                      Leave Requests
-                    </p>
-                    <p className="text-xs text-text-secondary">
-                      {pendingLeavesCount} request
-                      {pendingLeavesCount !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
-                <Button size="sm" variant="outline" className="text-xs">
-                  Review
-                </Button>
-              </div>
-            ) : null}
-
-            {totalPending === 0 && (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-12 h-12 bg-green-50 dark:bg-green-900/10 text-green-500 dark:text-green-400 rounded-full flex items-center justify-center mb-3">
-                  <CheckSquare size={24} />
-                </div>
-                <p className="text-text-primary font-medium">All caught up!</p>
-                <p className="text-sm text-text-secondary">
-                  No pending approvals at the moment.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Projects Widget */}
+        {/* Projects Widget - Moved here */}
         {(!user?.tenantId ||
           typeof user.tenantId === "string" ||
           !user.tenantId.limits ||
           (user.tenantId.limits.enabledModules.includes("projects") &&
             user.accessibleModules?.includes("projects"))) && (
-          <div className="bg-bg-card p-6 rounded-xl shadow-sm border border-border h-full">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-bg-card p-0 rounded-xl shadow-sm border border-border h-full flex flex-col overflow-hidden">
+            <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg border border-blue-200 dark:border-blue-800">
                   <Briefcase size={20} />
@@ -482,12 +348,12 @@ export default function PMDashboard() {
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="flex-1 p-6 flex flex-col justify-center">
               {loading ? (
                 [1, 2].map((i) => (
                   <div
                     key={i}
-                    className="p-4 bg-bg-main rounded-xl border border-border h-[100px]"
+                    className="p-4 bg-bg-main rounded-xl border border-border h-[100px] mb-4 last:mb-0"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div className="space-y-1">
@@ -500,43 +366,92 @@ export default function PMDashboard() {
                   </div>
                 ))
               ) : projects.filter((p) => p.status === "Active").length > 0 ? (
-                projects
-                  .filter((p) => p.status === "Active")
-                  .slice(0, 3)
-                  .map((project) => (
-                    <div
-                      key={project._id}
-                      className="p-4 bg-bg-main rounded-xl border border-border hover:border-brand-primary/30 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="font-semibold text-text-primary text-sm">
-                            {project.name}
-                          </h4>
-                          <p className="text-xs text-text-secondary mt-0.5">
-                            {project.client}
-                          </p>
+                (() => {
+                  const activeProjects = projects.filter(
+                    (p) => p.status === "Active"
+                  );
+
+                  const nextProject = () => {
+                    setCurrentProjectIndex(
+                      (prev) => (prev + 1) % activeProjects.length
+                    );
+                  };
+
+                  const prevProject = () => {
+                    setCurrentProjectIndex(
+                      (prev) =>
+                        (prev - 1 + activeProjects.length) %
+                        activeProjects.length
+                    );
+                  };
+
+                  // Get 1 item starting from current index
+                  const itemsToShow = [];
+                  for (let i = 0; i < Math.min(activeProjects.length, 1); i++) {
+                    const index =
+                      (currentProjectIndex + i) % activeProjects.length;
+                    itemsToShow.push(activeProjects[index]);
+                  }
+
+                  return (
+                    <div className="flex-1 flex flex-col justify-center h-full">
+                      <div className="flex-1 flex flex-col">
+                        {itemsToShow.map((project, idx) => (
+                          <div
+                            key={`${project._id}-${idx}`}
+                            className="flex-1 bg-bg-main p-5 rounded-xl border border-border hover:border-brand-primary/30 transition-all duration-300 group flex flex-col justify-center"
+                          >
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h4 className="font-semibold text-text-primary text-base group-hover:text-brand-primary transition-colors">
+                                  {project.name}
+                                </h4>
+                                <p className="text-xs text-text-secondary mt-0.5">
+                                  {project.client}
+                                </p>
+                              </div>
+                              <span className="px-2.5 py-0.5 bg-status-success/10 text-status-success text-[10px] font-bold uppercase rounded-full tracking-wider border border-status-success/20">
+                                {project.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-brand-primary w-2/3 rounded-full" />
+                              </div>
+                              <span className="text-xs font-medium text-text-primary">
+                                66%
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-xs text-text-muted">
+                              <span>
+                                Due{" "}
+                                {new Date(project.endDate).toLocaleDateString()}
+                              </span>
+                              <span>Team: 4</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {activeProjects.length > 1 && (
+                        <div className="flex justify-end gap-2 mt-4">
+                          <button
+                            onClick={prevProject}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-bg-card hover:bg-bg-hover transition-colors text-text-secondary hover:text-brand-primary hover:border-brand-primary/50"
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
+                          <button
+                            onClick={nextProject}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-bg-card hover:bg-bg-hover transition-colors text-text-secondary hover:text-brand-primary hover:border-brand-primary/50"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
                         </div>
-                        <span className="px-2 py-0.5 bg-status-success/10 text-status-success text-[10px] font-bold uppercase rounded-full tracking-wider">
-                          {project.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-brand-primary w-2/3 rounded-full" />
-                        </div>
-                        <span className="text-xs font-medium text-text-primary">
-                          66%
-                        </span>
-                      </div>
-                      <div className="flex justify-between mt-3 text-xs text-text-muted">
-                        <span>
-                          Due {new Date(project.endDate).toLocaleDateString()}
-                        </span>
-                        <span>Team: 4</span>
-                      </div>
+                      )}
                     </div>
-                  ))
+                  );
+                })()
               ) : (
                 <div className="text-center py-8 text-text-secondary text-sm">
                   No active projects found.
@@ -545,7 +460,26 @@ export default function PMDashboard() {
             </div>
           </div>
         )}
+
+        {/* Appreciation Widget (Wall of Fame) */}
+
+        {/* Payroll Summary Widget */}
+        {(!user?.tenantId ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          typeof user.tenantId === "string" ||
+          !user.tenantId.limits ||
+          (user.tenantId.limits.enabledModules.includes("payroll") &&
+            user.accessibleModules?.includes("payroll"))) && (
+          <PayrollSummaryWidget />
+        )}
+
+        {/* Feedback Widget */}
+        <FeedbackWidget />
       </div>
+
+      {/* Approvals and Projects Row */}
+      {/* Pending Approvals Widget Removed */}
     </div>
   );
 }

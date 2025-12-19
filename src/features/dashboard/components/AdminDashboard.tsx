@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Shield, Box, Building2 } from "lucide-react";
+import {
+  Users,
+  Shield,
+  Box,
+  Building2,
+  Activity,
+  UserPlus,
+  LogIn,
+  FileText,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { apiService } from "../../../services/api.service";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
@@ -201,57 +212,109 @@ export default function AdminDashboard() {
         {/* Main Column */}
         <div className="lg:col-span-3 space-y-8">
           {/* Recent Activity */}
-          <section className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-border flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-text-primary">
-                Recent System Activity
-              </h2>
+          <section className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden h-full flex flex-col">
+            <div className="p-6 border-b border-border flex justify-between items-center bg-bg-main/30">
+              <div className="flex items-center gap-2">
+                <Activity size={20} className="text-brand-primary" />
+                <h2 className="text-lg font-semibold text-text-primary">
+                  Recent System Activity
+                </h2>
+              </div>
               <button
                 onClick={() => navigate("/audit")}
-                className="text-sm text-brand-primary hover:underline"
+                className="text-sm font-medium text-brand-primary hover:text-brand-secondary transition-colors"
               >
                 View All Logs
               </button>
             </div>
-            <div className="divide-y divide-border">
+
+            <div className="p-6 flex-1 overflow-y-auto max-h-[500px]">
               {loading ? (
-                // Skeleton rows for activity
-                [...Array(5)].map((_, i) => (
-                  <div key={i} className="p-4 flex items-start gap-4">
-                    <Skeleton className="mt-1 w-2 h-2 rounded-full" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
+                <div className="space-y-6">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                        {i !== 4 && (
+                          <div className="w-0.5 h-full bg-border mt-2" />
+                        )}
+                      </div>
+                      <div className="flex-1 pb-6">
+                        <Skeleton className="h-4 w-3/4 mb-2" />
+                        <Skeleton className="h-3 w-1/3" />
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : recentActivity.length > 0 ? (
-                recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="p-4 flex items-start gap-4 hover:bg-bg-hover transition-colors"
-                  >
-                    <div
-                      className={`mt-1 w-2 h-2 rounded-full ${
-                        activity.isAlert
-                          ? "bg-status-error"
-                          : "bg-brand-primary"
-                      }`}
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm text-text-primary">
-                        <span className="font-medium">{activity.user}</span>{" "}
-                        {activity.action}
-                      </p>
-                      <p className="text-xs text-text-secondary mt-1">
-                        Target: {activity.target} • {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                <div className="space-y-0">
+                  {recentActivity.map((activity, index) => {
+                    const isLast = index === recentActivity.length - 1;
+                    const getIcon = (action: string) => {
+                      const lower = action.toLowerCase();
+                      if (lower.includes("create") || lower.includes("add"))
+                        return UserPlus;
+                      if (lower.includes("login")) return LogIn;
+                      if (lower.includes("update") || lower.includes("edit"))
+                        return FileText;
+                      if (lower.includes("delete") || lower.includes("remove"))
+                        return AlertCircle;
+                      return Activity;
+                    };
+
+                    const Icon = getIcon(activity.action);
+
+                    return (
+                      <div
+                        key={activity.id}
+                        className="relative flex gap-4 group"
+                      >
+                        {/* Timeline Line */}
+                        {!isLast && (
+                          <div className="absolute left-[15px] top-8 bottom-[-8px] w-0.5 bg-border group-hover:bg-brand-primary/30 transition-colors" />
+                        )}
+
+                        {/* Icon Bubble */}
+                        <div
+                          className={`relative z-10 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${
+                            activity.isAlert
+                              ? "bg-status-error/10 border-status-error/20 text-status-error"
+                              : "bg-brand-primary/10 border-brand-primary/20 text-brand-primary"
+                          }`}
+                        >
+                          <Icon size={14} />
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 pb-6">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
+                            <p className="text-sm font-medium text-text-primary">
+                              <span className="font-bold hover:text-brand-primary transition-colors cursor-pointer">
+                                {activity.user}
+                              </span>{" "}
+                              <span className="text-text-secondary font-normal">
+                                {activity.action.toLowerCase()}
+                              </span>{" "}
+                              <span className="font-semibold text-text-primary">
+                                {activity.target}
+                              </span>
+                            </p>
+                            <span className="text-xs text-text-secondary whitespace-nowrap flex items-center gap-1 bg-bg-main px-2 py-0.5 rounded-full border border-border/50">
+                              <Clock size={10} />
+                              {activity.time}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <div className="p-8 text-center text-text-secondary">
-                  No recent activity found
+                <div className="flex flex-col items-center justify-center py-12 text-center text-text-secondary">
+                  <div className="w-12 h-12 bg-bg-main rounded-full flex items-center justify-center mb-3">
+                    <Activity size={24} className="opacity-50" />
+                  </div>
+                  <p>No recent activity found</p>
                 </div>
               )}
             </div>

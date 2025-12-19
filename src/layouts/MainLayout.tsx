@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
+
+import {
+  Outlet,
+  NavLink,
+  useLocation,
+  useNavigate,
+  Link,
+} from "react-router-dom";
 import {
   Users,
   UserCircle2,
@@ -350,20 +357,43 @@ export default function MainLayout() {
   const getBreadcrumbs = () => {
     const path = location.pathname;
 
+    type BreadcrumbItem = {
+      label: string;
+      to?: string;
+    };
+
     // Route-specific breadcrumb mappings
-    const breadcrumbMap: Record<string, string[]> = {
-      "/": ["Dashboard"],
-      "/miscellaneous": ["Miscellaneous"],
-      "/miscellaneous/feedback": ["Miscellaneous", "Feedback"],
-      "/miscellaneous/appreciation": ["Miscellaneous", "Appreciation"],
-      "/miscellaneous/email-automation": ["Miscellaneous", "Email Automation"],
-      "/miscellaneous/asset-categories": ["Miscellaneous", "Asset Categories"],
-      "/assets": ["Asset Management", "Dashboard"],
-      "/assets/inventory": ["Asset Management", "Inventory"],
-      "/my-assets": ["My Assets"],
-      "/social": ["Social Wall"],
-      "/shifts": ["Shift Management"],
-      "/ai-configuration": ["AI Chatbot Configuration"],
+    const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
+      "/": [{ label: "Dashboard", to: "/" }],
+      "/miscellaneous": [{ label: "Miscellaneous", to: "/miscellaneous" }],
+      "/miscellaneous/feedback": [
+        { label: "Miscellaneous", to: "/miscellaneous" },
+        { label: "Feedback" },
+      ],
+      "/miscellaneous/appreciation": [
+        { label: "Miscellaneous", to: "/miscellaneous" },
+        { label: "Appreciation" },
+      ],
+      "/miscellaneous/email-automation": [
+        { label: "Miscellaneous", to: "/miscellaneous" },
+        { label: "Email Automation" },
+      ],
+      "/miscellaneous/asset-categories": [
+        { label: "Miscellaneous", to: "/miscellaneous" },
+        { label: "Asset Categories" },
+      ],
+      "/assets": [
+        { label: "Asset Management", to: "/assets" },
+        { label: "Dashboard" },
+      ],
+      "/assets/inventory": [
+        { label: "Asset Management", to: "/assets" },
+        { label: "Inventory" },
+      ],
+      "/my-assets": [{ label: "My Assets" }],
+      "/social": [{ label: "Social Wall" }],
+      "/shifts": [{ label: "Shift Management" }],
+      "/ai-configuration": [{ label: "AI Chatbot Configuration" }],
     };
 
     // Check if we have a specific mapping
@@ -373,12 +403,15 @@ export default function MainLayout() {
 
     // Dynamic Routes
     if (path.startsWith("/projects/") && path.split("/").length === 3) {
-      return ["Project Management", "Project Details"];
+      return [
+        { label: "Project Management", to: "/projects" },
+        { label: "Project Details" },
+      ];
     }
 
     // Fallback: try to find in allNavItems
     const item = allNavItems.find((item) => item.to === path);
-    return item ? [item.label] : ["Page"];
+    return item ? [{ label: item.label }] : [{ label: "Page" }];
   };
 
   // Mobile Profile State
@@ -587,15 +620,24 @@ export default function MainLayout() {
             {getBreadcrumbs().map((crumb, index) => (
               <div key={index} className="flex items-center gap-2">
                 <ChevronRight size={16} />
-                <span
-                  className={
-                    index === getBreadcrumbs().length - 1
-                      ? "font-medium text-text-primary"
-                      : "text-text-muted"
-                  }
-                >
-                  {crumb}
-                </span>
+                {crumb.to && index !== getBreadcrumbs().length - 1 ? (
+                  <Link
+                    to={crumb.to}
+                    className="text-text-muted hover:text-text-primary transition-colors cursor-pointer hover:underline"
+                  >
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span
+                    className={
+                      index === getBreadcrumbs().length - 1
+                        ? "font-medium text-text-primary"
+                        : "text-text-muted"
+                    }
+                  >
+                    {crumb.label}
+                  </span>
+                )}
               </div>
             ))}
           </div>

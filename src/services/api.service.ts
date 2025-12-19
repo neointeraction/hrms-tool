@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -207,6 +207,17 @@ class ApiService {
     return response.json();
   }
 
+  async getPayrollStats(): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/payroll/structure/stats/tenant`,
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch payroll stats");
+    return response.json();
+  }
+
   async getPlatformAnalytics(): Promise<any> {
     const response = await fetch(
       `${API_BASE_URL}/superadmin/analytics/overview`,
@@ -358,6 +369,87 @@ class ApiService {
       const error = await response.json();
       throw new Error(error.message || "Failed to send feedback");
     }
+    return response.json();
+  }
+
+  async createFeedbackForm(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/feedback/forms`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create feedback form");
+    }
+    return response.json();
+  }
+
+  async getFeedbackForms(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/feedback/forms`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch feedback forms");
+    return response.json();
+  }
+
+  async updateFeedbackForm(formId: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/feedback/forms/${formId}`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update feedback form");
+    }
+    return response.json();
+  }
+
+  async deleteFeedbackForm(formId: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/feedback/forms/${formId}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete feedback form");
+    }
+    return response.json();
+  }
+
+  async submitFeedbackResponse(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/feedback/forms/submit`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to submit feedback response");
+    }
+    return response.json();
+  }
+
+  async getFormResponses(formId: string): Promise<any[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/feedback/forms/${formId}/responses`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch form responses");
     return response.json();
   }
 

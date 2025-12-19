@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   DollarSign,
   FileText,
@@ -5,15 +6,68 @@ import {
   TrendingUp,
   PieChart,
   CreditCard,
+  Users,
+  Briefcase,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
-import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
+import { apiService } from "../../../services/api.service";
 import { useGreeting } from "../../../hooks/useGreeting";
 
 export default function AccountantDashboard() {
   const { user } = useAuth();
   const { text } = useGreeting();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    employeeCount: 0,
+    timesheetCount: 0,
+    projectCount: 0,
+    payrollTotal: 0,
+    assetValue: 0,
+    unbilledHours: 0,
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [employees, timesheets, projects, payroll, assets] =
+        await Promise.all([
+          apiService.getAllEmployees().catch(() => ({ employees: [] })),
+          apiService
+            .getPendingTimesheetApprovals()
+            .catch(() => ({ timesheets: [] })),
+          apiService.getProjects().catch(() => ({ projects: [] })),
+          apiService.getPayrollStats().catch(() => ({ totalNetSalary: 0 })),
+          apiService.getAssetStats().catch(() => ({ totalValue: 0 })),
+        ]);
+
+      // Calculate unbilled hours from pending timesheets (assuming avg 8h per sheet if not detailed)
+      // Ideally backend aggregates this, but for now we sum it up if available or estimate
+      const unbilledHrs =
+        timesheets.timesheets?.reduce(
+          (acc: number, t: any) => acc + (t.hours || 0),
+          0
+        ) || 0;
+
+      setStats({
+        employeeCount: employees.employees?.length || 0,
+        timesheetCount: timesheets.timesheets?.length || 0,
+        projectCount:
+          projects.projects?.filter((p: any) => p.status === "Active").length ||
+          0,
+        payrollTotal: payroll.totalNetSalary || 0,
+        assetValue: assets.totalValue || 0,
+        unbilledHours: unbilledHrs,
+      });
+    } catch (error) {
+      console.error("Failed to fetch accountant dashboard data", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -26,18 +80,75 @@ export default function AccountantDashboard() {
             Financial Overview & Payroll Status
           </p>
         </div>
-        <AppreciationWidget />
       </div>
 
-      {/* Standard Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {(!user?.tenantId ||
-          typeof user.tenantId === "string" ||
-          !user.tenantId.limits ||
-          user.tenantId.limits.enabledModules.includes("leave")) && (
-          <UpcomingHolidayWidget />
-        )}
-      </div>
+      {/* Live Metrics Widgets */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-bg-card p-6 rounded-lg shadow-sm border border-border h-[130px] animate-pulse"
+            >
+              <div className="h-4 w-8 bg-bg-main rounded mb-4"></div>
+              <div className="h-4 w-32 bg-bg-main rounded mb-4"></div>
+              <div className="h-8 w-16 bg-bg-main rounded mb-2"></div>
+              <div className="h-3 w-24 bg-bg-main rounded"></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+                <Users size={20} />
+              </div>
+              <h2 className="text-base font-semibold text-text-primary">
+                Employees on Payroll
+              </h2>
+            </div>
+            <p className="text-3xl font-bold text-text-primary">
+              {stats.employeeCount}
+            </p>
+            <p className="text-xs text-text-secondary mt-1">Active headcount</p>
+          </div>
+
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-lg">
+                <Clock size={20} />
+              </div>
+              <h2 className="text-base font-semibold text-text-primary">
+                Pending Timesheets
+              </h2>
+            </div>
+            <p className="text-3xl font-bold text-text-primary">
+              {stats.timesheetCount}
+            </p>
+            <p className="text-xs text-text-secondary mt-1">
+              To be reviewed for payout
+            </p>
+          </div>
+
+          <div className="bg-bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
+                <Briefcase size={20} />
+              </div>
+              <h2 className="text-base font-semibold text-text-primary">
+                Active Projects
+              </h2>
+            </div>
+            <p className="text-3xl font-bold text-text-primary">
+              {stats.projectCount}
+            </p>
+            <p className="text-xs text-text-secondary mt-1">
+              Billable engagements
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Financials Section */}
       {(!user?.tenantId ||
@@ -52,15 +163,15 @@ export default function AccountantDashboard() {
                 Payroll Summary
               </h2>
             </div>
-            <p className="text-3xl font-bold text-text-primary">$142,500</p>
+            <p className="text-3xl font-bold text-text-primary">
+              ${stats.payrollTotal.toLocaleString()}
+            </p>
             <p className="text-sm text-text-secondary mb-4">
-              Total payout for June
+              Est. monthly cost
             </p>
             <div className="flex items-center gap-2 text-sm">
-              <span className="w-2 h-2 rounded-full bg-status-warning animate-pulse" />
-              <span className="text-status-warning font-medium">
-                Processing
-              </span>
+              <span className="w-2 h-2 rounded-full bg-status-success" />
+              <span className="text-status-success font-medium">Active</span>
             </div>
           </div>
 
@@ -68,19 +179,19 @@ export default function AccountantDashboard() {
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="text-status-success" size={24} />
               <h2 className="text-lg font-semibold text-text-primary">
-                Salary Status
+                Salary Structure
               </h2>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-text-secondary">Disbursed</span>
-                <span className="font-bold text-status-success">85%</span>
+                <span className="text-text-secondary">Defined</span>
+                <span className="font-bold text-status-success">100%</span>
               </div>
               <div className="w-full bg-bg-main rounded-full h-2">
-                <div className="bg-status-success h-2 rounded-full w-[85%]" />
+                <div className="bg-status-success h-2 rounded-full w-[100%]" />
               </div>
               <p className="text-xs text-text-secondary text-right">
-                Remaining: 22 employees
+                {stats.employeeCount} active employees
               </p>
             </div>
           </div>
@@ -89,15 +200,17 @@ export default function AccountantDashboard() {
             <div className="flex items-center gap-2 mb-4">
               <PieChart className="text-status-info" size={24} />
               <h2 className="text-lg font-semibold text-text-primary">
-                Expenses
+                Asset Value
               </h2>
             </div>
-            <p className="text-3xl font-bold text-text-primary">$12,450</p>
+            <p className="text-3xl font-bold text-text-primary">
+              ${stats.assetValue.toLocaleString()}
+            </p>
             <p className="text-sm text-text-secondary mb-4">
-              Reimbursements pending
+              Total inventory value
             </p>
             <button className="text-sm text-brand-primary font-medium hover:underline">
-              View Details
+              View Inventory
             </button>
           </div>
         </div>
@@ -118,22 +231,27 @@ export default function AccountantDashboard() {
             <div className="p-4 bg-bg-main rounded-lg">
               <div className="flex justify-between mb-2">
                 <span className="font-medium text-text-primary">
-                  Unbilled Hours (T&M)
+                  Unbilled Hours (Pending)
                 </span>
-                <span className="text-brand-primary font-bold">450 hrs</span>
+                <span className="text-brand-primary font-bold">
+                  {stats.unbilledHours} hrs
+                </span>
               </div>
               <p className="text-xs text-text-secondary">
-                ~ $22,500 potential revenue
+                ~ ${(stats.unbilledHours * 50).toLocaleString()} potential
+                revenue (Est. $50/hr)
               </p>
             </div>
             <div className="p-4 bg-bg-main rounded-lg">
               <div className="flex justify-between mb-2">
                 <span className="font-medium text-text-primary">
-                  Retainer Utilization
+                  Active Projects
                 </span>
-                <span className="text-status-success font-bold">92%</span>
+                <span className="text-status-success font-bold">
+                  {stats.projectCount}
+                </span>
               </div>
-              <p className="text-xs text-text-secondary">Client: Acme Corp</p>
+              <p className="text-xs text-text-secondary">Across all accounts</p>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Search } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -25,6 +25,7 @@ interface SelectProps {
   required?: boolean;
   id?: string;
   name?: string;
+  searchable?: boolean;
 }
 
 export const Select = ({
@@ -39,9 +40,12 @@ export const Select = ({
   disabled = false,
   required = false,
   id,
+  searchable = false,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
@@ -61,6 +65,16 @@ export const Select = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (isOpen && searchable && searchInputRef.current) {
+      // Small delay to ensure render
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+    if (!isOpen) {
+      setSearchTerm(""); // Reset search when closed
+    }
+  }, [isOpen, searchable]);
+
   const handleSelect = (optionValue: string | number) => {
     onChange(optionValue);
     setIsOpen(false);
@@ -71,6 +85,12 @@ export const Select = ({
       setIsOpen(!isOpen);
     }
   };
+
+  const filteredOptions = searchable
+    ? options.filter((opt) =>
+        opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : options;
 
   return (
     <div className={cn("w-full", className)} ref={containerRef}>
@@ -113,29 +133,50 @@ export const Select = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto animate-in fade-in zoom-in-95 duration-100">
-            {options.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-text-muted text-center">
-                No options available
+          <div className="absolute z-50 w-full mt-1 bg-bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+            {searchable && (
+              <div className="p-2 border-b border-border bg-bg-card sticky top-0 z-10">
+                <div className="relative">
+                  <Search
+                    size={14}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted"
+                  />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-8 pr-3 py-1.5 text-sm bg-bg-input border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary"
+                    onClick={(e) => e.stopPropagation()} // Prevent closing
+                  />
+                </div>
               </div>
-            ) : (
-              <ul className="py-1">
-                {options.map((option) => (
-                  <li
-                    key={option.value}
-                    onClick={() => handleSelect(option.value)}
-                    className={cn(
-                      "px-3 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-bg-hover transition-colors text-text-primary",
-                      option.value === value &&
-                        "bg-brand-primary/5 text-brand-primary font-medium"
-                    )}
-                  >
-                    <span className="truncate">{option.label}</span>
-                    {option.value === value && <Check size={14} />}
-                  </li>
-                ))}
-              </ul>
             )}
+            <div className="overflow-y-auto max-h-[200px]">
+              {filteredOptions.length === 0 ? (
+                <div className="px-3 py-2 text-sm text-text-muted text-center">
+                  No options found
+                </div>
+              ) : (
+                <ul className="py-1">
+                  {filteredOptions.map((option) => (
+                    <li
+                      key={option.value}
+                      onClick={() => handleSelect(option.value)}
+                      className={cn(
+                        "px-3 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-bg-hover transition-colors text-text-primary",
+                        option.value === value &&
+                          "bg-brand-primary/5 text-brand-primary font-medium"
+                      )}
+                    >
+                      <span className="truncate">{option.label}</span>
+                      {option.value === value && <Check size={14} />}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </div>
