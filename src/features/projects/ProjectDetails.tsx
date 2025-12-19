@@ -5,7 +5,6 @@ import {
   Calendar,
   Users,
   DollarSign,
-  Plus,
   MessageSquare,
   CheckSquare,
   Trash2,
