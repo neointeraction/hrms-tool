@@ -6,6 +6,7 @@ import AccountantDashboard from "./components/AccountantDashboard";
 import ContractorDashboard from "./components/ContractorDashboard";
 import InternDashboard from "./components/InternDashboard";
 import AdminDashboard from "./components/AdminDashboard";
+import { CEODashboard } from "./components/CEODashboard";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -27,6 +28,8 @@ export default function Dashboard() {
       return <ContractorDashboard />;
     case "Intern":
       return <InternDashboard />;
+    case "CEO":
+      return <CEODashboard />;
     case "Employee":
     default:
       return <EmployeeDashboard />;

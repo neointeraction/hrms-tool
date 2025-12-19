@@ -64,6 +64,10 @@ export default function ResignationManagement() {
   };
 
   const handleClearanceClick = async (resignationId: string) => {
+    const resignation = resignations.find((r) => r._id === resignationId);
+    if (resignation) {
+      setSelectedResignation(resignation);
+    }
     setClearanceModalOpen(true);
     setClearanceLoading(true);
     try {
@@ -356,6 +360,15 @@ export default function ResignationManagement() {
                 • Status:{" "}
                 <span className="font-medium text-brand-primary">
                   {clearanceData.overallStatus}
+                </span>{" "}
+                • Exit Date:{" "}
+                <span className="font-semibold text-text-primary">
+                  {selectedResignation?.lastWorkingDay
+                    ? format(
+                        new Date(selectedResignation.lastWorkingDay),
+                        "MMM dd, yyyy"
+                      )
+                    : "N/A"}
                 </span>
               </p>
             </div>

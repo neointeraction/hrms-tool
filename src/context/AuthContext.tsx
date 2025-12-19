@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       intern: "Intern",
       contractor: "Consultant",
       consultant: "Consultant",
+      ceo: "CEO",
     };
 
     // If it's already capitalized, return as-is

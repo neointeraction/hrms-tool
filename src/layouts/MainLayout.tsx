@@ -129,6 +129,11 @@ export default function MainLayout() {
       label: "Project Management",
     },
     {
+      to: "/clients",
+      icon: Users, // Or another icon like Building2
+      label: "Client Management",
+    },
+    {
       to: "/organization",
       icon: Network,
       label: "Hierarchy",
@@ -195,54 +200,62 @@ export default function MainLayout() {
     },
   ];
 
-  const sidebarStructure = [
-    {
-      title: "Overview",
-      items: ["/"],
-    },
-    {
-      title: "People Management",
-      items: [
-        "/employee-management",
-        "/roles",
-        "/designations",
-        "/resignation/manage",
-      ],
-    },
-    {
-      title: "Time & Attendance",
-      items: ["/attendance", "/shifts", "/leave"],
-    },
-    {
-      title: "Work & Payroll",
-      items: ["/projects", "/payroll"],
-    },
-    {
-      title: "Resources",
-      items: ["/settings/documents", "/assets"],
-    },
-    {
-      title: "Intelligence & Monitoring",
-      items: ["/ai-configuration", "/audit"],
-    },
-    {
-      title: "Organization Structure",
-      items: ["/organization"],
-    },
-    {
-      title: "System",
-      items: ["/settings", "/miscellaneous"],
-    },
-    {
-      title: "Platform Administration",
-      items: [
-        "/superadmin/analytics",
-        "/superadmin/tenants",
-        "/superadmin/users",
-        "/superadmin/settings",
-      ],
-    },
-  ];
+  const sidebarStructure =
+    user?.role === "CEO"
+      ? [
+          {
+            title: "Overview",
+            items: ["/"],
+          },
+        ]
+      : [
+          {
+            title: "Overview",
+            items: ["/"],
+          },
+          {
+            title: "People Management",
+            items: [
+              "/employee-management",
+              "/roles",
+              "/designations",
+              "/resignation/manage",
+            ],
+          },
+          {
+            title: "Time & Attendance",
+            items: ["/attendance", "/shifts", "/leave"],
+          },
+          {
+            title: "Work & Payroll",
+            items: ["/projects", "/clients", "/payroll"],
+          },
+          {
+            title: "Resources",
+            items: ["/settings/documents", "/assets"],
+          },
+          {
+            title: "Intelligence & Monitoring",
+            items: ["/ai-configuration", "/audit"],
+          },
+          {
+            title: "Organization Structure",
+            items: ["/organization"],
+          },
+          {
+            title: "System",
+            items: ["/settings", "/miscellaneous"],
+          },
+          {
+            title: "Platform Administration",
+            items: [
+              "/superadmin/analytics",
+              "/superadmin/tenants",
+              "/superadmin/users",
+              "/superadmin/settings",
+            ],
+          },
+        ];
 
   // Get accessible menu items from navigation utility and merge with icons
   const accessibleRoutes = user ? getAccessibleMenuItems(user.role) : [];
@@ -263,6 +276,7 @@ export default function MainLayout() {
     "/leave": "leave",
     "/payroll": "payroll",
     "/projects": "projects",
+    "/clients": "projects", // Group with projects module for access control
     "/social": "social",
     "/assets": "assets",
     "/my-assets": "assets",
@@ -355,6 +369,11 @@ export default function MainLayout() {
     // Check if we have a specific mapping
     if (breadcrumbMap[path]) {
       return breadcrumbMap[path];
+    }
+
+    // Dynamic Routes
+    if (path.startsWith("/projects/") && path.split("/").length === 3) {
+      return ["Project Management", "Project Details"];
     }
 
     // Fallback: try to find in allNavItems

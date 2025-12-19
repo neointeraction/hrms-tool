@@ -7,7 +7,8 @@ export type Role =
   | "Intern"
   | "Consultant"
   | "Contractor"
-  | "Super Admin";
+  | "Super Admin"
+  | "CEO";
 
 export interface User {
   id: string;

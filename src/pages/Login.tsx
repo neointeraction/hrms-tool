@@ -278,6 +278,38 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => {
+                  setEmail("sam@neointeraction.com");
+                  setPassword("password");
+                }}
+                className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
+              >
+                <div className="text-xs font-bold text-text-primary group-hover:text-brand-primary mb-0.5">
+                  CEO
+                </div>
+                <div className="text-[10px] text-text-muted truncate">
+                  sam@neointeraction.com
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("accounts@neointeraction.com");
+                  setPassword("password");
+                }}
+                className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
+              >
+                <div className="text-xs font-bold text-text-primary group-hover:text-brand-primary mb-0.5">
+                  Accounts
+                </div>
+                <div className="text-[10px] text-text-muted truncate">
+                  accounts@neointeraction.com
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setEmail("superadmin@hrms.com");
                   setPassword("SuperAdmin@123");
                 }}

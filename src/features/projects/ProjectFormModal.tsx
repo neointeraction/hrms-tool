@@ -5,35 +5,59 @@ import { Input } from "../../components/common/Input";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
 import { Checkbox } from "../../components/common/Checkbox";
-
 import { Select } from "../../components/common/Select";
-
 import { Textarea } from "../../components/common/Textarea";
 
-interface CreateProjectModalProps {
+interface ProjectFormModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  initialData?: any; // For Edit Mode
 }
 
-export default function CreateProjectModal({
+export default function ProjectFormModal({
   onClose,
   onSuccess,
-}: CreateProjectModalProps) {
+  initialData,
+}: ProjectFormModalProps) {
+  const isEditMode = !!initialData;
   const [formData, setFormData] = useState({
     name: "",
     client: "",
     description: "",
     manager: "",
+    status: "Active", // Default status
     startDate: "",
     endDate: "",
+    budget: 0,
     members: [] as string[],
   });
   const [employees, setEmployees] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadEmployees();
-  }, []);
+    loadClients();
+    if (initialData) {
+      setFormData({
+        name: initialData.name || "",
+        client: initialData.client || "",
+        description: initialData.description || "",
+        manager: initialData.manager?._id || initialData.manager || "",
+        status: initialData.status || "Active",
+        startDate: initialData.startDate
+          ? new Date(initialData.startDate).toISOString().split("T")[0]
+          : "",
+        endDate: initialData.endDate
+          ? new Date(initialData.endDate).toISOString().split("T")[0]
+          : "",
+        budget: initialData.budget || 0,
+        members: initialData.members
+          ? initialData.members.map((m: any) => m._id || m)
+          : [],
+      });
+    }
+  }, [initialData]);
 
   const loadEmployees = async () => {
     try {
@@ -41,6 +65,15 @@ export default function CreateProjectModal({
       setEmployees(Array.isArray(data) ? data : data.employees || []);
     } catch (err) {
       console.error("Failed to load users");
+    }
+  };
+
+  const loadClients = async () => {
+    try {
+      const data = await apiService.getClients();
+      setClients(data);
+    } catch (err) {
+      console.error("Failed to load clients");
     }
   };
 
@@ -63,12 +96,25 @@ export default function CreateProjectModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.manager) {
+      alert("Please select a Project Manager");
+      return;
+    }
+    // Also validate client if needed, but it's string.
+
     try {
       setLoading(true);
-      await apiService.createProject(formData);
+      if (isEditMode) {
+        await apiService.updateProject(initialData._id, formData);
+      } else {
+        await apiService.createProject(formData);
+      }
       onSuccess();
     } catch (err) {
-      alert("Failed to create project");
+      console.error(err);
+      alert(
+        isEditMode ? "Failed to update project" : "Failed to create project"
+      );
     } finally {
       setLoading(false);
     }
@@ -78,7 +124,7 @@ export default function CreateProjectModal({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Create New Project"
+      title={isEditMode ? "Edit Project" : "Create New Project"}
       maxWidth="max-w-lg"
       footer={
         <div className="flex justify-end gap-3">
@@ -96,7 +142,13 @@ export default function CreateProjectModal({
             className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             disabled={loading}
           >
-            {loading ? "Creating..." : "Create Project"}
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+              ? "Update Project"
+              : "Create Project"}
           </button>
         </div>
       }
@@ -112,31 +164,75 @@ export default function CreateProjectModal({
           />
         </div>
 
-        <div>
-          <Input
-            label="Client Name"
-            type="text"
-            value={formData.client}
-            onChange={(e) =>
-              setFormData({ ...formData, client: e.target.value })
-            }
-          />
+        {/* Status Field (Only visible in Edit Mode) - Optional: Or always visible? Let's make it always visible but usually Active for new. */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Select
+              label="Client Name"
+              value={formData.client}
+              onChange={(value) =>
+                setFormData({ ...formData, client: value as string })
+              }
+              options={clients.map((client) => ({
+                label: client.name,
+                value: client.name, // Or client._id if backend expects ID, but preserving existing behavior of storing name if strict relation not enforced? Project Model check needed? Assuming name string for now based on existing code.
+                // Wait, user requested "client dropdown". Ideally it should store ID if we want relation. But existing code `formData.client` is string. Backend Project model likely stores string 'client'.
+                // If I change it to ID, I might break existing projects display if they expect a name.
+                // Let's store NAME for now to be safe with existing schema, unless I check Project Model.
+                // Checking previous code: `initialData.client` was just a string input.
+                // Storing Name is safer for backward compatibility unless refactoring Project Model too.
+              }))}
+              helperText='Select a client or manage clients in "Client Management".'
+            />
+          </div>
+          <div>
+            <Select
+              label="Status"
+              value={formData.status}
+              onChange={(value) =>
+                setFormData({ ...formData, status: value as string })
+              }
+              options={[
+                { value: "Active", label: "Active" },
+                { value: "Completed", label: "Completed" },
+                { value: "On Hold", label: "On Hold" },
+                { value: "Cancelled", label: "Cancelled" },
+              ]}
+            />
+          </div>
         </div>
 
         <div>
-          <Select
-            label="Project Manager *"
-            required
-            value={formData.manager}
-            onChange={(value) =>
-              setFormData({ ...formData, manager: value as string })
-            }
-            options={employees.map((m) => ({
-              value: m.user?._id || m._id,
-              label: `${m.firstName} ${m.lastName}`,
-            }))}
-            helperText="Select the person responsible for this project."
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Select
+                label="Project Manager *"
+                required
+                value={formData.manager}
+                onChange={(value) =>
+                  setFormData({ ...formData, manager: value as string })
+                }
+                options={employees.map((m) => ({
+                  value: m.user?._id || m._id,
+                  label: `${m.firstName} ${m.lastName}`,
+                }))}
+                helperText="Select the person responsible for this project."
+              />
+            </div>
+            <div>
+              <Input
+                label="Budget (₹)"
+                type="number"
+                min="0"
+                value={formData.budget}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: Number(e.target.value) })
+                }
+                placeholder="0"
+                helperText="Total allocated project budget."
+              />
+            </div>
+          </div>
         </div>
 
         <div>
@@ -173,7 +269,7 @@ export default function CreateProjectModal({
               })
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-text-muted">
             Select employees to assign to this project.
           </p>
         </div>

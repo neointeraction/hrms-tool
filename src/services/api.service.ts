@@ -1,8 +1,8 @@
-// const API_BASE_URL = "http://localhost:5001/api";
-// export const ASSET_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://localhost:5001/api";
+export const ASSET_BASE_URL = "http://localhost:5001";
 
-export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
-export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
+// export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
+// export const ASSET_BASE_URL = "https://hrms-backend-sand.vercel.app";
 
 interface RegisterUserData {
   name: string;
@@ -1387,6 +1387,61 @@ class ApiService {
     return response.json();
   }
 
+  async addProjectComment(id: string, content: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}/comments`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) throw new Error("Failed to add comment");
+    return response.json();
+  }
+
+  // Client Management
+  async getClients(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/clients`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch clients");
+    return response.json();
+  }
+
+  async createClient(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/clients`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create client");
+    }
+    return response.json();
+  }
+
+  async updateClient(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/clients/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update client");
+    }
+    return response.json();
+  }
+
+  async deleteClient(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/clients/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete client");
+    return response.json();
+  }
+
   // Audit Log Methods
 
   async clearAuditLogs(): Promise<void> {
@@ -1397,6 +1452,17 @@ class ApiService {
     if (!response.ok) {
       throw new Error("Failed to clear audit logs");
     }
+  }
+
+  async deleteProject(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete project");
+    }
+    return response.json();
   }
 
   // Task Management Methods
@@ -1442,6 +1508,17 @@ class ApiService {
       body: isFormData ? data : JSON.stringify(data),
     });
     if (!response.ok) throw new Error("Failed to update settings");
+    return response.json();
+  }
+
+  // Dashboard
+  // Dashboard
+  async getCEOStats(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/dashboard/ceo-stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch CEO stats");
     return response.json();
   }
 

@@ -18,6 +18,7 @@ export const menuItems: MenuItem[] = [
       "Project Manager",
       "Employee",
       "Intern",
+      "CEO",
     ],
   },
   {
@@ -112,6 +113,12 @@ export const menuItems: MenuItem[] = [
     ],
   },
   {
+    to: "/clients",
+    label: "Client Management",
+    roles: ["Admin", "HR", "Project Manager"],
+    module: "projects",
+  },
+  {
     to: "/projects",
     label: "Project Management",
     roles: [
@@ -185,6 +192,7 @@ export const menuItems: MenuItem[] = [
       "Employee",
       "Intern",
       "Consultant",
+      "CEO",
     ],
   },
   {

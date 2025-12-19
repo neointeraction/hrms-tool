@@ -88,7 +88,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               result.latestPost.author._id !== user.employeeId &&
               result.latestPost.author !== user.employeeId
             ) {
-              showToast(`New post from ${authorName}`, "info");
+              let message = `New post from ${authorName}`;
+              if (result.latestPost.content) {
+                const content = result.latestPost.content;
+                const summary =
+                  content.length > 50
+                    ? content.substring(0, 50) + "..."
+                    : content;
+                message += `: "${summary}"`;
+              }
+              showToast(message, "info");
               playNotificationSound();
             }
           }

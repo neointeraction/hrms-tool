@@ -9,6 +9,8 @@ import Login from "../pages/Login";
 import CompanySetup from "../pages/CompanySetup";
 import Unauthorized from "../pages/Unauthorized";
 import Dashboard from "../features/dashboard/Dashboard";
+// Removed wrapper as logic moved to Dashboard.tsx
+
 import Profile from "../pages/Profile";
 import Attendance from "../features/attendance/Attendance";
 import AuditTrail from "../features/admin/AuditTrail";
@@ -16,6 +18,7 @@ import LeaveDashboard from "../features/leave/LeaveDashboard";
 import PayrollDashboard from "../features/payroll/PayrollDashboard";
 import ResignationSubmission from "../features/resignation/components/ResignationSubmission";
 import ResignationManagement from "../features/resignation/components/ResignationManagement";
+import ClientList from "../features/clients/ClientList";
 import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
@@ -73,6 +76,7 @@ export const router = createBrowserRouter([
               "Project Manager",
               "Employee",
               "Intern",
+              "CEO",
             ]}
           >
             <Dashboard />
@@ -247,6 +251,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "clients",
+        element: (
+          <RoleGuard allowedRoles={["Admin", "HR", "Project Manager"]}>
+            <ModuleGuard module="projects">
+              <ClientList />
+            </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
         path: "projects",
         element: (
           <RoleGuard
@@ -392,6 +406,7 @@ export const router = createBrowserRouter([
               "Employee",
               "Intern",
               "Consultant",
+              "CEO",
             ]}
           >
             <ModuleGuard module="social">
