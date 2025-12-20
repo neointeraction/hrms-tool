@@ -8,6 +8,8 @@ import ModuleGuard from "../components/auth/ModuleGuard";
 import Login from "../pages/Login";
 import CompanySetup from "../pages/CompanySetup";
 import Unauthorized from "../pages/Unauthorized";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 import Dashboard from "../features/dashboard/Dashboard";
 // Removed wrapper as logic moved to Dashboard.tsx
 
@@ -60,6 +62,14 @@ export const router = createBrowserRouter([
   {
     path: "/unauthorized",
     element: <Unauthorized />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPassword />,
   },
   {
     path: "/",

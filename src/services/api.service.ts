@@ -74,6 +74,39 @@ class ApiService {
     return data;
   }
 
+  async forgotPassword(email: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to send reset email");
+    }
+
+    return response.json();
+  }
+
+  async resetPassword(token: string, password: string): Promise<ApiResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/auth/reset-password/${token}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to reset password");
+    }
+
+    return response.json();
+  }
+
   async getCurrentUser(): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
       method: "GET",

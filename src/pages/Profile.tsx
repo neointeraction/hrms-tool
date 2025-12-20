@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal } from "../components/common/Modal";
 import { useAuth } from "../context/AuthContext";
 import { apiService, ASSET_BASE_URL } from "../services/api.service";
 import {
@@ -284,6 +285,12 @@ export default function Profile() {
   const handleCancel = () => {
     setIsEditing(false);
     setSelectedFile(null);
+  };
+
+  const handlePasswordChange = async (data: any) => {
+    await apiService.updateCurrentUser(data);
+    setShowSuccessModal(true); // Re-using success modal or create new one?
+    // The existing success modal says "Profile Updated!", which is generic enough.
   };
 
   const handleBankDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -925,33 +932,33 @@ export default function Profile() {
       </div>
 
       {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-bg-card p-6 rounded-xl shadow-xl max-w-sm w-full mx-4 text-center">
-            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Save size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-text-primary mb-2">
-              Profile Updated!
-            </h3>
-            <p className="text-text-secondary text-sm mb-6">
-              Your profile changes have been saved successfully.
-            </p>
-            <Button
-              onClick={() => setShowSuccessModal(false)}
-              className="w-full"
-            >
-              Close
-            </Button>
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Profile Updated"
+        maxWidth="max-w-sm"
+        hideHeader
+      >
+        <div className="text-center">
+          <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Save size={24} />
           </div>
+          <h3 className="text-lg font-bold text-text-primary mb-2">
+            Profile Updated!
+          </h3>
+          <p className="text-text-secondary text-sm mb-6">
+            Your profile changes have been saved successfully.
+          </p>
+          <Button onClick={() => setShowSuccessModal(false)} className="w-full">
+            Close
+          </Button>
         </div>
-      )}
+      </Modal>
 
       <ChangePasswordModal
         isOpen={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
-        // @ts-ignore
-        user={{ ...user, _id: user?.id || user?._id }}
+        onSubmit={handlePasswordChange}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Lock, Mail, AlertCircle, Building } from "lucide-react";
 import {
@@ -164,12 +164,12 @@ export default function Login() {
                 <label className="text-sm font-medium text-text-secondary">
                   Password
                 </label>
-                <button
-                  type="button"
+                <Link
+                  to="/forgot-password"
                   className="text-xs font-semibold text-brand-primary hover:text-brand-primary/80"
                 >
                   Forgot password?
-                </button>
+                </Link>
               </div>
               <div className="relative group">
                 <Lock
