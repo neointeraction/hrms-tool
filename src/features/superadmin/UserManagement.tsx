@@ -6,6 +6,8 @@ import { Badge } from "../../components/common/Badge";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Skeleton } from "../../components/common/Skeleton";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 export default function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,30 +139,34 @@ export default function UserManagement() {
       accessorKey: "actions",
       render: (user: any) => (
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => handleStatusToggle(user)}
-            className={`p-1 rounded transition-colors ${
-              user.status === "active"
-                ? "text-amber-600 hover:bg-amber-50"
-                : "text-green-600 hover:bg-green-50"
-            }`}
-            title={
+          <Tooltip
+            content={
               user.status === "active" ? "Deactivate User" : "Activate User"
             }
           >
-            {user.status === "active" ? (
-              <UserX size={16} />
-            ) : (
-              <UserCheck size={16} />
-            )}
-          </button>
-          <button
-            onClick={() => handleDeleteUser(user)}
-            className="p-1 hover:bg-red-50 text-text-muted hover:text-red-600 rounded transition-colors"
-            title="Delete User"
-          >
-            <Trash2 size={16} />
-          </button>
+            <button
+              onClick={() => handleStatusToggle(user)}
+              className={`p-1 rounded transition-colors ${
+                user.status === "active"
+                  ? "text-amber-600 hover:bg-amber-50"
+                  : "text-green-600 hover:bg-green-50"
+              }`}
+            >
+              {user.status === "active" ? (
+                <UserX size={16} />
+              ) : (
+                <UserCheck size={16} />
+              )}
+            </button>
+          </Tooltip>
+          <Tooltip content="Delete User">
+            <button
+              onClick={() => handleDeleteUser(user)}
+              className="p-1 hover:bg-red-50 text-text-muted hover:text-red-600 rounded transition-colors"
+            >
+              <Trash2 size={16} />
+            </button>
+          </Tooltip>
         </div>
       ),
     },

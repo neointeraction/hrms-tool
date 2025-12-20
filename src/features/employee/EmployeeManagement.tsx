@@ -18,6 +18,8 @@ import { BulkUploadModal } from "./components/BulkUploadModal";
 
 import { useAuth } from "../../context/AuthContext";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 export default function EmployeeManagement() {
   const { user } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
@@ -264,53 +266,64 @@ export default function EmployeeManagement() {
                 const userStatus = emp.user?.status || "active";
                 return (
                   <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => handleViewEmployee(emp)}
-                      className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEditEmployee(emp)}
-                      className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                      title="Edit Employee"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleStatusToggle(emp)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        userStatus === "active"
-                          ? "text-amber-600 hover:bg-amber-50"
-                          : "text-green-600 hover:bg-green-50"
-                      }`}
-                      title={
+                    <Tooltip content="View Details">
+                      <button
+                        onClick={() => handleViewEmployee(emp)}
+                        className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                      >
+                        <Eye size={16} />
+                      </button>
+                    </Tooltip>
+
+                    <Tooltip content="Edit Employee">
+                      <button
+                        onClick={() => handleEditEmployee(emp)}
+                        className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                    </Tooltip>
+
+                    <Tooltip
+                      content={
                         userStatus === "active"
                           ? "Deactivate User"
                           : "Activate User"
                       }
                     >
-                      {userStatus === "active" ? (
-                        <UserX size={16} />
-                      ) : (
-                        <UserCheck size={16} />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleResetPassword(emp)}
-                      className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Reset Password"
-                    >
-                      <Lock size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(emp)}
-                      className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete User"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                      <button
+                        onClick={() => handleStatusToggle(emp)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          userStatus === "active"
+                            ? "text-amber-600 hover:bg-amber-50"
+                            : "text-green-600 hover:bg-green-50"
+                        }`}
+                      >
+                        {userStatus === "active" ? (
+                          <UserX size={16} />
+                        ) : (
+                          <UserCheck size={16} />
+                        )}
+                      </button>
+                    </Tooltip>
+
+                    <Tooltip content="Reset Password">
+                      <button
+                        onClick={() => handleResetPassword(emp)}
+                        className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <Lock size={16} />
+                      </button>
+                    </Tooltip>
+
+                    <Tooltip content="Delete User">
+                      <button
+                        onClick={() => handleDeleteUser(emp)}
+                        className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </Tooltip>
                   </div>
                 );
               },

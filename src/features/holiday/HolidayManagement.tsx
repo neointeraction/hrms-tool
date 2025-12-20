@@ -9,6 +9,8 @@ import { DatePicker } from "../../components/common/DatePicker";
 import { Select } from "../../components/common/Select";
 import { Input } from "../../components/common/Input";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 interface Holiday {
   _id: string;
   name: string;
@@ -142,16 +144,17 @@ export default function HolidayManagement({
               className: "text-right",
               render: (holiday: Holiday) => (
                 <div className="text-right">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(holiday._id);
-                    }}
-                    className="text-text-muted hover:text-status-error p-2 rounded-full hover:bg-status-error/10 transition-colors"
-                    title="Delete Holiday"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <Tooltip content="Delete Holiday">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(holiday._id);
+                      }}
+                      className="text-text-muted hover:text-status-error p-2 rounded-full hover:bg-status-error/10 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </Tooltip>
                 </div>
               ),
             } as Column<Holiday>,

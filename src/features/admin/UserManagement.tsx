@@ -16,6 +16,8 @@ import { Button } from "../../components/common/Button";
 import { Table } from "../../components/common/Table";
 import { Input } from "../../components/common/Input";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 interface User {
   _id: string;
   name: string;
@@ -242,48 +244,55 @@ export default function UserManagement() {
             className: "text-right",
             render: (user) => (
               <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStatusToggle(user._id, user.status);
-                  }}
-                  className={`p-2 rounded-lg transition-colors ${
-                    user.status === "active"
-                      ? "text-red-500 hover:bg-red-50"
-                      : "text-green-500 hover:bg-green-50"
-                  }`}
-                  title={
+                <Tooltip
+                  content={
                     user.status === "active"
                       ? "Deactivate User"
                       : "Activate User"
                   }
                 >
-                  {user.status === "active" ? (
-                    <UserX size={18} />
-                  ) : (
-                    <UserCheck size={18} />
-                  )}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleResetPassword(user._id);
-                  }}
-                  className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                  title="Reset Password"
-                >
-                  <Lock size={18} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteUser(user._id);
-                  }}
-                  className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete User"
-                >
-                  <Trash2 size={18} />
-                </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusToggle(user._id, user.status);
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${
+                      user.status === "active"
+                        ? "text-red-500 hover:bg-red-50"
+                        : "text-green-500 hover:bg-green-50"
+                    }`}
+                  >
+                    {user.status === "active" ? (
+                      <UserX size={18} />
+                    ) : (
+                      <UserCheck size={18} />
+                    )}
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Reset Password">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleResetPassword(user._id);
+                    }}
+                    className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  >
+                    <Lock size={18} />
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Delete User">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteUser(user._id);
+                    }}
+                    className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </Tooltip>
               </div>
             ),
           },

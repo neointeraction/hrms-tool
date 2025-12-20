@@ -8,6 +8,8 @@ import { Modal } from "../../../components/common/Modal";
 import { Select } from "../../../components/common/Select";
 import { ASSET_BASE_URL } from "../../../services/api.service";
 
+import { Tooltip } from "../../../components/common/Tooltip";
+
 export default function ResignationManagement() {
   const [resignations, setResignations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -238,34 +240,39 @@ export default function ResignationManagement() {
                 <div className="flex items-center justify-end gap-2">
                   {resignation.status === "pending" && (
                     <>
-                      <button
-                        onClick={() =>
-                          handleActionClick(resignation, "approve")
-                        }
-                        className="p-1.5 rounded-full text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                        title="Approve"
-                      >
-                        <CheckCircle size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleActionClick(resignation, "reject")}
-                        className="p-1.5 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title="Reject"
-                      >
-                        <XCircle size={18} />
-                      </button>
+                      <Tooltip content="Approve">
+                        <button
+                          onClick={() =>
+                            handleActionClick(resignation, "approve")
+                          }
+                          className="p-1.5 rounded-full text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                        >
+                          <CheckCircle size={18} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Reject">
+                        <button
+                          onClick={() =>
+                            handleActionClick(resignation, "reject")
+                          }
+                          className="p-1.5 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </Tooltip>
                     </>
                   )}
 
                   {(resignation.status === "approved" ||
                     resignation.status === "completed") && (
-                    <button
-                      onClick={() => handleClearanceClick(resignation._id)}
-                      className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                      title="Exit Clearance Checklist"
-                    >
-                      <FileText size={18} />
-                    </button>
+                    <Tooltip content="Exit Clearance Checklist">
+                      <button
+                        onClick={() => handleClearanceClick(resignation._id)}
+                        className="p-1.5 rounded-full text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      >
+                        <FileText size={18} />
+                      </button>
+                    </Tooltip>
                   )}
 
                   {resignation.status !== "pending" &&

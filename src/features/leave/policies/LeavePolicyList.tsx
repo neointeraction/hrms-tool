@@ -304,6 +304,8 @@ export default function LeavePolicyList() {
   );
 }
 
+import { Tooltip } from "../../../components/common/Tooltip";
+
 const PolicyActions = ({ policy, onDelete, onEdit }: any) => {
   const { user } = useAuth();
   const canManage = user?.role === "Admin" || user?.role === "HR";
@@ -312,20 +314,23 @@ const PolicyActions = ({ policy, onDelete, onEdit }: any) => {
 
   return (
     <div className="flex gap-2">
-      <button
-        onClick={() => onEdit(policy._id)}
-        className="p-1 text-text-secondary hover:text-brand-primary transition-colors"
-        title="Edit"
-      >
-        <Eye size={16} />
-      </button>
-      <button
-        onClick={() => onDelete(policy._id)}
-        className="p-1 text-text-secondary hover:text-red-500 transition-colors"
-        title="Delete"
-      >
-        <Trash2 size={16} />
-      </button>
+      <Tooltip content="Edit">
+        <button
+          onClick={() => onEdit(policy._id)}
+          className="p-1 text-text-secondary hover:text-brand-primary transition-colors"
+        >
+          <Eye size={16} />
+        </button>
+      </Tooltip>
+
+      <Tooltip content="Delete">
+        <button
+          onClick={() => onDelete(policy._id)}
+          className="p-1 text-text-secondary hover:text-red-500 transition-colors"
+        >
+          <Trash2 size={16} />
+        </button>
+      </Tooltip>
     </div>
   );
 };

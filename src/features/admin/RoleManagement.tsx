@@ -11,6 +11,8 @@ import { Checkbox } from "../../components/common/Checkbox";
 
 import { MODULES } from "../../constants/modules";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 interface Permission {
   _id: string;
   name: string;
@@ -280,20 +282,23 @@ export default function RoleManagement() {
             className: "text-right",
             render: (role) => (
               <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={() => handleOpenModal(role)}
-                  className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                  title="Edit Role"
-                >
-                  <Edit2 size={18} />
-                </button>
-                <button
-                  onClick={() => setDeleteRoleId(role._id)}
-                  className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Role"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <Tooltip content="Edit Role">
+                  <button
+                    onClick={() => handleOpenModal(role)}
+                    className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Delete Role">
+                  <button
+                    onClick={() => setDeleteRoleId(role._id)}
+                    className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </Tooltip>
               </div>
             ),
           },

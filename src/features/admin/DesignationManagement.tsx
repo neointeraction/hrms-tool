@@ -8,6 +8,8 @@ import { Button } from "../../components/common/Button";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Select } from "../../components/common/Select";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 interface Designation {
   _id: string;
   name: string;
@@ -171,20 +173,23 @@ export default function DesignationManagement() {
             className: "text-right",
             render: (d) => (
               <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={() => handleOpenModal(d)}
-                  className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                  title="Edit"
-                >
-                  <Edit2 size={18} />
-                </button>
-                <button
-                  onClick={() => setDeleteId(d._id)}
-                  className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <Tooltip content="Edit">
+                  <button
+                    onClick={() => handleOpenModal(d)}
+                    className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Delete">
+                  <button
+                    onClick={() => setDeleteId(d._id)}
+                    className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </Tooltip>
               </div>
             ),
           },

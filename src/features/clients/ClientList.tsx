@@ -6,6 +6,8 @@ import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import ClientFormModal from "./ClientFormModal";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 export default function ClientList() {
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,26 +133,29 @@ export default function ClientList() {
             className: "text-right",
             render: (client: any) => (
               <div className="flex justify-end gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(client);
-                  }}
-                  className="text-text-secondary hover:text-brand-primary transition-colors"
-                  title="Edit"
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(client._id);
-                  }}
-                  className="text-text-secondary hover:text-red-600 transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <Tooltip content="Edit">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(client);
+                    }}
+                    className="text-text-secondary hover:text-brand-primary transition-colors"
+                  >
+                    <Edit size={18} />
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Delete">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(client._id);
+                    }}
+                    className="text-text-secondary hover:text-red-600 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </Tooltip>
               </div>
             ),
           },

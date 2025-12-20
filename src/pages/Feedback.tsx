@@ -40,6 +40,7 @@ import { Table } from "../components/common/Table";
 import { Badge } from "../components/common/Badge";
 import { Select } from "../components/common/Select";
 import { useAuth } from "../context/AuthContext";
+import { Tooltip } from "../components/common/Tooltip";
 
 interface EmployeeOption {
   _id: string;
@@ -650,36 +651,40 @@ export default function Feedback() {
                         >
                           View Results
                         </Button>
-                        <Button
-                          variant="secondary"
-                          className="h-8 w-8 !p-0 shrink-0 flex items-center justify-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingForm(form);
-                            setNewFormTitle(form.title);
-                            setNewFormDesc(form.description);
-                            setNewQuestions(form.questions);
-                            setEditingQuestionIndex(null);
-                            setNewQuestionText("");
-                            setShowCreateModal(true);
-                          }}
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          variant="danger"
-                          className="h-8 w-8 !p-0 shrink-0 flex items-center justify-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowDeleteConfirm({
-                              show: true,
-                              formId: form._id,
-                              formTitle: form.title,
-                            });
-                          }}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
+                        <Tooltip content="Edit Survey">
+                          <Button
+                            variant="secondary"
+                            className="h-8 w-8 !p-0 shrink-0 flex items-center justify-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingForm(form);
+                              setNewFormTitle(form.title);
+                              setNewFormDesc(form.description);
+                              setNewQuestions(form.questions);
+                              setEditingQuestionIndex(null);
+                              setNewQuestionText("");
+                              setShowCreateModal(true);
+                            }}
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                        </Tooltip>
+                        <Tooltip content="Delete Survey">
+                          <Button
+                            variant="danger"
+                            className="h-8 w-8 !p-0 shrink-0 flex items-center justify-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowDeleteConfirm({
+                                show: true,
+                                formId: form._id,
+                                formTitle: form.title,
+                              });
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </Tooltip>
                       </div>
                     )}
                   </div>
@@ -764,23 +769,27 @@ export default function Feedback() {
                       {idx + 1}. {q.text}
                     </span>
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingQuestionIndex(idx);
-                          setNewQuestionText(q.text);
-                        }}
-                        className="text-brand-primary hover:bg-brand-primary/10 p-1 rounded"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeQuestion(idx)}
-                        className="text-status-error hover:bg-status-error/10 p-1 rounded"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <Tooltip content="Edit Question">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingQuestionIndex(idx);
+                            setNewQuestionText(q.text);
+                          }}
+                          className="text-brand-primary hover:bg-brand-primary/10 p-1 rounded"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Remove Question">
+                        <button
+                          type="button"
+                          onClick={() => removeQuestion(idx)}
+                          className="text-status-error hover:bg-status-error/10 p-1 rounded"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </Tooltip>
                     </div>
                   </div>
                 ))}

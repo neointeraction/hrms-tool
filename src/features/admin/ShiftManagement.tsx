@@ -6,6 +6,8 @@ import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
 import { Table } from "../../components/common/Table";
 
+import { Tooltip } from "../../components/common/Tooltip";
+
 interface Shift {
   _id: string;
   name: string;
@@ -171,18 +173,23 @@ export default function ShiftManagement() {
       header: "Actions",
       render: (shift: Shift) => (
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleEdit(shift)}
-            className="p-1 text-text-secondary hover:text-brand-primary transition-colors"
-          >
-            <Pencil size={18} />
-          </button>
-          <button
-            onClick={() => handleDelete(shift._id)}
-            className="p-1 text-text-secondary hover:text-red-500 transition-colors"
-          >
-            <Trash2 size={18} />
-          </button>
+          <Tooltip content="Edit Shift">
+            <button
+              onClick={() => handleEdit(shift)}
+              className="p-1 text-text-secondary hover:text-brand-primary transition-colors"
+            >
+              <Pencil size={18} />
+            </button>
+          </Tooltip>
+
+          <Tooltip content="Delete Shift">
+            <button
+              onClick={() => handleDelete(shift._id)}
+              className="p-1 text-text-secondary hover:text-red-500 transition-colors"
+            >
+              <Trash2 size={18} />
+            </button>
+          </Tooltip>
         </div>
       ),
     },
