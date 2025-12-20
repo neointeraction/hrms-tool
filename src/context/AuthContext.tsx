@@ -131,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         bankAccountNo: apiUser.bankAccountNo,
         accessibleModules:
           apiUser.roles?.[0]?.accessibleModules || apiUser.accessibleModules, // Support both nested in role or direct if flattened
+        theme: apiUser.theme,
       };
 
       if (!updatedUser.id) {
@@ -194,9 +195,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tenantId: userData.user.tenantId,
         isSuperAdmin: userData.user.isSuperAdmin || false,
         isCompanyAdmin: userData.user.isCompanyAdmin || false,
-        accessibleModules:
-          userData.user.roles?.[0]?.accessibleModules ||
-          userData.user.accessibleModules,
+        accessibleModules: userData.user.accessibleModules,
+        theme: userData.user.theme,
       };
 
       setUser(user);

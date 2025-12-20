@@ -49,8 +49,8 @@ import { useNotification } from "../context/NotificationContext";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 export default function MainLayout() {
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme(user, isAuthenticated);
   const { unreadSocialCount, clearSocialNotifications } = useNotification();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
