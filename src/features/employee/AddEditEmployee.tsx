@@ -437,14 +437,19 @@ export default function AddEditEmployee({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 text-sm font-medium text-left transition-colors flex items-center gap-3 whitespace-nowrap rounded-lg w-full ${
+              className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between ${
                 activeTab === tab
                   ? "bg-brand-primary text-white shadow-sm"
-                  : "text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+                  : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
               }`}
             >
-              <Icon size={18} />
-              {tab}
+              <div className="flex items-center gap-3">
+                <Icon size={18} />
+                {tab}
+              </div>
+              {activeTab === tab && (
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
+              )}
             </button>
           );
         })}
