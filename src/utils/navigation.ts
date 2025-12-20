@@ -5,6 +5,7 @@ export interface MenuItem {
   label: string;
   roles: Role[];
   module?: string;
+  icon?: any;
 }
 
 export const menuItems: MenuItem[] = [
@@ -18,6 +19,20 @@ export const menuItems: MenuItem[] = [
       "Project Manager",
       "Employee",
       "Intern",
+      "CEO",
+    ],
+  },
+  {
+    to: "/my-journey",
+    label: "My Journey",
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
       "CEO",
     ],
   },
@@ -214,6 +229,19 @@ export const menuItems: MenuItem[] = [
     label: "Exit Management",
     roles: ["Admin", "HR", "Project Manager"],
     module: "employees",
+  },
+  {
+    to: "/help",
+    label: "Help",
+    roles: [
+      "Admin",
+      "HR",
+      "Accountant",
+      "Project Manager",
+      "Employee",
+      "Intern",
+      "Consultant",
+    ],
   },
 ];
 

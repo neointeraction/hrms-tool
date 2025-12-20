@@ -40,6 +40,7 @@ export const MODULES = [
   },
   { key: "policies", label: "Policy Management", shortLabel: "Policies" },
   { key: "documents", label: "Document Management", shortLabel: "Documents" },
+  { key: "my_journey", label: "My Journey", shortLabel: "Journey" },
 ];
 
 export const MODULE_KEYS = MODULES.map((m) => m.key);

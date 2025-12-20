@@ -22,23 +22,30 @@ import {
   BookOpen,
   Users2,
   AlertTriangle,
+  Monitor,
+  Clock,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { DatePicker } from "../components/common/DatePicker";
 import { Input } from "../components/common/Input";
 import { DocumentsTab } from "../features/employee/components/DocumentsTab";
+import { AssetsTab } from "../features/employee/components/AssetsTab";
 import { ChangePasswordModal } from "../components/common/ChangePasswordModal";
 import { cn } from "../utils/cn";
 
 const ALL_TABS = [
   "Basic Info",
   "Work Info",
+  "Hierarchy",
   "Personal",
-  "Contact",
   "Identity",
+  "Contact",
   "Bank Details",
   "Documents",
-  "Custom Fields",
+  "Assets",
+  "Additional",
 ];
 
 export default function Profile() {
@@ -76,6 +83,7 @@ export default function Profile() {
     location: "",
     designation: user?.designation || "",
     role: user?.role || "",
+    shift: "",
     employmentType: "",
     employeeStatus: "Active",
     sourceOfHire: "",
@@ -157,6 +165,7 @@ export default function Profile() {
             location: employeeRecord.location || "",
             designation: employeeRecord.designation || "",
             role: employeeRecord.role || "",
+            shift: employeeRecord.shiftId?.name || "General Shift",
             employmentType: employeeRecord.employmentType || "",
             employeeStatus: employeeRecord.employeeStatus || "Active",
             sourceOfHire: employeeRecord.sourceOfHire || "",
@@ -303,13 +312,30 @@ export default function Profile() {
     }));
   };
 
-  const handleCustomFieldChange = (label: string, value: any) => {
+  const handleArrayChange = (
+    arrayName: string,
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    setProfileData((prev: any) => {
+      const newArray = [...prev[arrayName]];
+      newArray[index] = { ...newArray[index], [field]: value };
+      return { ...prev, [arrayName]: newArray };
+    });
+  };
+
+  const addArrayItem = (arrayName: string, initialItem: any) => {
     setProfileData((prev: any) => ({
       ...prev,
-      customFields: {
-        ...prev.customFields,
-        [label]: value,
-      },
+      [arrayName]: [...prev[arrayName], initialItem],
+    }));
+  };
+
+  const removeArrayItem = (arrayName: string, index: number) => {
+    setProfileData((prev: any) => ({
+      ...prev,
+      [arrayName]: prev[arrayName].filter((_: any, i: number) => i !== index),
     }));
   };
 
@@ -318,7 +344,8 @@ export default function Profile() {
     name: string,
     value: string,
     icon?: any,
-    type = "text"
+    type = "text",
+    readOnly = false
   ) => {
     const Icon = icon;
     return (
@@ -329,7 +356,13 @@ export default function Profile() {
         </label>
         {isEditing ? (
           type === "date" ? (
-            <DatePicker name={name} value={value} onChange={handleChange} />
+            <DatePicker
+              name={name}
+              value={value}
+              onChange={handleChange}
+              disabled={readOnly}
+              className={readOnly ? "opacity-75 cursor-not-allowed" : ""}
+            />
           ) : (
             <Input
               type={type}
@@ -337,6 +370,7 @@ export default function Profile() {
               value={value}
               onChange={handleChange}
               className="bg-bg-main"
+              disabled={readOnly}
             />
           )
         ) : (
@@ -393,7 +427,6 @@ export default function Profile() {
               <>
                 <Button
                   variant="secondary"
-                  className="bg-bg-card border border-border shadow-sm hover:bg-bg-hover"
                   leftIcon={<Lock size={16} />}
                   onClick={() => setShowChangePasswordModal(true)}
                 >
@@ -636,7 +669,14 @@ export default function Profile() {
                     )}
                     {renderField("Last Name", "lastName", profileData.lastName)}
                     {renderField("Nick Name", "nickName", profileData.nickName)}
-                    {renderField("Email", "email", profileData.email, Mail)}
+                    {renderField(
+                      "Email",
+                      "email",
+                      profileData.email,
+                      Mail,
+                      "email",
+                      true
+                    )}
                   </div>
                 </div>
               )}
@@ -649,44 +689,90 @@ export default function Profile() {
                       "Department",
                       "department",
                       profileData.department,
-                      Building2
-                    )}
-                    {renderField(
-                      "Designation",
-                      "designation",
-                      profileData.designation,
-                      Award
+                      Building2,
+                      "text",
+                      true
                     )}
                     {renderField(
                       "Location",
                       "location",
                       profileData.location,
-                      MapPin
+                      MapPin,
+                      "text",
+                      true
+                    )}
+                    {renderField(
+                      "Designation",
+                      "designation",
+                      profileData.designation,
+                      Award,
+                      "text",
+                      true
+                    )}
+                    {renderField(
+                      "Role",
+                      "role",
+                      profileData.role,
+                      Users2,
+                      "text",
+                      true
+                    )}
+                    {renderField(
+                      "Shift",
+                      "shift",
+                      profileData.shift,
+                      Clock, // Using Clock icon logic or similar, I need to check if Clock is imported. It is imported.
+                      "text",
+                      true
                     )}
                     {renderField(
                       "Employment Type",
                       "employmentType",
-                      profileData.employmentType
+                      profileData.employmentType,
+                      undefined,
+                      "text",
+                      true
+                    )}
+                    {renderField(
+                      "Employee Status",
+                      "employeeStatus",
+                      profileData.employeeStatus,
+                      AlertTriangle,
+                      "text",
+                      true
                     )}
                     {renderField(
                       "Source of Hire",
                       "sourceOfHire",
                       profileData.sourceOfHire,
-                      Globe
+                      Globe,
+                      "text",
+                      true
                     )}
                     {renderField(
                       "Date of Joining",
                       "dateOfJoining",
                       profileData.dateOfJoining,
                       Calendar,
-                      "date"
+                      "date",
+                      true
                     )}
                     {renderField(
                       "Total Experience",
                       "totalExperience",
                       profileData.totalExperience,
-                      BookOpen
+                      BookOpen,
+                      "text",
+                      true
                     )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "Hierarchy" && (
+                <div className="space-y-6">
+                  <SectionHeader title="Reporting Structure" icon={Users2} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     <div className="group">
                       <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
                         <Users2 size={14} className="text-brand-primary" />
@@ -698,7 +784,8 @@ export default function Profile() {
                             name="reportingManager"
                             value={profileData.reportingManager || ""}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none dark:bg-bg-main dark:border-border dark:text-text-primary"
+                            disabled={true}
+                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none dark:bg-bg-main dark:border-border dark:text-text-primary cursor-not-allowed opacity-75"
                           >
                             <option value="">Select Manager</option>
                             {employees
@@ -851,46 +938,295 @@ export default function Profile() {
                 <DocumentsTab employeeId={employeeId || ""} />
               )}
 
-              {activeTab === "Custom Fields" && (
+              {activeTab === "Assets" && (
+                <div className="space-y-6">
+                  <SectionHeader title="My Assets" icon={Monitor} />
+                  <AssetsTab employeeId={employeeId || ""} readOnly={true} />
+                </div>
+              )}
+
+              {activeTab === "Additional" && (
                 <div className="space-y-6">
                   <SectionHeader
                     title="Additional Information"
                     icon={BookOpen}
                   />
-                  {Object.keys(profileData.customFields).length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {Object.entries(profileData.customFields).map(
-                        ([key, value]) => (
-                          <div key={key} className="group">
-                            <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
-                              {key}
-                            </label>
-                            {isEditing ? (
-                              <Input
-                                value={value as string}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  handleCustomFieldChange(key, e.target.value)
-                                }
-                                className="bg-bg-main"
-                              />
-                            ) : (
-                              <p className="text-text-primary text-sm font-medium leading-relaxed">
-                                {value as string}
-                              </p>
-                            )}
-                          </div>
-                        )
+
+                  {/* Work Experience */}
+                  <div className="bg-gray-50 dark:bg-gray-800/10 rounded-lg p-4 border border-border">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold text-text-primary text-sm uppercase tracking-wide">
+                        Work Experience
+                      </h3>
+                      {isEditing && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            addArrayItem("workExperience", {
+                              companyName: "",
+                              jobTitle: "",
+                              fromDate: "",
+                              toDate: "",
+                              description: "",
+                            })
+                          }
+                          leftIcon={<Plus size={14} />}
+                        >
+                          Add
+                        </Button>
                       )}
                     </div>
-                  ) : (
-                    <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-200 dark:bg-gray-800/10 dark:border-gray-700">
-                      <p className="text-text-secondary text-sm">
-                        No custom fields available.
+                    {(profileData.workExperience || []).length === 0 ? (
+                      <p className="text-sm text-text-secondary italic">
+                        No work experience added.
                       </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {profileData.workExperience.map(
+                          (item: any, index: number) => (
+                            <div
+                              key={index}
+                              className="bg-bg-main border border-border rounded-lg p-4 relative"
+                            >
+                              {isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeArrayItem("workExperience", index)
+                                  }
+                                  className="absolute top-3 right-3 text-red-500 hover:text-red-700 transition-colors"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <InputField
+                                  label="Company"
+                                  name="companyName"
+                                  value={item.companyName}
+                                  onChange={(e: any) =>
+                                    handleArrayChange(
+                                      "workExperience",
+                                      index,
+                                      "companyName",
+                                      e.target.value
+                                    )
+                                  }
+                                  isEditing={isEditing}
+                                />
+                                <InputField
+                                  label="Job Title"
+                                  name="jobTitle"
+                                  value={item.jobTitle}
+                                  onChange={(e: any) =>
+                                    handleArrayChange(
+                                      "workExperience",
+                                      index,
+                                      "jobTitle",
+                                      e.target.value
+                                    )
+                                  }
+                                  isEditing={isEditing}
+                                />
+                                <div className="group">
+                                  <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                                    From Date
+                                  </label>
+                                  {isEditing ? (
+                                    <DatePicker
+                                      name="fromDate"
+                                      value={
+                                        item.fromDate
+                                          ? item.fromDate.split("T")[0]
+                                          : ""
+                                      }
+                                      onChange={(e: any) =>
+                                        handleArrayChange(
+                                          "workExperience",
+                                          index,
+                                          "fromDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <p className="text-text-primary text-sm font-medium leading-relaxed">
+                                      {item.fromDate
+                                        ? new Date(
+                                            item.fromDate
+                                          ).toLocaleDateString()
+                                        : "Not Set"}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="group">
+                                  <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                                    To Date
+                                  </label>
+                                  {isEditing ? (
+                                    <DatePicker
+                                      name="toDate"
+                                      value={
+                                        item.toDate
+                                          ? item.toDate.split("T")[0]
+                                          : ""
+                                      }
+                                      onChange={(e: any) =>
+                                        handleArrayChange(
+                                          "workExperience",
+                                          index,
+                                          "toDate",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <p className="text-text-primary text-sm font-medium leading-relaxed">
+                                      {item.toDate
+                                        ? new Date(
+                                            item.toDate
+                                          ).toLocaleDateString()
+                                        : "Not Set"}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Education */}
+                  <div className="bg-gray-50 dark:bg-gray-800/10 rounded-lg p-4 border border-border">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold text-text-primary text-sm uppercase tracking-wide">
+                        Education
+                      </h3>
+                      {isEditing && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            addArrayItem("education", {
+                              instituteName: "",
+                              degree: "",
+                              specialization: "",
+                              dateOfCompletion: "",
+                            })
+                          }
+                          leftIcon={<Plus size={14} />}
+                        >
+                          Add
+                        </Button>
+                      )}
                     </div>
-                  )}
+                    {(profileData.education || []).length === 0 ? (
+                      <p className="text-sm text-text-secondary italic">
+                        No education details added.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {profileData.education.map(
+                          (item: any, index: number) => (
+                            <div
+                              key={index}
+                              className="bg-bg-main border border-border rounded-lg p-4 relative"
+                            >
+                              {isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeArrayItem("education", index)
+                                  }
+                                  className="absolute top-3 right-3 text-red-500 hover:text-red-700 transition-colors"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <InputField
+                                  label="Institute"
+                                  name="instituteName"
+                                  value={item.instituteName}
+                                  onChange={(e: any) =>
+                                    handleArrayChange(
+                                      "education",
+                                      index,
+                                      "instituteName",
+                                      e.target.value
+                                    )
+                                  }
+                                  isEditing={isEditing}
+                                />
+                                <InputField
+                                  label="Degree"
+                                  name="degree"
+                                  value={item.degree}
+                                  onChange={(e: any) =>
+                                    handleArrayChange(
+                                      "education",
+                                      index,
+                                      "degree",
+                                      e.target.value
+                                    )
+                                  }
+                                  isEditing={isEditing}
+                                />
+                                <InputField
+                                  label="Specialization"
+                                  name="specialization"
+                                  value={item.specialization}
+                                  onChange={(e: any) =>
+                                    handleArrayChange(
+                                      "education",
+                                      index,
+                                      "specialization",
+                                      e.target.value
+                                    )
+                                  }
+                                  isEditing={isEditing}
+                                />
+                                <div className="group">
+                                  <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                                    Completion Date
+                                  </label>
+                                  {isEditing ? (
+                                    <DatePicker
+                                      name="dateOfCompletion"
+                                      value={
+                                        item.dateOfCompletion
+                                          ? item.dateOfCompletion.split("T")[0]
+                                          : ""
+                                      }
+                                      onChange={(e: any) =>
+                                        handleArrayChange(
+                                          "education",
+                                          index,
+                                          "dateOfCompletion",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <p className="text-text-primary text-sm font-medium leading-relaxed">
+                                      {item.dateOfCompletion
+                                        ? new Date(
+                                            item.dateOfCompletion
+                                          ).toLocaleDateString()
+                                        : "Not Set"}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

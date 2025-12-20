@@ -31,6 +31,12 @@ interface Asset {
   currentValue?: number;
   invoice?: string;
   image?: string;
+  assignedTo?: {
+    _id: string;
+    name: string;
+    employeeId: string;
+    profilePicture?: string;
+  };
 }
 
 export default function AssetInventory() {
@@ -511,6 +517,9 @@ export default function AssetInventory() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
                     Condition
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase">
+                    Issued To
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase">
                     Actions
                   </th>
@@ -573,6 +582,33 @@ export default function AssetInventory() {
                       <span className="text-sm text-text-secondary">
                         {asset.condition}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {asset.assignedTo ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-[10px] font-medium text-brand-primary overflow-hidden">
+                            {asset.assignedTo.profilePicture ? (
+                              <img
+                                src={asset.assignedTo.profilePicture}
+                                alt={asset.assignedTo.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              asset.assignedTo.name.charAt(0)
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-text-primary">
+                              {asset.assignedTo.name}
+                            </p>
+                            <p className="text-xs text-text-secondary">
+                              {asset.assignedTo.employeeId}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-text-secondary">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       {asset.status === "Available" && (

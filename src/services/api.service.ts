@@ -1,4 +1,4 @@
-// const API_BASE_URL = "http://localhost:5001/api";
+// export const API_BASE_URL = "http://localhost:5001/api";
 // export const ASSET_BASE_URL = "http://localhost:5001";
 
 export const API_BASE_URL = "https://hrms-backend-sand.vercel.app/api";
@@ -1142,6 +1142,23 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to fetch assigned assets");
+    }
+
+    return response.json();
+  }
+
+  async getEmployeeAssets(employeeId: string): Promise<any> {
+    const response = await fetch(
+      `${API_BASE_URL}/asset-assignments/employee/${employeeId}`,
+      {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch employee assets");
     }
 
     return response.json();
@@ -2520,6 +2537,18 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to restore document version");
+    return response.json();
+  }
+  async getEmployeeTimeline(id: string): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/employees/${id}/timeline`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch timeline");
+    }
+
     return response.json();
   }
 }

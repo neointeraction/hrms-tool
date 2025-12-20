@@ -33,14 +33,10 @@ export const AssetsTab = ({ employeeId, readOnly = false }: AssetsTabProps) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await apiService.getAssetAssignments({
-        employeeId,
-      });
+      const response = await apiService.getEmployeeAssets(employeeId);
 
       if (Array.isArray(response)) {
         setAssignments(response);
-      } else if (response && response.assignments) {
-        setAssignments(response.assignments);
       } else {
         setAssignments([]);
       }

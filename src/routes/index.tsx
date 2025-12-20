@@ -46,6 +46,8 @@ import AssetInventory from "../features/assets/pages/AssetInventory";
 import MyAssets from "../features/assets/pages/MyAssets";
 import AssetDashboard from "../features/assets/pages/AssetDashboard";
 import SocialFeed from "../features/social/SocialFeed";
+import MyJourney from "../pages/MyJourney";
+import Help from "../pages/Help";
 
 // Settings
 import SystemSettings from "../pages/admin/SystemSettings";
@@ -189,6 +191,26 @@ export const router = createBrowserRouter([
             ]}
           >
             <Profile />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "my-journey",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <ModuleGuard module="my_journey">
+              <MyJourney />
+            </ModuleGuard>
           </RoleGuard>
         ),
       },
@@ -537,6 +559,24 @@ export const router = createBrowserRouter([
             <ModuleGuard module="assets">
               <MyAssets />
             </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "help",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Accountant",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <Help />
           </RoleGuard>
         ),
       },

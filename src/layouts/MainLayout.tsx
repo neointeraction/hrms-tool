@@ -34,6 +34,8 @@ import {
   Badge,
   Sparkles,
   CalendarClock,
+  Rocket,
+  HelpCircle,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -84,6 +86,11 @@ export default function MainLayout() {
       to: "/",
       icon: LayoutDashboard,
       label: "Dashboard",
+    },
+    {
+      to: "/my-journey",
+      icon: Rocket,
+      label: "My Journey",
     },
     {
       to: "/employee-management",
@@ -205,6 +212,11 @@ export default function MainLayout() {
       icon: LogOut,
       label: "Exit Management",
     },
+    {
+      to: "/help",
+      icon: HelpCircle,
+      label: "Help",
+    },
   ];
 
   const sidebarStructure =
@@ -212,13 +224,13 @@ export default function MainLayout() {
       ? [
           {
             title: "Overview",
-            items: ["/"],
+            items: ["/", "/my-journey"],
           },
         ]
       : [
           {
             title: "Overview",
-            items: ["/"],
+            items: ["/", "/my-journey"],
           },
           {
             title: "People Management",
@@ -251,7 +263,7 @@ export default function MainLayout() {
           },
           {
             title: "System",
-            items: ["/settings", "/miscellaneous"],
+            items: ["/settings", "/miscellaneous", "/help"],
           },
           {
             title: "Platform Administration",
@@ -302,6 +314,7 @@ export default function MainLayout() {
     "/shifts": "shifts",
     "/resignation/manage": "employees", // Group with employee module or create new module
     "/resignation/submit": "employees", // Everyone should have access if they have employee module access? Or base access.
+    "/my-journey": "my_journey",
   };
 
   const filteredRoutes = accessibleRoutes.filter((route) => {
@@ -391,6 +404,7 @@ export default function MainLayout() {
         { label: "Inventory" },
       ],
       "/my-assets": [{ label: "My Assets" }],
+      "/my-journey": [{ label: "My Journey" }],
       "/social": [{ label: "Social Wall" }],
       "/shifts": [{ label: "Shift Management" }],
       "/ai-configuration": [{ label: "AI Chatbot Configuration" }],

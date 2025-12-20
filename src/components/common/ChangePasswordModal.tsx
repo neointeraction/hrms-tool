@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal } from "../../components/common/Modal";
-import { Input } from "../../components/common/Input";
+import { PasswordInput } from "./PasswordInput";
 import { Lock } from "lucide-react";
 
 interface ChangePasswordModalProps {
@@ -73,13 +73,12 @@ export const ChangePasswordModal = ({
           <label className="block text-sm font-medium text-text-secondary mb-1">
             Current Password
           </label>
-          <Input
-            type="password"
+          <PasswordInput
             name="currentPassword"
             value={formData.currentPassword}
             onChange={handleChange}
             required
-            leftIcon={<Lock size={16} />}
+            icon={Lock}
             placeholder="Enter current password"
           />
         </div>
@@ -88,13 +87,12 @@ export const ChangePasswordModal = ({
           <label className="block text-sm font-medium text-text-secondary mb-1">
             New Password
           </label>
-          <Input
-            type="password"
+          <PasswordInput
             name="newPassword"
             value={formData.newPassword}
             onChange={handleChange}
             required
-            leftIcon={<Lock size={16} />}
+            icon={Lock}
             placeholder="Enter new password"
           />
         </div>
@@ -103,13 +101,12 @@ export const ChangePasswordModal = ({
           <label className="block text-sm font-medium text-text-secondary mb-1">
             Confirm New Password
           </label>
-          <Input
-            type="password"
+          <PasswordInput
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            leftIcon={<Lock size={16} />}
+            icon={Lock}
             placeholder="Confirm new password"
           />
         </div>
