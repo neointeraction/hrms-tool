@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 import {
   Plus,
   Trash2,
@@ -200,51 +201,29 @@ export default function Timesheet() {
       return;
     }
 
-    // Define headers
-    const headers = [
-      "Date",
-      "Project",
-      "Task",
-      "Description",
-      "Start Time",
-      "End Time",
-      "Hours",
-      "Status",
-      "Review Comments",
-    ];
+    // Define headers and data
+    const exportData = entries.map((entry) => ({
+      Date: new Date(entry.date).toLocaleDateString(),
+      Project: entry.project,
+      Task: entry.task,
+      Description: entry.description || "",
+      "Start Time": entry.startTime,
+      "End Time": entry.endTime,
+      Hours: entry.hours,
+      Status: entry.status,
+      "Review Comments": entry.reviewComments || "",
+    }));
 
-    // Map entries to rows
-    const rows = entries.map((entry) => [
-      new Date(entry.date).toLocaleDateString(),
-      entry.project,
-      entry.task,
-      `"${(entry.description || "").replace(/"/g, '""')}"`, // Escape quotes
-      entry.startTime,
-      entry.endTime,
-      entry.hours,
-      entry.status,
-      `"${(entry.reviewComments || "").replace(/"/g, '""')}"`,
-    ]);
+    // Create workbook and worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
 
-    // Combine headers and rows
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
-
-    // Create download link
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `timesheet_export_${new Date().toISOString().split("T")[0]}.csv`
+    // Generate Excel file
+    XLSX.writeFile(
+      wb,
+      `timesheet_export_${new Date().toISOString().split("T")[0]}.xlsx`
     );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const getStatusBadge = (status: string) => {
@@ -342,7 +321,7 @@ export default function Timesheet() {
               onClick={handleExport}
               leftIcon={<Download size={18} />}
             >
-              Export CSV
+              Export Excel
             </Button>
           )}
           {hasDraftEntries && (

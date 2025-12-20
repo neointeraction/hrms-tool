@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Landmark } from "lucide-react";
+import { Landmark, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Select } from "../../components/common/Select";
 import { apiService } from "../../services/api.service";
 import { Tooltip } from "../../components/common/Tooltip";
@@ -78,6 +79,34 @@ export default function PayrollProcessor() {
     } catch (err) {
       alert("Failed to update status");
     }
+  };
+
+  const handleExport = () => {
+    if (employees.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    const exportData = employees.map((emp) => {
+      const payroll = payrolls.find((p) => p.employee._id === emp._id);
+      return {
+        "Employee ID": emp.employeeId,
+        "First Name": emp.firstName,
+        "Last Name": emp.lastName,
+        "Bank Name": emp.bankDetails?.bankName || "N/A",
+        "Account Number": emp.bankDetails?.accountNumber || "N/A",
+        "IFSC Code": emp.bankDetails?.ifscCode || "N/A",
+        Status: payroll ? payroll.status : "Not Processed",
+        "Gross Salary": payroll ? payroll.grossSalary : 0,
+        "Net Salary": payroll ? payroll.netSalary : 0,
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Payroll");
+
+    XLSX.writeFile(wb, `payroll_export_${selectedMonth}_${selectedYear}.xlsx`);
   };
 
   const columns = useMemo<Column<any>[]>(
@@ -302,10 +331,17 @@ export default function PayrollProcessor() {
       </div>
 
       <div className="bg-bg-card border border-border rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-border bg-bg-secondary/30">
+        <div className="p-4 border-b border-border bg-bg-secondary/30 flex justify-between items-center">
           <h3 className="font-semibold text-text-primary">
             Payroll Processing ({employees.length} Employees)
           </h3>
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-1.5 bg-bg-main border border-border rounded-md text-sm text-text-primary hover:bg-bg-hover transition-colors"
+          >
+            <Download size={16} />
+            Export Excel
+          </button>
         </div>
 
         <Table
