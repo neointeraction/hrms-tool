@@ -346,7 +346,7 @@ export const JourneyTimelineSkeleton = () => {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-gray-200 dark:bg-gray-800 rounded-xl h-24 w-full"
+            className="bg-gray-200 dark:bg-gray-700 rounded-xl h-24 w-full"
           ></div>
         ))}
       </div>
@@ -354,8 +354,8 @@ export const JourneyTimelineSkeleton = () => {
       {/* Timeline Skeleton */}
       <div className="relative">
         {/* Center Line */}
-        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 dark:bg-gray-800 -translate-x-1/2 rounded-full"></div>
-        <div className="md:hidden absolute left-8 top-0 bottom-0 w-1 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 dark:bg-gray-700 -translate-x-1/2 rounded-full"></div>
+        <div className="md:hidden absolute left-8 top-0 bottom-0 w-1 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
 
         <div className="space-y-6">
           {[1, 2, 3, 4].map((i) => {
@@ -379,7 +379,7 @@ export const JourneyTimelineSkeleton = () => {
                     "absolute md:static z-10 left-8 -translate-x-1/2 md:translate-x-0 md:w-2/12 md:flex md:justify-center md:order-2"
                   )}
                 >
-                  <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 rounded-full ring-4 ring-bg-main"></div>
+                  <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full ring-4 ring-bg-main"></div>
                 </div>
 
                 {/* Card Skeleton */}
@@ -398,11 +398,11 @@ export const JourneyTimelineSkeleton = () => {
                         isEven ? "md:items-start" : "md:items-end"
                       )}
                     >
-                      <div className="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
-                      <div className="h-3 w-24 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+                      <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                      <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                     </div>
-                    <div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
-                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-800 rounded"></div>
+                    <div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
               </div>

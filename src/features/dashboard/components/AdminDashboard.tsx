@@ -84,13 +84,32 @@ export default function AdminDashboard() {
             relativeTime = `${Math.floor(diffInSeconds / 3600)} hours ago`;
           else relativeTime = `${Math.floor(diffInSeconds / 86400)} days ago`;
 
+          let details = log.metadata?.name ? `: ${log.metadata.name}` : "";
+
+          // Add change details if available
+          if (log.action === "update" && log.changes) {
+            const changedFields = Object.keys(log.changes);
+            if (changedFields.length > 0) {
+              const firstField = changedFields[0];
+              const change = log.changes[firstField];
+              // Check if it's a simple from/to object
+              if (change && typeof change === "object" && "to" in change) {
+                details += ` (${firstField} -> ${change.to})`;
+              } else {
+                details += ` (Updated ${changedFields.join(", ")})`;
+              }
+
+              if (changedFields.length > 1) {
+                details += ` +${changedFields.length - 1} more`;
+              }
+            }
+          }
+
           return {
             id: log._id,
             user: log.performedBy ? log.performedBy.name : "System",
             action: formatAction(log.action),
-            target: `${log.entityType}${
-              log.metadata?.name ? `: ${log.metadata.name}` : ""
-            }`,
+            target: `${log.entityType}${details}`,
             time: relativeTime,
             isAlert: log.action === "delete" || log.action === "reject",
           };

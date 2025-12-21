@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 "employee"
             ),
         department: userData.user.department,
-        designation: userData.user.employeeId,
+        designation: userData.user.designation,
         // Use avatar from backend if available
         avatar:
           userData.user.avatar ||

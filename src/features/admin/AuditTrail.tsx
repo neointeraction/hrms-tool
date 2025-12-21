@@ -329,33 +329,75 @@ export default function AuditTrail() {
               </div>
 
               {/* Changes Display */}
-              {log.changes && (
+              {log.changes && Object.keys(log.changes).length > 0 && (
                 <div className="mt-3 p-3 bg-bg-main rounded border border-border">
                   <p className="text-xs font-medium text-text-secondary mb-2">
                     Changes:
                   </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    {log.changes.old && (
-                      <div>
-                        <p className="text-xs text-red-600 font-medium mb-1">
-                          Old:
-                        </p>
-                        <pre className="text-xs bg-status-error/5 p-2 rounded overflow-auto text-text-primary">
-                          {JSON.stringify(log.changes.old, null, 2)}
-                        </pre>
-                      </div>
-                    )}
-                    {log.changes.new && (
-                      <div>
-                        <p className="text-xs text-green-600 font-medium mb-1">
-                          New:
-                        </p>
-                        <pre className="text-xs bg-status-success/5 p-2 rounded overflow-auto text-text-primary">
-                          {JSON.stringify(log.changes.new, null, 2)}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
+
+                  {/* Handle legacy Old/New format */}
+                  {log.changes.old || log.changes.new ? (
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      {log.changes.old && (
+                        <div>
+                          <p className="text-xs text-red-600 font-medium mb-1">
+                            Old:
+                          </p>
+                          <pre className="text-xs bg-status-error/5 p-2 rounded overflow-auto text-text-primary whitespace-pre-wrap">
+                            {typeof log.changes.old === "string"
+                              ? log.changes.old
+                              : JSON.stringify(log.changes.old, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                      {log.changes.new && (
+                        <div>
+                          <p className="text-xs text-green-600 font-medium mb-1">
+                            New:
+                          </p>
+                          <pre className="text-xs bg-status-success/5 p-2 rounded overflow-auto text-text-primary whitespace-pre-wrap">
+                            {typeof log.changes.new === "string"
+                              ? log.changes.new
+                              : JSON.stringify(log.changes.new, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Handle new Field diff format */
+                    <div className="space-y-2">
+                      {Object.keys(log.changes).map((field) => {
+                        const change = log.changes[field];
+                        // Skip if it's not a change object
+                        if (!change || typeof change !== "object") return null;
+
+                        return (
+                          <div
+                            key={field}
+                            className="text-xs p-2 bg-bg-card rounded border border-border/50"
+                          >
+                            <span className="font-semibold text-text-primary capitalize">
+                              {field.replace(/([A-Z])/g, " $1").trim()}:
+                            </span>
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <div className="bg-status-error/5 px-2 py-1 rounded text-status-error">
+                                <span className="font-medium mr-1">From:</span>
+                                {typeof change.from === "object"
+                                  ? JSON.stringify(change.from)
+                                  : String(change.from)}
+                              </div>
+                              <div className="bg-status-success/5 px-2 py-1 rounded text-brand-primary">
+                                <span className="font-medium mr-1">To:</span>
+                                {typeof change.to === "object"
+                                  ? JSON.stringify(change.to)
+                                  : String(change.to)}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 

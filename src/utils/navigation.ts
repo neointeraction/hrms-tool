@@ -151,6 +151,7 @@ export const menuItems: MenuItem[] = [
     roles: [
       "Admin",
       "HR",
+      "Accountant",
       "Project Manager",
       "Employee",
       "Intern",

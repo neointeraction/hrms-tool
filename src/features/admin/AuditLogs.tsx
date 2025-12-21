@@ -24,7 +24,55 @@ export default function AuditLogs() {
     setLoading(true);
     try {
       const response = await apiService.getAuditLogs();
-      setLogs(response.logs || []);
+      // Map API response to Component State
+      const mappedLogs = (response.logs || []).map((log: any) => {
+        let details = log.metadata?.name
+          ? `${log.entityType}: ${log.metadata.name}`
+          : log.entityType;
+
+        // Add specific action details
+        if (log.action === "update" && log.changes) {
+          const changedFields = Object.keys(log.changes);
+          if (changedFields.length > 0) {
+            const updates = changedFields
+              .map((field) => {
+                const change = log.changes[field];
+                if (change && typeof change === "object" && "to" in change) {
+                  return `${field}: ${change.from} -> ${change.to}`;
+                }
+                return field;
+              })
+              .join(", ");
+            details += `\nUpdated: ${updates}`;
+          }
+        } else if (log.action === "delete") {
+          details += " (Deleted)";
+        } else if (log.action === "create") {
+          details += " (Created)";
+        } else if (log.metadata) {
+          // Append other metadata if relevant
+          const metaKeys = Object.keys(log.metadata).filter(
+            (k) => k !== "name"
+          );
+          if (metaKeys.length > 0) {
+            const metaStr = metaKeys
+              .map((k) => `${k}: ${log.metadata[k]}`)
+              .join(", ");
+            details += ` (${metaStr})`;
+          }
+        }
+
+        return {
+          _id: log._id,
+          action: log.action.toUpperCase(),
+          module: log.entityType.toUpperCase(),
+          user: log.performedBy ? log.performedBy.name : "System",
+          details: details,
+          ipAddress: log.ipAddress || "-",
+          timestamp: log.createdAt,
+        };
+      });
+      setLogs(mappedLogs);
     } catch (err) {
       console.error("Failed to fetch logs, using mock data", err);
       setLogs([

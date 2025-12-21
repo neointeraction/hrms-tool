@@ -498,7 +498,7 @@ export default function MainLayout() {
                     {user?.designation}
                   </p>
                 </div>
-                {user?.role !== "Super Admin" && (
+                {user?.role !== "Super Admin" && user?.role !== "CEO" && (
                   <button
                     onClick={() => {
                       setIsMobileProfileOpen(false);
@@ -713,7 +713,7 @@ export default function MainLayout() {
                         {user?.designation}
                       </p>
                     </div>
-                    {user?.role !== "Super Admin" && (
+                    {user?.role !== "Super Admin" && user?.role !== "CEO" && (
                       <button
                         onClick={() => {
                           setIsProfileOpen(false);
