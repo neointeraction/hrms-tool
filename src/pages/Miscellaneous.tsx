@@ -17,24 +17,26 @@ export default function Miscellaneous() {
         {(!user?.tenantId ||
           typeof user.tenantId === "string" ||
           !user.tenantId.limits ||
-          user.tenantId.limits.enabledModules.includes("feedback")) && (
-          <div
-            onClick={() => navigate("/miscellaneous/feedback")}
-            className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
-                <MessageSquarePlus className="text-brand-primary" size={24} />
+          user.tenantId.limits.enabledModules.includes("feedback")) &&
+          (!user?.accessibleModules ||
+            user.accessibleModules.includes("feedback")) && (
+            <div
+              onClick={() => navigate("/miscellaneous/feedback")}
+              className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
+                  <MessageSquarePlus className="text-brand-primary" size={24} />
+                </div>
+                <h3 className="text-lg font-semibold text-text-primary">
+                  Feedback
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-text-primary">
-                Feedback
-              </h3>
+              <p className="text-text-secondary text-sm">
+                Send constructive feedback or appreciation to your colleagues.
+              </p>
             </div>
-            <p className="text-text-secondary text-sm">
-              Send constructive feedback or appreciation to your colleagues.
-            </p>
-          </div>
-        )}
+          )}
 
         {(!user?.tenantId ||
           typeof user.tenantId === "string" ||

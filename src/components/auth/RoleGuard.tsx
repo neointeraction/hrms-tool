@@ -8,6 +8,8 @@ interface RoleGuardProps {
   allowedRoles: Role[];
 }
 
+import { menuItems } from "../../utils/navigation";
+
 export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -24,6 +26,28 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // 1. Dynamic Module Access Check
+  // Find the menu item corresponding to the current path
+  const currentMenuItem = menuItems.find((item) => {
+    // Exact match or partial match for sub-routes (if needed, but exact is safer for now unless nested)
+    // For simplified matching, assuming exact match for top-level routes
+    return (
+      item.to === location.pathname ||
+      location.pathname.startsWith(item.to + "/")
+    );
+  });
+
+  if (currentMenuItem && currentMenuItem.module) {
+    if (
+      user.accessibleModules &&
+      user.accessibleModules.includes(currentMenuItem.module)
+    ) {
+      // User has specific module access, grant access regardless of role
+      return <>{children}</>;
+    }
+  }
+
+  // 2. Fallback to Static Role Check
   if (!allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }

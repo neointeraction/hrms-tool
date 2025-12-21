@@ -276,96 +276,14 @@ export default function MainLayout() {
           },
         ];
 
-  // Get accessible menu items from navigation utility and merge with icons
-  const accessibleRoutes = user ? getAccessibleMenuItems(user.role) : [];
+  // Get accessible menu items from navigation utility
+  const accessibleRoutes = user ? getAccessibleMenuItems(user) : [];
 
-  // Filter routes based on tenant feature toggles
-  const tenantLimits =
-    user?.tenantId &&
-    typeof user.tenantId === "object" &&
-    "limits" in user.tenantId
-      ? user.tenantId.limits
-      : null;
+  // Simplification: tenantLimits and enabledModules were only used for the now-removed filteredRoutes logic
+  // or are accessed directly from user object elsewhere.
 
-  const enabledModules = tenantLimits?.enabledModules;
-
-  // Map routes to module names (key must match module names in backend/EditTenantModal)
-  const routeModuleMap: Record<string, string> = {
-    "/attendance": "attendance",
-    "/leave": "leave",
-    "/payroll": "payroll",
-    "/projects": "projects",
-    "/clients": "projects", // Group with projects module for access control
-    "/social": "social",
-    "/assets": "assets",
-    "/my-assets": "assets",
-    "/employees": "employees",
-    "/employee-management": "employees",
-    "/roles": "roles",
-    "/designations": "employees",
-    "/settings/documents": "documents",
-    "/audit": "audit",
-    "/organization": "organization",
-    "/miscellaneous/feedback": "feedback",
-    "/miscellaneous/appreciation": "appreciation",
-    "/miscellaneous/email-automation": "email_automation",
-    "/tasks": "tasks",
-    "/ai-configuration": "ai_chatbot",
-    "/shifts": "shifts",
-    "/resignation/manage": "employees", // Group with employee module or create new module
-    "/resignation/submit": "employees", // Everyone should have access if they have employee module access? Or base access.
-    "/my-journey": "my_journey",
-  };
-
-  const filteredRoutes = accessibleRoutes.filter((route) => {
-    // If user is Super Admin, show everything (or handled by RoleGuard/getAccessibleMenuItems already)
-    if (user?.role === "Super Admin") return true;
-
-    // If no limits defined for tenant (e.g. legacy), default to show (or hide? safe default is show for backward compat)
-    if (!enabledModules) return true;
-
-    // specific check for social wall if it's the route
-    if (route.to === "/social" && !enabledModules.includes("social"))
-      return false;
-
-    const module = routeModuleMap[route.to];
-    if (module && !enabledModules.includes(module)) {
-      return false;
-    }
-    // Check for Role-based module access
-    // If not Super Admin, and user has accessibleModules defined, we enforce it.
-    if ((user?.role as string) !== "Super Admin" && user?.accessibleModules) {
-      // Social wall check
-      if (route.to === "/social" && !user.accessibleModules.includes("social"))
-        return false;
-
-      const module = routeModuleMap[route.to];
-
-      // Exemption: "Admin" role or "Company Admin" should ALWAYS have access to Role Management and Employee Management
-      // to prevent lockouts and allow bootstrapping permissions.
-      if (
-        (user.role === "Admin" || user.isCompanyAdmin) &&
-        (module === "roles" || module === "employees")
-      ) {
-        return true;
-      }
-
-      // Exemption: Project Manager should have access to Resignation Management
-      if (
-        user.role === "Project Manager" &&
-        route.to === "/resignation/manage"
-      ) {
-        return true;
-      }
-
-      if (module && !user.accessibleModules.includes(module)) {
-        // console.log("Hiding route:", route.to, "Module:", module);
-        return false;
-      }
-    }
-
-    return true;
-  });
+  // Simplified: accessibleRoutes already contains the filtered list
+  const filteredRoutes = accessibleRoutes;
 
   const getBreadcrumbs = () => {
     const path = location.pathname;

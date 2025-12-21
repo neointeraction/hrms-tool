@@ -9,7 +9,6 @@ export const MODULES = [
   },
   { key: "audit", label: "Audit Trail", shortLabel: "Audit" },
   { key: "leave", label: "Leave Management", shortLabel: "Leave" },
-  { key: "attendance", label: "Attendance", shortLabel: "Attendance" },
   { key: "payroll", label: "Payroll & Finance", shortLabel: "Payroll" },
   { key: "projects", label: "Project Management", shortLabel: "Projects" },
   {
@@ -31,7 +30,6 @@ export const MODULES = [
   },
   { key: "tasks", label: "Task", shortLabel: "Tasks" },
   { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
-  { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheet" },
   { key: "shifts", label: "Shift Management", shortLabel: "Shifts" },
   {
     key: "attendance",
