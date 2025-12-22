@@ -8,10 +8,17 @@ import InternDashboard from "./components/InternDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import { CEODashboard } from "./components/CEODashboard";
 
+import { Navigate } from "react-router-dom";
+
 export default function Dashboard() {
   const { user } = useAuth();
 
   if (!user) return null;
+
+  // Super Admin should not see the standard dashboard
+  if (user.role === "Super Admin") {
+    return <Navigate to="/superadmin/analytics" replace />;
+  }
 
   // Render dashboard based on role
 

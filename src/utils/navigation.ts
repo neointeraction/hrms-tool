@@ -160,6 +160,11 @@ export const menuItems: MenuItem[] = [
  * @returns First accessible route path, or "/" as fallback
  */
 export function getFirstAccessibleRoute(user: User): string {
+  // Super Admin specific default route
+  if (user.role === "Super Admin") {
+    return "/superadmin/analytics";
+  }
+
   const accessibleItems = getAccessibleMenuItems(user);
   return accessibleItems[0]?.to || "/";
 }

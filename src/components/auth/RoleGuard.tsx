@@ -26,6 +26,11 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Super Admin bypass
+  if ((user.role as string) === "Super Admin") {
+    return <>{children}</>;
+  }
+
   // 1. Dynamic Module Access Check
   // Find the menu item corresponding to the current path
   const currentMenuItem = menuItems.find((item) => {

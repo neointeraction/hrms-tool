@@ -215,7 +215,7 @@ export default function Login() {
                 type="button"
                 onClick={() => {
                   setEmail("admin@neointeraction.com");
-                  setPassword("Welcome@123");
+                  setPassword("password123");
                 }}
                 className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
               >
@@ -311,7 +311,7 @@ export default function Login() {
                 type="button"
                 onClick={() => {
                   setEmail("superadmin@hrms.com");
-                  setPassword("SuperAdmin@123");
+                  setPassword("password123");
                 }}
                 className="col-span-2 p-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/20 text-left transition-all group"
               >
