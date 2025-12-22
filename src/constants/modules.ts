@@ -1,5 +1,6 @@
 export const MODULES = [
   { key: "employees", label: "Employee Management", shortLabel: "Employees" },
+  { key: "clients", label: "Client Management", shortLabel: "Clients" },
   { key: "roles", label: "Role Management", shortLabel: "Roles" },
   { key: "assets", label: "Asset Management", shortLabel: "Assets" },
   {
@@ -28,7 +29,7 @@ export const MODULES = [
     label: "Email Automation",
     shortLabel: "Email Auto",
   },
-  { key: "tasks", label: "Task", shortLabel: "Tasks" },
+
   { key: "timesheet", label: "Timesheet Management", shortLabel: "Timesheets" },
   { key: "shifts", label: "Shift Management", shortLabel: "Shifts" },
   {
@@ -38,6 +39,13 @@ export const MODULES = [
   },
   { key: "policies", label: "Policy Management", shortLabel: "Policies" },
   { key: "documents", label: "Document Management", shortLabel: "Documents" },
+  {
+    key: "designations",
+    label: "Designation Management",
+    shortLabel: "Designations",
+  },
+  { key: "exit_management", label: "Exit Management", shortLabel: "Exit" },
+  { key: "help", label: "Help Center", shortLabel: "Help" },
   { key: "my_journey", label: "My Journey", shortLabel: "Journey" },
 ];
 

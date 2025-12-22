@@ -44,7 +44,7 @@ export default function RoleManagement() {
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
 
-  // Filter modules available to the tenant
+  // Filter modules available to the tenant and sort alphabetically
   const tenantModules = MODULES.filter((m) => {
     // If no tenant or limits (e.g. super admin or legacy), show all
     if (
@@ -61,7 +61,7 @@ export default function RoleManagement() {
       tenantWithLimits.limits.enabledModules &&
       tenantWithLimits.limits.enabledModules.includes(m.key)
     );
-  });
+  }).sort((a, b) => a.label.localeCompare(b.label));
 
   const [deleteRoleId, setDeleteRoleId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -123,6 +123,46 @@ export default function RoleManagement() {
         ? prev.filter((id) => id !== docId)
         : [...prev, docId]
     );
+  };
+
+  const handleToggleModule = (moduleKey: string, checked: boolean) => {
+    // 1. Update Modules List
+    setSelectedModules((prev) => {
+      if (checked) {
+        return [...prev, moduleKey];
+      } else {
+        return prev.filter((m) => m !== moduleKey);
+      }
+    });
+
+    // 2. Auto-select/Deselect Permissions
+    if (checked) {
+      // Find all permissions for this module
+      const modulePermissionIds = availablePermissions
+        .filter((p) => p.name.startsWith(`${moduleKey}:`))
+        .map((p) => p._id);
+
+      // Add them to selectedPermissions if not already present
+      setSelectedPermissions((prev) => {
+        const newSet = new Set(prev);
+        modulePermissionIds.forEach((id) => newSet.add(id));
+        return Array.from(newSet);
+      });
+    } else {
+      // Optional: Deselect permissions if module is disabled?
+      // The user request strictly said "when Enable... enable sub module permissions"
+      // But it's good practice to cleanup. However, let's stick to the request for now,
+      // or maybe ask? No, safely assuming user wants convenience.
+      // If I disable "Employees" module, keeping "Edit Employee" permission makes no sense.
+      // So I will remove them too.
+      const modulePermissionIds = availablePermissions
+        .filter((p) => p.name.startsWith(`${moduleKey}:`))
+        .map((p) => p._id);
+
+      setSelectedPermissions((prev) =>
+        prev.filter((id) => !modulePermissionIds.includes(id))
+      );
+    }
   };
 
   const handleSaveRole = async (e: React.FormEvent) => {
@@ -362,9 +402,24 @@ export default function RoleManagement() {
               <div className="flex gap-2 text-sm">
                 <button
                   type="button"
-                  onClick={() =>
-                    setSelectedModules(tenantModules.map((m) => m.key))
-                  }
+                  onClick={() => {
+                    const allKeys = tenantModules.map((m) => m.key);
+                    setSelectedModules(allKeys);
+
+                    // Auto-select ALL permissions for these modules
+                    const allModulePermIds = availablePermissions
+                      .filter((p) => {
+                        const [mod] = p.name.split(":");
+                        return allKeys.includes(mod);
+                      })
+                      .map((p) => p._id);
+
+                    setSelectedPermissions((prev) => {
+                      const newSet = new Set(prev);
+                      allModulePermIds.forEach((id) => newSet.add(id));
+                      return Array.from(newSet);
+                    });
+                  }}
                   className="text-brand-primary hover:text-brand-primary/80 font-medium"
                 >
                   Select All
@@ -372,7 +427,24 @@ export default function RoleManagement() {
                 <span className="text-border">|</span>
                 <button
                   type="button"
-                  onClick={() => setSelectedModules([])}
+                  onClick={() => {
+                    setSelectedModules([]);
+                    // Optional: Clear all permissions or just the ones related to modules?
+                    // Since "Accessible Modules" usually governs the main features,
+                    // clearing modules implies clearing most permissions.
+                    // But maybe there are "Other" permissions?
+                    // Safest is to remove permissions belonging to the tenantModules.
+                    const tenantModuleKeys = tenantModules.map((m) => m.key);
+                    const tenantPermIds = availablePermissions
+                      .filter((p) =>
+                        tenantModuleKeys.includes(p.name.split(":")[0])
+                      )
+                      .map((p) => p._id);
+
+                    setSelectedPermissions((prev) =>
+                      prev.filter((id) => !tenantPermIds.includes(id))
+                    );
+                  }}
                   className="text-text-secondary hover:text-text-primary"
                 >
                   Deselect All
@@ -385,15 +457,9 @@ export default function RoleManagement() {
                   key={moduleObj.key}
                   label={moduleObj.shortLabel || moduleObj.label}
                   checked={selectedModules.includes(moduleObj.key)}
-                  onChange={(e: any) => {
-                    if (e.target.checked) {
-                      setSelectedModules([...selectedModules, moduleObj.key]);
-                    } else {
-                      setSelectedModules(
-                        selectedModules.filter((m) => m !== moduleObj.key)
-                      );
-                    }
-                  }}
+                  onChange={(e: any) =>
+                    handleToggleModule(moduleObj.key, e.target.checked)
+                  }
                 />
               ))}
             </div>
@@ -413,33 +479,98 @@ export default function RoleManagement() {
                     acc[key].push(p);
                     return acc;
                   }, {} as Record<string, Permission[]>)
-                ).map(([module, perms]) => (
-                  <div key={module} className="space-y-2">
-                    <h3 className="text-sm font-semibold text-text-primary capitalize border-b border-border pb-1">
-                      {module.replace("_", " ")}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {perms.map((permission) => (
-                        <label
-                          key={permission._id}
-                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
-                        >
-                          <Checkbox
-                            checked={selectedPermissions.includes(
-                              permission._id
-                            )}
-                            onChange={() =>
-                              handleTogglePermission(permission._id)
-                            }
-                            label={
-                              permission.name.split(":")[1] || permission.name
-                            }
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))
+                )
+                  .sort((a, b) => a[0].localeCompare(b[0]))
+                  .map(([module, perms]) => {
+                    // Logic for Select All
+                    const groupIds = perms.map((p) => p._id);
+                    const allSelected = groupIds.every((id) =>
+                      selectedPermissions.includes(id)
+                    );
+                    const someSelected =
+                      !allSelected &&
+                      groupIds.some((id) => selectedPermissions.includes(id));
+
+                    // Check if this module group is enabled in Accessible Modules
+                    // If it's "Other" or not found in known modules, we assume it's always active or handled separately
+                    // But typically we want to enforce structure.
+                    const isModuleActive =
+                      selectedModules.includes(module) ||
+                      !tenantModules.some((m) => m.key === module);
+
+                    return (
+                      <div
+                        key={module}
+                        className={`space-y-2 ${
+                          !isModuleActive ? "opacity-50" : ""
+                        }`}
+                      >
+                        <div className="flex justify-between items-center border-b border-border pb-1">
+                          <h3 className="text-sm font-semibold text-text-primary capitalize">
+                            {module.replace("_", " ")}
+                          </h3>
+                          <div className="flex gap-2 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Select all in this group
+                                setSelectedPermissions((prev) => [
+                                  ...prev,
+                                  ...groupIds.filter(
+                                    (id) => !prev.includes(id)
+                                  ),
+                                ]);
+                              }}
+                              className="text-brand-primary hover:text-brand-primary/80 font-medium disabled:cursor-not-allowed disabled:text-gray-400"
+                              disabled={!isModuleActive}
+                            >
+                              Select All
+                            </button>
+                            <span className="text-border">|</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Deselect all in this group
+                                setSelectedPermissions((prev) =>
+                                  prev.filter((id) => !groupIds.includes(id))
+                                );
+                              }}
+                              className="text-text-secondary hover:text-text-primary disabled:cursor-not-allowed disabled:text-gray-400"
+                              disabled={!isModuleActive}
+                            >
+                              Deselect All
+                            </button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {perms
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((permission) => (
+                              <label
+                                key={permission._id}
+                                className={`flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded ${
+                                  !isModuleActive ? "cursor-not-allowed" : ""
+                                }`}
+                              >
+                                <Checkbox
+                                  checked={selectedPermissions.includes(
+                                    permission._id
+                                  )}
+                                  onChange={() =>
+                                    handleTogglePermission(permission._id)
+                                  }
+                                  label={
+                                    permission.name.split(":")[1] ||
+                                    permission.name
+                                  }
+                                  disabled={!isModuleActive}
+                                />
+                              </label>
+                            ))}
+                        </div>
+                      </div>
+                    );
+                  })
               ) : (
                 <p className="text-sm text-text-secondary text-center py-2">
                   No permissions available.

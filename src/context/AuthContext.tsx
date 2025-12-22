@@ -11,6 +11,7 @@ interface AuthContextType extends AuthState {
   ) => Promise<User>;
   logout: () => void;
   refreshUser: () => Promise<User | null>;
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -129,9 +130,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pan: apiUser.pan,
         bankName: apiUser.bankName,
         bankAccountNo: apiUser.bankAccountNo,
-        accessibleModules:
-          apiUser.roles?.[0]?.accessibleModules || apiUser.accessibleModules, // Support both nested in role or direct if flattened
+        accessibleModules: apiUser.accessibleModules || [],
         theme: apiUser.theme,
+        permissions: userData.permissions, // Capture permissions from API
       };
 
       if (!updatedUser.id) {
@@ -197,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isCompanyAdmin: userData.user.isCompanyAdmin || false,
         accessibleModules: userData.user.accessibleModules,
         theme: userData.user.theme,
+        permissions: userData.permissions,
       };
 
       setUser(user);
@@ -340,6 +342,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return dummyUsers[email.toLowerCase()] || null;
   };
 
+  const hasPermission = (permission: string): boolean => {
+    if (!user) return false;
+    if (user.isSuperAdmin) return true; // Super Admin bypass (failsafe)
+    return user.permissions?.includes(permission) || false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -349,6 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         refreshUser,
+        hasPermission,
       }}
     >
       {children}

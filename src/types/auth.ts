@@ -46,6 +46,7 @@ export interface User {
   bankName?: string;
   bankAccountNo?: string;
   accessibleModules?: string[];
+  permissions?: string[];
   theme?: "light" | "dark";
 }
 

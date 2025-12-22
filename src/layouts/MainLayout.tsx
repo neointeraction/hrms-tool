@@ -219,62 +219,69 @@ export default function MainLayout() {
     },
   ];
 
-  const sidebarStructure =
-    user?.role === "CEO"
-      ? [
-          {
-            title: "Overview",
-            items: ["/", "/my-journey"],
-          },
-        ]
-      : [
-          {
-            title: "Overview",
-            items: ["/", "/my-journey"],
-          },
-          {
-            title: "People Management",
-            items: [
-              "/employee-management",
-              "/roles",
-              "/designations",
-              "/resignation/manage",
-            ],
-          },
-          {
-            title: "Time & Attendance",
-            items: ["/attendance", "/shifts", "/leave"],
-          },
-          {
-            title: "Work & Payroll",
-            items: ["/projects", "/clients", "/payroll"],
-          },
-          {
-            title: "Resources",
-            items: ["/settings/documents", "/assets"],
-          },
-          {
-            title: "Intelligence & Monitoring",
-            items: ["/ai-configuration", "/audit"],
-          },
-          {
-            title: "Organization Structure",
-            items: ["/organization"],
-          },
-          {
-            title: "System",
-            items: ["/settings", "/miscellaneous", "/help"],
-          },
-          {
-            title: "Platform Administration",
-            items: [
-              "/superadmin/analytics",
-              "/superadmin/tenants",
-              "/superadmin/users",
-              "/superadmin/settings",
-            ],
-          },
-        ];
+  const fullSidebarStructure = [
+    {
+      title: "Overview",
+      items: ["/", "/my-journey"],
+    },
+    {
+      title: "People Management",
+      items: [
+        "/employee-management",
+        "/roles",
+        "/designations",
+        "/resignation/manage",
+      ],
+    },
+    {
+      title: "Time & Attendance",
+      items: ["/attendance", "/shifts", "/leave"],
+    },
+    {
+      title: "Work & Payroll",
+      items: ["/projects", "/clients", "/payroll"],
+    },
+    {
+      title: "Resources",
+      items: ["/settings/documents", "/assets"],
+    },
+    {
+      title: "Intelligence & Monitoring",
+      items: ["/ai-configuration", "/audit"],
+    },
+    {
+      title: "Organization Structure",
+      items: ["/organization"],
+    },
+    {
+      title: "System",
+      items: ["/settings", "/miscellaneous", "/help"],
+    },
+    {
+      title: "Platform Administration",
+      items: [
+        "/superadmin/analytics",
+        "/superadmin/tenants",
+        "/superadmin/users",
+        "/superadmin/settings",
+      ],
+    },
+  ];
+
+  // Restrict Super Admin to only Platform Administration
+  const sidebarStructure = user?.isSuperAdmin
+    ? [
+        {
+          title: "Platform Administration",
+          items: [
+            "/superadmin/analytics",
+            "/superadmin/tenants",
+            "/superadmin/users",
+            "/superadmin/settings",
+          ],
+        },
+      ]
+    : fullSidebarStructure;
 
   // Get accessible menu items from navigation utility
   const accessibleRoutes = user ? getAccessibleMenuItems(user) : [];
@@ -668,8 +675,8 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
-      {/* Chat Widget - Only show for employees (not admins) */}
-      {user?.role !== "Super Admin" && user?.role !== "Admin" && <ChatWidget />}
+      {/* Chat Widget - Only show if AI Chatbot module is enabled */}
+      {user?.accessibleModules?.includes("ai_chatbot") && <ChatWidget />}
     </div>
   );
 }

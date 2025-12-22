@@ -287,14 +287,34 @@ export default function ProjectDetails() {
       </div>
 
       {/* Task Board - Only show if Tasks module is enabled */}
-      {isTasksEnabled && (
-        <div className="bg-bg-card border border-border rounded-lg p-6">
-          <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
-            <CheckSquare size={20} /> Tasks
-          </h2>
-          <TaskBoard projectId={project._id} />
-        </div>
-      )}
+      {/* Task Board - Only show if Tasks module is enabled AND user has permission */}
+      {isTasksEnabled &&
+        user &&
+        (user.role === "Admin" ||
+          user.permissions?.includes("projects:task_view") ||
+          user.permissions?.some(
+            (p: any) => p.name === "projects:task_view"
+          )) && (
+          <div className="bg-bg-card border border-border rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                <CheckSquare size={20} /> Tasks
+              </h2>
+              {(user.role === "Admin" ||
+                user.permissions?.includes("projects:task_create") ||
+                user.permissions?.some(
+                  (p: any) => p.name === "projects:task_create"
+                )) && (
+                <Button size="sm" onClick={() => setShowTaskModal(true)}>
+                  <div className="flex items-center gap-1">
+                    <span>+</span> Add Task
+                  </div>
+                </Button>
+              )}
+            </div>
+            <TaskBoard projectId={project._id} />
+          </div>
+        )}
 
       {showTaskModal && (
         <CreateTaskModal

@@ -11,28 +11,20 @@ import HolidayModal from "../holiday/HolidayModal";
 import HRLeaveOverview from "./HRLeaveOverview";
 
 export default function LeaveDashboard() {
-  const { user } = useAuth();
+  const { hasPermission } = useAuth();
   const [activeTab, setActiveTab] = useState<
     "my-leaves" | "approvals" | "policies" | "overview"
   >("my-leaves");
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
 
-  const canApprove =
-    user?.role === "Admin" ||
-    user?.role === "HR" ||
-    user?.role === "Project Manager";
+  const canApprove = hasPermission("leave:approve");
 
-  const canManagePolicies =
-    (user?.role === "Admin" || user?.role === "HR") &&
-    (!user?.tenantId ||
-      typeof user.tenantId === "string" ||
-      !user.tenantId.limits ||
-      user.tenantId.limits.enabledModules.includes("policies"));
+  const canManagePolicies = hasPermission("leave:manage_policies");
 
   const canViewPolicies = true; // All authenticated users can view policies
 
-  const canViewOverview = user?.role === "Admin" || user?.role === "HR";
+  const canViewOverview = hasPermission("leave:view_all");
 
   return (
     <>
@@ -54,12 +46,14 @@ export default function LeaveDashboard() {
             >
               View Holidays
             </Button>
-            <Button
-              onClick={() => setIsApplyModalOpen(true)}
-              leftIcon={<Plus size={20} />}
-            >
-              Apply for Leave
-            </Button>
+            {hasPermission("leave:apply") && (
+              <Button
+                onClick={() => setIsApplyModalOpen(true)}
+                leftIcon={<Plus size={20} />}
+              >
+                Apply for Leave
+              </Button>
+            )}
           </div>
         </div>
 

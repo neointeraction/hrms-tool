@@ -9,6 +9,7 @@ import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Select } from "../../components/common/Select";
 
 import { Tooltip } from "../../components/common/Tooltip";
+import { useAuth } from "../../context/AuthContext";
 
 interface Designation {
   _id: string;
@@ -18,6 +19,10 @@ interface Designation {
 }
 
 export default function DesignationManagement() {
+  const { user, hasPermission } = useAuth();
+
+  const canManage = hasPermission("designations:manage");
+
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,9 +124,14 @@ export default function DesignationManagement() {
             Create and manage employee job designations
           </p>
         </div>
-        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={20} />}>
-          Add Designation
-        </Button>
+        {canManage && (
+          <Button
+            onClick={() => handleOpenModal()}
+            leftIcon={<Plus size={20} />}
+          >
+            Add Designation
+          </Button>
+        )}
       </div>
 
       {error && (
@@ -193,7 +203,7 @@ export default function DesignationManagement() {
               </div>
             ),
           },
-        ]}
+        ].filter((col) => col.header !== "Actions" || canManage)}
         data={designations}
         isLoading={loading}
         emptyMessage="No designations found."

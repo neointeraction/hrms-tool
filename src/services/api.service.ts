@@ -23,6 +23,7 @@ interface ApiResponse<T = any> {
   users?: any[];
   roles?: any[];
   logs?: any[];
+  permissions?: string[];
 }
 
 class ApiService {
@@ -131,6 +132,22 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to update profile");
+    }
+
+    return response.json();
+  }
+
+  async getMyEmployeeProfile(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees/me`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      // If 404, it might mean user is just created but no employee record exists yet
+      if (response.status === 404) return null;
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch employee profile");
     }
 
     return response.json();

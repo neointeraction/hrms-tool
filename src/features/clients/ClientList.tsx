@@ -5,7 +5,7 @@ import { Button } from "../../components/common/Button";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import ClientFormModal from "./ClientFormModal";
-
+import { useAuth } from "../../context/AuthContext";
 import { Tooltip } from "../../components/common/Tooltip";
 
 export default function ClientList() {
@@ -15,6 +15,26 @@ export default function ClientList() {
   const [editingClient, setEditingClient] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  const hasPermission = (permission: string) => {
+    console.log("hasPermission check:", permission, user?.permissions);
+
+    // Check if permission exists as a string OR as an object with name
+    const permissions = user?.permissions || [];
+    return (
+      user?.role === "Admin" ||
+      permissions.some(
+        (p: any) =>
+          (typeof p === "string" && p === permission) ||
+          (typeof p === "object" && p.name === permission)
+      )
+    );
+  };
+
+  const canCreate = hasPermission("clients:create");
+  const canEdit = hasPermission("clients:edit");
+  const canDelete = hasPermission("clients:delete");
 
   useEffect(() => {
     loadClients();
@@ -41,7 +61,6 @@ export default function ClientList() {
     if (!clientToDelete) return;
     try {
       await apiService.deleteClient(clientToDelete);
-      // Clean up modal state first to avoid blink/race
       setShowDeleteModal(false);
       setClientToDelete(null);
       loadClients();
@@ -72,12 +91,12 @@ export default function ClientList() {
             Manage your client database and details.
           </p>
         </div>
-        <Button onClick={handleCreate} leftIcon={<Plus size={20} />}>
-          Add Client
-        </Button>
+        {canCreate && (
+          <Button onClick={handleCreate} leftIcon={<Plus size={20} />}>
+            Add Client
+          </Button>
+        )}
       </div>
-
-      {/* Search */}
 
       <Table
         isLoading={loading}
@@ -133,29 +152,33 @@ export default function ClientList() {
             className: "text-right",
             render: (client: any) => (
               <div className="flex justify-end gap-2">
-                <Tooltip content="Edit">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(client);
-                    }}
-                    className="text-text-secondary hover:text-brand-primary transition-colors"
-                  >
-                    <Edit size={18} />
-                  </button>
-                </Tooltip>
+                {canEdit && (
+                  <Tooltip content="Edit">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(client);
+                      }}
+                      className="text-text-secondary hover:text-brand-primary transition-colors"
+                    >
+                      <Edit size={18} />
+                    </button>
+                  </Tooltip>
+                )}
 
-                <Tooltip content="Delete">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(client._id);
-                    }}
-                    className="text-text-secondary hover:text-red-600 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </Tooltip>
+                {canDelete && (
+                  <Tooltip content="Delete">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(client._id);
+                      }}
+                      className="text-text-secondary hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </Tooltip>
+                )}
               </div>
             ),
           },

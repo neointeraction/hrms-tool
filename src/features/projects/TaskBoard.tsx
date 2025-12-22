@@ -6,9 +6,16 @@ interface TaskBoardProps {
   projectId: string;
 }
 
+import { useAuth } from "../../context/AuthContext";
+
 export default function TaskBoard({ projectId }: TaskBoardProps) {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const canEditTask =
+    user?.role === "Admin" ||
+    user?.permissions?.some((p: any) => p.name === "projects:task_edit");
 
   useEffect(() => {
     if (projectId) loadTasks();
@@ -97,34 +104,36 @@ export default function TaskBoard({ projectId }: TaskBoardProps) {
                   )}
 
                   {/* Move actions (Simplified without drag/drop) */}
-                  <div className="flex justify-end gap-1 mt-3 pt-2 border-t border-border">
-                    {status !== "To Do" && (
-                      <button
-                        onClick={() =>
-                          updateStatus(
-                            task._id,
-                            columns[columns.indexOf(status) - 1]
-                          )
-                        }
-                        className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
-                      >
-                        &lt; Back
-                      </button>
-                    )}
-                    {status !== "Done" && (
-                      <button
-                        onClick={() =>
-                          updateStatus(
-                            task._id,
-                            columns[columns.indexOf(status) + 1]
-                          )
-                        }
-                        className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
-                      >
-                        Next &gt;
-                      </button>
-                    )}
-                  </div>
+                  {canEditTask && (
+                    <div className="flex justify-end gap-1 mt-3 pt-2 border-t border-border">
+                      {status !== "To Do" && (
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              task._id,
+                              columns[columns.indexOf(status) - 1]
+                            )
+                          }
+                          className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
+                        >
+                          &lt; Back
+                        </button>
+                      )}
+                      {status !== "Done" && (
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              task._id,
+                              columns[columns.indexOf(status) + 1]
+                            )
+                          }
+                          className="text-[10px] px-1 bg-bg-subtle rounded hover:bg-bg-hover text-text-secondary"
+                        >
+                          Next &gt;
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             {tasks.filter((t) => t.status === status).length === 0 && (

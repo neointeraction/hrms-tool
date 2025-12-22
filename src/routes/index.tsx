@@ -139,41 +139,33 @@ export const router = createBrowserRouter([
       {
         path: "employee-management",
         element: (
-          <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <ModuleGuard module="employees">
-              <EmployeeManagement />
-            </ModuleGuard>
-          </RoleGuard>
+          <ModuleGuard module="employees">
+            <EmployeeManagement />
+          </ModuleGuard>
         ),
       },
       {
         path: "roles",
         element: (
-          <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <ModuleGuard module="roles">
-              <RoleManagement />
-            </ModuleGuard>
-          </RoleGuard>
+          <ModuleGuard module="roles">
+            <RoleManagement />
+          </ModuleGuard>
         ),
       },
       {
         path: "designations",
         element: (
-          <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <ModuleGuard module="employees">
-              <DesignationManagement />
-            </ModuleGuard>
-          </RoleGuard>
+          <ModuleGuard module="employees">
+            <DesignationManagement />
+          </ModuleGuard>
         ),
       },
       {
         path: "shifts",
         element: (
-          <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <ModuleGuard module="shifts">
-              <ShiftManagement />
-            </ModuleGuard>
-          </RoleGuard>
+          <ModuleGuard module="shifts">
+            <ShiftManagement />
+          </ModuleGuard>
         ),
       },
       {
@@ -286,7 +278,7 @@ export const router = createBrowserRouter([
         path: "clients",
         element: (
           <RoleGuard allowedRoles={["Admin", "HR", "Project Manager"]}>
-            <ModuleGuard module="projects">
+            <ModuleGuard module="clients">
               <ClientList />
             </ModuleGuard>
           </RoleGuard>

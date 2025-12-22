@@ -34,7 +34,7 @@ export const menuItems: MenuItem[] = [
   {
     to: "/designations",
     label: "Designation Management",
-    module: "employees",
+    module: "designations",
   },
   {
     to: "/shifts",
@@ -84,7 +84,7 @@ export const menuItems: MenuItem[] = [
   {
     to: "/clients",
     label: "Client Management",
-    module: "projects",
+    module: "clients",
   },
   {
     to: "/projects",
@@ -122,7 +122,8 @@ export const menuItems: MenuItem[] = [
     label: "System Settings",
     // Settings usually restricted to Admin, but can be module based?
     // Let's keep role restriction for now or create a 'settings' module
-    roles: ["Admin"],
+    // roles: ["Admin"], // REMOVED hardcoded role
+    permissions: ["organization:manage"], // Requires organization management permission
   },
   {
     to: "/miscellaneous",
@@ -138,17 +139,18 @@ export const menuItems: MenuItem[] = [
   {
     to: "/resignation/submit",
     label: "My Resignation",
-    module: "employees", // Part of employee lifecycle
+    module: "employees", // Part of employee lifecycle - Keep as employees or move to exit_management for strict control?
+    // Usually 'submit' is for everyone (Employee module), 'manage' is for HR/Manager (Exit Management).
   },
   {
     to: "/resignation/manage",
     label: "Exit Management",
-    module: "employees", // Part of employee lifecycle
+    module: "exit_management",
   },
   {
     to: "/help",
     label: "Help",
-    // Universal access
+    module: "help",
   },
 ];
 
@@ -195,7 +197,20 @@ export function getAccessibleMenuItems(user: User): MenuItem[] {
       if (!hasAny) return false;
     }
 
-    // 3. Fallback / Specific Role Overrides
+    // 3. Check Permissions
+    if (item.permissions && item.permissions.length > 0) {
+      if (!user.permissions) return false;
+      // User must have ALL permissions listed? Or ANY?
+      // Typically nav item requires *a* capability. Let's assume ANY for now if multiple listed, or match strict.
+      // Usually "view" permission is enough.
+      // Let's go with: User must have AT LEAST ONE of the required permissions to see the menu.
+      const hasPermission = item.permissions.some((p) =>
+        user.permissions!.includes(p)
+      );
+      if (!hasPermission) return false;
+    }
+
+    // 4. Fallback / Specific Role Overrides
     // If an item has explicit roles defined (e.g. "System Settings" for Admin), logic is strict.
     // Since we removed roles from general items (like Dashboard) and module-based items,
     // presence of 'roles' implies a strict role-based restriction.

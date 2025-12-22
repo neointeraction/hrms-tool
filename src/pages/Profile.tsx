@@ -139,19 +139,11 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiService.getCurrentUser();
-        const userId = response.user.id || response.user._id;
+        // Fetch current user details first (for basic auth/user info)
+        const userResponse = await apiService.getCurrentUser();
 
-        const employeesResponse: any = await apiService.getEmployees();
-        const allEmployees = Array.isArray(employeesResponse)
-          ? employeesResponse
-          : employeesResponse.employees || [];
-
-        const employeeRecord = allEmployees.find(
-          (emp: any) =>
-            (emp.user?._id || emp.user) === userId ||
-            (emp.user?._id || emp.user)?.toString() === userId?.toString()
-        );
+        // Fetch specific employee profile for this user
+        const employeeRecord = await apiService.getMyEmployeeProfile();
 
         if (employeeRecord) {
           setEmployeeId(employeeRecord._id);
@@ -219,6 +211,17 @@ export default function Profile() {
                 : `${ASSET_BASE_URL}/${employeeRecord.profilePicture}`
             );
           }
+        } else {
+          // Fallback if no employee record (e.g. pure Admin user)
+          console.warn("No employee record found for current user");
+          // We can pre-fill from user object if needed, but Profile page implies Employee profile.
+          setProfileData((prev) => ({
+            ...prev,
+            email: userResponse.user.email,
+            firstName: userResponse.user.name?.split(" ")[0] || "",
+            lastName:
+              userResponse.user.name?.split(" ").slice(1).join(" ") || "",
+          }));
         }
       } catch (err: any) {
         console.error("Failed to fetch employee data:", err);

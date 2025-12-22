@@ -51,8 +51,8 @@ export default function LeavePolicyList() {
     }
   };
 
-  const { user } = useAuth();
-  const canManage = user?.role === "Admin" || user?.role === "HR";
+  const { hasPermission } = useAuth();
+  const canManage = hasPermission("leave:manage_policies");
 
   // Split policies into "Leave Types" and "Documents"
   // Logic: Documents are Custom type AND have 0 days allocation
@@ -307,8 +307,8 @@ export default function LeavePolicyList() {
 import { Tooltip } from "../../../components/common/Tooltip";
 
 const PolicyActions = ({ policy, onDelete, onEdit }: any) => {
-  const { user } = useAuth();
-  const canManage = user?.role === "Admin" || user?.role === "HR";
+  const { hasPermission } = useAuth();
+  const canManage = hasPermission("leave:manage_policies");
 
   if (!canManage) return null;
 

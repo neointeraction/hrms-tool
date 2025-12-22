@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Tooltip } from "../../components/common/Tooltip";
 
 export default function EmployeeManagement() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -158,8 +158,7 @@ export default function EmployeeManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          {(!user?.accessibleModules ||
-            user.accessibleModules.includes("documents")) && (
+          {hasPermission("employees:create") && (
             <Button
               onClick={() => setIsBulkModalOpen(true)}
               variant="outline"
@@ -168,9 +167,11 @@ export default function EmployeeManagement() {
               Bulk Upload
             </Button>
           )}
-          <Button onClick={handleAddEmployee} leftIcon={<Plus size={20} />}>
-            Add Employee
-          </Button>
+          {hasPermission("employees:create") && (
+            <Button onClick={handleAddEmployee} leftIcon={<Plus size={20} />}>
+              Add Employee
+            </Button>
+          )}
         </div>
       </div>
 
@@ -275,55 +276,63 @@ export default function EmployeeManagement() {
                       </button>
                     </Tooltip>
 
-                    <Tooltip content="Edit Employee">
-                      <button
-                        onClick={() => handleEditEmployee(emp)}
-                        className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                    </Tooltip>
+                    {hasPermission("employees:edit") && (
+                      <Tooltip content="Edit Employee">
+                        <button
+                          onClick={() => handleEditEmployee(emp)}
+                          className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      </Tooltip>
+                    )}
 
-                    <Tooltip
-                      content={
-                        userStatus === "active"
-                          ? "Deactivate User"
-                          : "Activate User"
-                      }
-                    >
-                      <button
-                        onClick={() => handleStatusToggle(emp)}
-                        className={`p-2 rounded-lg transition-colors ${
+                    {hasPermission("employees:edit") && (
+                      <Tooltip
+                        content={
                           userStatus === "active"
-                            ? "text-amber-600 hover:bg-amber-50"
-                            : "text-green-600 hover:bg-green-50"
-                        }`}
+                            ? "Deactivate User"
+                            : "Activate User"
+                        }
                       >
-                        {userStatus === "active" ? (
-                          <UserX size={16} />
-                        ) : (
-                          <UserCheck size={16} />
-                        )}
-                      </button>
-                    </Tooltip>
+                        <button
+                          onClick={() => handleStatusToggle(emp)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            userStatus === "active"
+                              ? "text-amber-600 hover:bg-amber-50"
+                              : "text-green-600 hover:bg-green-50"
+                          }`}
+                        >
+                          {userStatus === "active" ? (
+                            <UserX size={16} />
+                          ) : (
+                            <UserCheck size={16} />
+                          )}
+                        </button>
+                      </Tooltip>
+                    )}
 
-                    <Tooltip content="Reset Password">
-                      <button
-                        onClick={() => handleResetPassword(emp)}
-                        className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Lock size={16} />
-                      </button>
-                    </Tooltip>
+                    {hasPermission("employees:edit") && (
+                      <Tooltip content="Reset Password">
+                        <button
+                          onClick={() => handleResetPassword(emp)}
+                          className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <Lock size={16} />
+                        </button>
+                      </Tooltip>
+                    )}
 
-                    <Tooltip content="Delete User">
-                      <button
-                        onClick={() => handleDeleteUser(emp)}
-                        className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </Tooltip>
+                    {hasPermission("employees:delete") && (
+                      <Tooltip content="Delete User">
+                        <button
+                          onClick={() => handleDeleteUser(emp)}
+                          className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </Tooltip>
+                    )}
                   </div>
                 );
               },

@@ -6,28 +6,19 @@ import PayrollProcessor from "./PayrollProcessor";
 import PayslipView from "./PayslipView";
 
 export default function PayrollDashboard() {
-  const { user } = useAuth();
+  const { hasPermission } = useAuth();
 
-  // Default tab based on role
+  const canManageStructure = hasPermission("payroll:manage_structure");
+  const canProcessPayroll = hasPermission("payroll:process");
+
+  // Default tab based on permissions
   const getDefaultTab = () => {
-    if (
-      user?.role === "Employee" ||
-      user?.role === "Intern" ||
-      user?.role === "Consultant" ||
-      user?.role === "Project Manager"
-    ) {
-      return "payslips";
-    }
-    if (user?.role === "Accountant") return "processing";
-    if (user?.role === "HR") return "structure";
-    return "processing"; // Admin
+    if (canProcessPayroll) return "processing";
+    if (canManageStructure) return "structure";
+    return "payslips";
   };
 
   const [activeTab, setActiveTab] = useState(getDefaultTab());
-
-  const canManageStructure = user?.role === "HR" || user?.role === "Admin";
-  const canProcessPayroll =
-    user?.role === "Accountant" || user?.role === "Admin";
 
   return (
     <div className="space-y-6">
