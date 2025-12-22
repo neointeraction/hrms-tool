@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Tooltip } from "../../components/common/Tooltip";
 
 export default function EmployeeManagement() {
-  const { user, hasPermission } = useAuth();
+  const { hasPermission } = useAuth();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

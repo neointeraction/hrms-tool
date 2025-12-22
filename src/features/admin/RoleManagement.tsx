@@ -484,12 +484,6 @@ export default function RoleManagement() {
                   .map(([module, perms]) => {
                     // Logic for Select All
                     const groupIds = perms.map((p) => p._id);
-                    const allSelected = groupIds.every((id) =>
-                      selectedPermissions.includes(id)
-                    );
-                    const someSelected =
-                      !allSelected &&
-                      groupIds.some((id) => selectedPermissions.includes(id));
 
                     // Check if this module group is enabled in Accessible Modules
                     // If it's "Other" or not found in known modules, we assume it's always active or handled separately

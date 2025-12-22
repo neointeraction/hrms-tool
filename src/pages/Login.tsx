@@ -48,8 +48,8 @@ export default function Login() {
       const user = await login(email, password, coords);
 
       // Get accessible routes for the user's role
-      const accessibleRoutes = getAccessibleMenuItems(user.role);
-      const firstRoute = getFirstAccessibleRoute(user.role);
+      const accessibleRoutes = getAccessibleMenuItems(user);
+      const firstRoute = getFirstAccessibleRoute(user);
       const from = location.state?.from?.pathname;
 
       // Only use 'from' if it's accessible to the user's role, otherwise use first accessible route

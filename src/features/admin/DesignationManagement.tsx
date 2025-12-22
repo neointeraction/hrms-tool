@@ -19,7 +19,7 @@ interface Designation {
 }
 
 export default function DesignationManagement() {
-  const { user, hasPermission } = useAuth();
+  const { hasPermission } = useAuth();
 
   const canManage = hasPermission("designations:manage");
 
@@ -141,13 +141,13 @@ export default function DesignationManagement() {
         </div>
       )}
 
-      <Table
+      <Table<Designation>
         columns={[
           {
             header: "Designation Name",
-            accessorKey: "name",
-            searchKey: "name",
-            render: (d) => (
+            accessorKey: "name" as keyof Designation,
+            searchKey: "name" as keyof Designation,
+            render: (d: Designation) => (
               <div className="flex items-center gap-2 font-medium text-text-primary">
                 <Badge size={16} className="text-brand-primary" />
                 {d.name}
@@ -156,8 +156,8 @@ export default function DesignationManagement() {
           },
           {
             header: "Description",
-            accessorKey: "description",
-            render: (d) => (
+            accessorKey: "description" as keyof Designation,
+            render: (d: Designation) => (
               <span className="text-text-secondary truncate block max-w-md">
                 {d.description || "-"}
               </span>
@@ -165,8 +165,8 @@ export default function DesignationManagement() {
           },
           {
             header: "Status",
-            accessorKey: "status",
-            render: (d) => (
+            accessorKey: "status" as keyof Designation,
+            render: (d: Designation) => (
               <span
                 className={`px-2 py-1 text-xs rounded-full ${
                   d.status === "active"
@@ -181,7 +181,7 @@ export default function DesignationManagement() {
           {
             header: "Actions",
             className: "text-right",
-            render: (d) => (
+            render: (d: Designation) => (
               <div className="flex items-center justify-end gap-2">
                 <Tooltip content="Edit">
                   <button
