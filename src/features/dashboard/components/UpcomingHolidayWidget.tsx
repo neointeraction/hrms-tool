@@ -37,35 +37,49 @@ export default function UpcomingHolidayWidget() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [holidays, events] = await Promise.all([
+        // Use allSettled to prevent one failure from blocking the other
+        const [holidaysResult, eventsResult] = await Promise.allSettled([
           apiService.getHolidays(new Date().getFullYear()),
           apiService.getUpcomingEvents(),
         ]);
 
-        // Process Holiday
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const nextHoliday = holidays
-          .filter((h: any) => new Date(h.date) >= today)
-          .sort(
-            (a: any, b: any) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime()
-          )[0];
-        setUpcomingHoliday(nextHoliday);
+        // Process Holidays
+        if (holidaysResult.status === "fulfilled") {
+          const holidays = holidaysResult.value;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const nextHoliday = holidays
+            .filter((h: any) => new Date(h.date) >= today)
+            .sort(
+              (a: any, b: any) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime()
+            )[0];
+          setUpcomingHoliday(nextHoliday);
+        } else {
+          console.error("Failed to fetch holidays:", holidaysResult.reason);
+        }
 
         // Process Events
-        const currentMonth = new Date().getMonth();
-        const filteredEvents = {
-          birthdays: (events.birthdays || []).filter(
-            (e: any) => new Date(e.date).getMonth() === currentMonth
-          ),
-          anniversaries: (events.anniversaries || []).filter(
-            (e: any) => new Date(e.date).getMonth() === currentMonth
-          ),
-        };
-        setEventsData(filteredEvents);
+        if (eventsResult.status === "fulfilled") {
+          const events = eventsResult.value;
+          const currentMonth = new Date().getMonth();
+          const filteredEvents = {
+            birthdays: (events.birthdays || []).filter(
+              (e: any) => new Date(e.date).getMonth() === currentMonth
+            ),
+            anniversaries: (events.anniversaries || []).filter(
+              (e: any) => new Date(e.date).getMonth() === currentMonth
+            ),
+          };
+          setEventsData(filteredEvents);
+        } else {
+          console.error(
+            "Failed to fetch upcoming events:",
+            eventsResult.reason
+          );
+        }
       } catch (error) {
-        console.error("Failed to fetch widget data", error);
+        console.error("Critical error in widget data fetching:", error);
       } finally {
         setLoading(false);
       }
