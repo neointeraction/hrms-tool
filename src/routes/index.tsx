@@ -228,11 +228,9 @@ export const router = createBrowserRouter([
       {
         path: "audit",
         element: (
-          <RoleGuard allowedRoles={["Admin", "HR"]}>
-            <ModuleGuard module="audit">
-              <AuditTrail />
-            </ModuleGuard>
-          </RoleGuard>
+          <ModuleGuard module="audit">
+            <AuditTrail />
+          </ModuleGuard>
         ),
       },
       {
