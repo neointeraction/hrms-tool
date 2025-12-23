@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
+import { Modal } from "../../../components/common/Modal";
 
 export default function ClockInOut() {
   const [status, setStatus] = useState<
@@ -25,6 +26,11 @@ export default function ClockInOut() {
 
   const [showClockOutModal, setShowClockOutModal] = useState(false);
   const [completedTasks, setCompletedTasks] = useState("");
+
+  // Leave restriction state
+  const [showLeaveErrorModal, setShowLeaveErrorModal] = useState(false);
+  const [leaveErrorMessage, setLeaveErrorMessage] = useState("");
+  const [clockInDisabled, setClockInDisabled] = useState(false);
 
   // Fetch current status and shift info on mount
   useEffect(() => {
@@ -75,7 +81,16 @@ export default function ClockInOut() {
       setStatus("clocked-in");
       setTimeEntry(data.timeEntry);
     } catch (error: any) {
-      alert(error.message);
+      if (
+        error.message &&
+        error.message.toLowerCase().includes("approved leave")
+      ) {
+        setLeaveErrorMessage(error.message);
+        setShowLeaveErrorModal(true);
+        setClockInDisabled(true);
+      } else {
+        alert(error.message);
+      }
     } finally {
       setActionLoading(false);
     }
@@ -291,7 +306,7 @@ export default function ClockInOut() {
         {status === "clocked-out" && (
           <button
             onClick={handleClockIn}
-            disabled={actionLoading}
+            disabled={actionLoading || clockInDisabled}
             className="col-span-full flex items-center justify-center gap-3 px-8 py-6 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-semibold text-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
             {actionLoading ? (
@@ -479,6 +494,36 @@ export default function ClockInOut() {
           </div>
         </div>
       )}
+
+      {/* Leave Restriction Modal */}
+      <Modal
+        isOpen={showLeaveErrorModal}
+        onClose={() => setShowLeaveErrorModal(false)}
+        title="Action Restricted"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4">
+          <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-start gap-3">
+            <Calendar className="shrink-0 mt-0.5" size={20} />
+            <div>
+              <p className="font-semibold">On Leave</p>
+              <p className="text-sm mt-1">{leaveErrorMessage}</p>
+            </div>
+          </div>
+          <p className="text-text-secondary text-sm">
+            You cannot perform attendance actions on days you have approved
+            leave. Please contact HR if this is a mistake.
+          </p>
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowLeaveErrorModal(false)}
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
+            >
+              Understood
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

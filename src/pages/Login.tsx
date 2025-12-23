@@ -247,7 +247,7 @@ export default function Login() {
                 type="button"
                 onClick={() => {
                   setEmail("shameer@neointeraction.com");
-                  setPassword("password");
+                  setPassword("password123");
                 }}
                 className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
               >

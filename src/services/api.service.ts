@@ -2240,7 +2240,6 @@ class ApiService {
   }
 
   async getHRLeaveOverview(filters: any) {
-    const token = localStorage.getItem("hrms_token");
     const queryParams = new URLSearchParams();
 
     Object.keys(filters).forEach((key) => {
@@ -2250,10 +2249,7 @@ class ApiService {
     const response = await fetch(
       `${API_BASE_URL}/leave/hr-overview?${queryParams.toString()}`,
       {
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+        headers: this.getAuthHeaders(),
       }
     );
 
