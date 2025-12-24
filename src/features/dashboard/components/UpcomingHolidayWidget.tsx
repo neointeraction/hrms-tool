@@ -7,7 +7,7 @@ import {
   Award,
   Sparkles,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import { apiService } from "../../../services/api.service";
 import { useAppStore } from "../../../store/useAppStore";
 import { Skeleton } from "../../../components/common/Skeleton";
@@ -110,11 +110,7 @@ export default function UpcomingHolidayWidget() {
     activeTab === "birthdays" ? eventsData.birthdays : eventsData.anniversaries;
 
   const daysUntil = upcomingHoliday
-    ? Math.ceil(
-        (new Date(upcomingHoliday.date).getTime() -
-          new Date().setHours(0, 0, 0, 0)) /
-          (1000 * 60 * 60 * 24)
-      )
+    ? differenceInCalendarDays(new Date(upcomingHoliday.date), new Date())
     : 0;
 
   // Render Holiday View
@@ -208,7 +204,9 @@ export default function UpcomingHolidayWidget() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/20 backdrop-blur-md  ">
                 <Clock size={14} className="text-white" />
                 <p className="text-sm font-bold text-white">
-                  {daysUntil} {daysUntil === 1 ? "day" : "days"} to go
+                  {daysUntil === 0
+                    ? "Today"
+                    : `${daysUntil} ${daysUntil === 1 ? "day" : "days"} to go`}
                 </p>
               </div>
             </div>
