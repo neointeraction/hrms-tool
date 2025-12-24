@@ -1694,6 +1694,18 @@ class ApiService {
     return response.json();
   }
 
+  async getDirectory(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/employees/directory`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch directory");
+    }
+    return response.json();
+  }
+
   async getEmployeeById(id: string): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
       method: "GET",

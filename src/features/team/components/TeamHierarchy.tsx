@@ -137,7 +137,8 @@ export default function TeamHierarchy() {
       // Fetching both is safer for consistent data.
       const [hierarchyData, employeesData] = await Promise.all([
         apiService.getHierarchy(),
-        apiService.getEmployees(),
+        // Use directory endpoint for safe access for all employees
+        apiService.getDirectory(),
       ]);
 
       const builtTree = buildTree(hierarchyData);
