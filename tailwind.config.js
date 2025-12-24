@@ -33,7 +33,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Lato", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
