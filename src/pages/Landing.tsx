@@ -17,6 +17,7 @@ import { Modal } from "../components/common/Modal";
 import { Button } from "../components/common/Button";
 import { Input } from "../components/common/Input";
 import { Select } from "../components/common/Select";
+import { useAuth } from "../context/AuthContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,14 +28,19 @@ export default function Landing() {
   const pricingRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
+  const { login } = useAuth();
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
   );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    companyName: "",
     companySize: "",
+    password: "",
+    confirmPassword: "",
   });
 
   // Force dark mode on mount
@@ -346,9 +352,36 @@ export default function Landing() {
     };
   }, []);
 
-  const handleTrialSubmit = (e: React.FormEvent) => {
+  const handleTrialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/signup", { state: formData });
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Register Company
+      const { apiService } = await import("../services/api.service");
+      await apiService.registerCompany({
+        companyName: formData.companyName,
+        adminName: formData.name,
+        adminEmail: formData.email,
+        password: formData.password,
+        plan: "pro", // Default to Pro for Trial
+      });
+
+      // 2. Auto Login
+      await login(formData.email, formData.password);
+
+      // 3. Redirect
+      navigate("/dashboard");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to create account");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const companySizeOptions = [
@@ -979,13 +1012,13 @@ export default function Landing() {
             <form onSubmit={handleTrialSubmit} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label="Full Name"
+                  label="Company Name"
                   type="text"
-                  value={formData.name}
+                  value={formData.companyName}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, companyName: e.target.value })
                   }
-                  placeholder="John Doe"
+                  placeholder="Acme Inc"
                   required
                   className="bg-bg-main"
                 />
@@ -1003,6 +1036,18 @@ export default function Landing() {
               </div>
 
               <Input
+                label="Full Name"
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="John Doe"
+                required
+                className="bg-bg-main"
+              />
+
+              <Input
                 label="Work Email"
                 type="email"
                 value={formData.email}
@@ -1013,6 +1058,34 @@ export default function Landing() {
                 required
                 className="bg-bg-main"
               />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  placeholder="••••••"
+                  required
+                  className="bg-bg-main"
+                />
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  placeholder="••••••"
+                  required
+                  className="bg-bg-main"
+                />
+              </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col items-center gap-2 text-center p-3 rounded-lg bg-bg-main/50 border border-white/10">
@@ -1038,6 +1111,7 @@ export default function Landing() {
               <div className="pt-2">
                 <Button
                   type="submit"
+                  isLoading={loading}
                   className="w-full py-3 text-lg font-semibold shadow-xl shadow-brand-primary/20 hover:shadow-brand-primary/40 transition-all hover:-translate-y-0.5"
                 >
                   Create My Account

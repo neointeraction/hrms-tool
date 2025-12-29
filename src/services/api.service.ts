@@ -51,6 +51,24 @@ class ApiService {
     return response.json();
   }
 
+  async registerCompany(data: any): Promise<ApiResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/registration/register-company`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to register company");
+    }
+
+    return response.json();
+  }
+
   async login(
     email: string,
     password: string,
@@ -276,22 +294,6 @@ class ApiService {
       }
     );
     if (!response.ok) throw new Error("Failed to fetch analytics");
-    return response.json();
-  }
-
-  async registerCompany(data: any): Promise<any> {
-    const response = await fetch(
-      `${API_BASE_URL}/registration/register-company`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to register company");
-    }
     return response.json();
   }
 
