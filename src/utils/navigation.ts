@@ -120,10 +120,7 @@ export const menuItems: MenuItem[] = [
   {
     to: "/settings",
     label: "System Settings",
-    // Settings usually restricted to Admin, but can be module based?
-    // Let's keep role restriction for now or create a 'settings' module
-    // roles: ["Admin"], // REMOVED hardcoded role
-    permissions: ["organization:manage"], // Requires organization management permission
+    roles: ["Admin"], // Only Admin can access System Settings
   },
   {
     to: "/miscellaneous",

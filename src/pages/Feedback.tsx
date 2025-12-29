@@ -144,6 +144,7 @@ export default function Feedback() {
 
   // Respond State
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [comments, setComments] = useState("");
   const [submittingResponse, setSubmittingResponse] = useState(false);
   const [targetEmployeeId, setTargetEmployeeId] = useState("");
 
@@ -347,7 +348,7 @@ export default function Feedback() {
       const payloadAnswers = selectedForm.questions.map((q: any) => ({
         questionId: q._id,
         ratingValue: answers[q._id],
-        textValue: "",
+        textValue: comments, // Include comments for all questions
       }));
 
       await apiService.submitFeedbackResponse({
@@ -361,6 +362,7 @@ export default function Feedback() {
       setViewMode("list");
       setSelectedForm(null);
       setAnswers({});
+      setComments("");
       setTargetEmployeeId(""); // Reset selection
     } catch (err: any) {
       setError(err.message || "Failed to submit response");
@@ -602,6 +604,7 @@ export default function Feedback() {
                       setSelectedForm(form);
                       setViewMode("respond");
                       setAnswers({});
+                      setComments("");
                     }}
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -937,6 +940,24 @@ export default function Feedback() {
                   </table>
                 </div>
 
+                {/* Additional Comments Section */}
+                <div className="mt-8 bg-bg-main/50 border border-border rounded-lg p-6">
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Additional Comments (Optional)
+                  </label>
+                  <p className="text-xs text-text-secondary mb-3">
+                    Share any additional feedback, suggestions, or observations
+                    about this colleague.
+                  </p>
+                  <textarea
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                    placeholder="Type your comments here..."
+                    className="w-full px-4 py-3 bg-bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 resize-none text-text-primary placeholder:text-text-muted"
+                    rows={5}
+                  />
+                </div>
+
                 <div className="mt-8 flex justify-end">
                   <Button
                     onClick={handleSurveySubmit}
@@ -1146,6 +1167,20 @@ export default function Feedback() {
                     );
                   })}
                 </div>
+
+                {/* Display Comments if available */}
+                {selectedResponse.answers[0]?.textValue && (
+                  <div className="mt-6">
+                    <h3 className="font-semibold text-text-primary mb-2">
+                      Additional Comments
+                    </h3>
+                    <div className="bg-bg-main/50 p-4 rounded-lg border border-border">
+                      <p className="text-sm text-text-secondary whitespace-pre-wrap">
+                        {selectedResponse.answers[0].textValue}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </Modal>
           )}

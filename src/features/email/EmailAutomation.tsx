@@ -13,6 +13,15 @@ export default function EmailAutomation() {
   const [settings, setSettings] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState<{
+    birthday: boolean;
+    anniversary: boolean;
+    timesheet: boolean;
+  }>({
+    birthday: false,
+    anniversary: false,
+    timesheet: false,
+  });
 
   useEffect(() => {
     if (activeTab === "settings") fetchSettings();
@@ -41,7 +50,6 @@ export default function EmailAutomation() {
       setLogs(data);
     } catch (error: any) {
       console.error("Failed to fetch logs", error);
-      // Optional: setError(error.message) for logs too?
     } finally {
       setLoading(false);
     }
@@ -52,7 +60,6 @@ export default function EmailAutomation() {
       setLoading(true);
       setError(null);
       await apiService.updateEmailSettings(settings);
-      // maybe show toast
     } catch (error: any) {
       console.error("Failed to save settings", error);
       setError(error.message || "Failed to save settings");
@@ -66,7 +73,6 @@ export default function EmailAutomation() {
       setLoading(true);
       setError(null);
       await apiService.triggerEmailAutomation();
-      // show success toast or refetch logs
       setActiveTab("logs");
     } catch (error: any) {
       console.error("Failed to trigger automation", error);
@@ -76,7 +82,6 @@ export default function EmailAutomation() {
     }
   };
 
-  // Helper to deep update state provided a path like 'birthday.enabled'
   const updateSetting = (path: string, value: any) => {
     setSettings((prev: any) => {
       const parts = path.split(".");
@@ -119,6 +124,80 @@ export default function EmailAutomation() {
     { header: "Trigger", accessorKey: "triggeredBy" },
   ];
 
+  const toggleCollapse = (
+    section: "birthday" | "anniversary" | "timesheet"
+  ) => {
+    setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const EmailCard = ({
+    icon,
+    title,
+    description,
+    enabled,
+    onToggle,
+    children,
+    section,
+  }: {
+    icon: { bgColor: string; svg: React.ReactNode };
+    title: string;
+    description: string;
+    enabled: boolean;
+    onToggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    children: React.ReactNode;
+    section: "birthday" | "anniversary" | "timesheet";
+  }) => (
+    <div className="bg-bg-secondary/50 border border-border rounded-xl overflow-hidden hover:border-primary/30 transition-colors">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className="flex items-start gap-3 flex-1 cursor-pointer"
+            onClick={() => toggleCollapse(section)}
+          >
+            <div className={`p-2 ${icon.bgColor} rounded-lg`}>{icon.svg}</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-text-primary">
+                  {title}
+                </h3>
+                <svg
+                  className={`w-5 h-5 text-text-secondary transition-transform ${
+                    collapsed[section] ? "-rotate-90" : "rotate-0"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+              <p className="text-sm text-text-secondary mt-1">{description}</p>
+            </div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer ml-4">
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={onToggle}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-bg-hover peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+          </label>
+        </div>
+        {!collapsed[section] && enabled && (
+          <div className="grid gap-4 mt-4 pt-4 border-t border-border">
+            {children}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -147,8 +226,8 @@ export default function EmailAutomation() {
               Email Automation
             </h1>
             <p className="text-text-secondary">
-              Configure automated birthday and work anniversary email
-              notifications
+              Configure automated birthday, work anniversary, and timesheet
+              reminder email notifications
             </p>
           </div>
         </div>
@@ -163,7 +242,6 @@ export default function EmailAutomation() {
       <div className="bg-bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {/* Header Tabs */}
         <div className="flex border-b border-border">
-          {/* ... tabs ... */}
           <button
             onClick={() => setActiveTab("settings")}
             className={`px-6 py-3 text-sm font-medium transition-colors ${
@@ -188,18 +266,6 @@ export default function EmailAutomation() {
 
         {/* Content */}
         <div className="p-6">
-          {error && (
-            <div className="p-4 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
-              Error: {error}
-              <button
-                onClick={fetchSettings}
-                className="ml-4 underline hover:text-red-800"
-              >
-                Retry
-              </button>
-            </div>
-          )}
-
           {activeTab === "settings" && !settings && !loading && !error && (
             <div className="text-center py-12 text-text-secondary">
               <p>No settings data found.</p>
@@ -213,173 +279,313 @@ export default function EmailAutomation() {
           )}
 
           {activeTab === "settings" && settings && (
-            <div className="space-y-8">
-              {/* Birthday Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-text-primary">
-                    Birthday Emails
-                  </h3>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.birthday?.enabled || false}
-                      onChange={(e) =>
-                        updateSetting("birthday.enabled", e.target.checked)
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+            <div className="space-y-6">
+              {/* Birthday Card */}
+              <EmailCard
+                icon={{
+                  bgColor: "bg-purple-500/10",
+                  svg: (
+                    <svg
+                      className="w-5 h-5 text-purple-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"
+                      />
+                    </svg>
+                  ),
+                }}
+                title="Birthday Emails"
+                description="Automatically send birthday wishes to employees"
+                enabled={settings.birthday?.enabled || false}
+                onToggle={(e: any) =>
+                  updateSetting("birthday.enabled", e.target.checked)
+                }
+                section="birthday"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Subject
                   </label>
+                  <Input
+                    type="text"
+                    value={settings.birthday.subject}
+                    onChange={(e) =>
+                      updateSetting("birthday.subject", e.target.value)
+                    }
+                    className="bg-bg-input"
+                    placeholder="Happy Birthday, {{employee_name}}! 🎉"
+                  />
                 </div>
-
-                {settings.birthday?.enabled && (
-                  <div className="grid gap-4 pl-4 border-l-2 border-border">
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1">
-                        Subject
-                      </label>
-                      <Input
-                        type="text"
-                        value={settings.birthday.subject}
-                        onChange={(e) =>
-                          updateSetting("birthday.subject", e.target.value)
-                        }
-                        className="bg-bg-input"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1">
-                        Body (HTML Editor)
-                      </label>
-                      <RichTextEditor
-                        value={settings.birthday.body}
-                        onChange={(value) =>
-                          updateSetting("birthday.body", value)
-                        }
-                        placeholder="Enter birthday email template..."
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Anniversary Section */}
-              <div className="space-y-4 pt-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-text-primary">
-                    Work Anniversary Emails
-                  </h3>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.anniversary?.enabled || false}
-                      onChange={(e) =>
-                        updateSetting("anniversary.enabled", e.target.checked)
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Body
                   </label>
+                  <RichTextEditor
+                    value={settings.birthday.body}
+                    onChange={(value) => updateSetting("birthday.body", value)}
+                    placeholder="Enter birthday email template..."
+                  />
                 </div>
+              </EmailCard>
 
-                {settings.anniversary?.enabled && (
-                  <div className="grid gap-4 pl-4 border-l-2 border-border">
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1">
-                        Subject
-                      </label>
-                      <Input
-                        type="text"
-                        value={settings.anniversary.subject}
-                        onChange={(e) =>
-                          updateSetting("anniversary.subject", e.target.value)
-                        }
-                        className="bg-bg-input"
+              {/* Anniversary Card */}
+              <EmailCard
+                icon={{
+                  bgColor: "bg-blue-500/10",
+                  svg: (
+                    <svg
+                      className="w-5 h-5 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-1">
-                        Body (HTML Editor)
-                      </label>
-                      <RichTextEditor
-                        value={settings.anniversary.body}
-                        onChange={(value) =>
-                          updateSetting("anniversary.body", value)
-                        }
-                        placeholder="Enter anniversary email template..."
+                    </svg>
+                  ),
+                }}
+                title="Work Anniversary Emails"
+                description="Celebrate employee milestones and tenure"
+                enabled={settings.anniversary?.enabled || false}
+                onToggle={(e: any) =>
+                  updateSetting("anniversary.enabled", e.target.checked)
+                }
+                section="anniversary"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Subject
+                  </label>
+                  <Input
+                    type="text"
+                    value={settings.anniversary.subject}
+                    onChange={(e) =>
+                      updateSetting("anniversary.subject", e.target.value)
+                    }
+                    className="bg-bg-input"
+                    placeholder="Happy Work Anniversary, {{employee_name}}!"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Body
+                  </label>
+                  <RichTextEditor
+                    value={settings.anniversary.body}
+                    onChange={(value) =>
+                      updateSetting("anniversary.body", value)
+                    }
+                    placeholder="Enter anniversary email template..."
+                  />
+                </div>
+              </EmailCard>
+
+              {/* Timesheet Reminder Card */}
+              <EmailCard
+                icon={{
+                  bgColor: "bg-orange-500/10",
+                  svg: (
+                    <svg
+                      className="w-5 h-5 text-orange-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
-                    </div>
+                    </svg>
+                  ),
+                }}
+                title="Weekly Timesheet Reminders"
+                description="Remind employees to update their timesheets weekly"
+                enabled={settings.timesheetReminder?.enabled || false}
+                onToggle={(e: any) =>
+                  updateSetting("timesheetReminder.enabled", e.target.checked)
+                }
+                section="timesheet"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary mb-2">
+                      Day of Week
+                    </label>
+                    <select
+                      value={settings.timesheetReminder.dayOfWeek ?? 5}
+                      onChange={(e) =>
+                        updateSetting(
+                          "timesheetReminder.dayOfWeek",
+                          parseInt(e.target.value)
+                        )
+                      }
+                      className="w-full px-3 py-2 bg-bg-input border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                    >
+                      <option value={0}>Sunday</option>
+                      <option value={1}>Monday</option>
+                      <option value={2}>Tuesday</option>
+                      <option value={3}>Wednesday</option>
+                      <option value={4}>Thursday</option>
+                      <option value={5}>Friday</option>
+                      <option value={6}>Saturday</option>
+                    </select>
                   </div>
-                )}
-              </div>
-
-              {/* General Settings */}
-              <div className="space-y-4 pt-4 border-t border-border md:flex gap-8">
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-text-primary mb-2">
-                    Schedule
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm text-text-secondary">
-                      Send daily at:
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary mb-2">
+                      Time
                     </label>
                     <Input
                       type="time"
-                      value={settings.schedule?.time || "09:00"}
+                      value={settings.timesheetReminder.time || "09:00"}
                       onChange={(e) =>
-                        updateSetting("schedule.time", e.target.value)
+                        updateSetting("timesheetReminder.time", e.target.value)
                       }
-                      className="px-2 py-1 bg-bg-input"
+                      className="bg-bg-input"
                     />
                   </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-text-primary mb-2">
-                    Notifications
-                  </h3>
-                  <div className="space-y-4">
-                    {" "}
-                    {/* Increased space-y for better layout */}
-                    <Checkbox
-                      checked={settings.notification?.ccManager || false}
-                      onChange={(e) =>
-                        updateSetting(
-                          "notification.ccManager",
-                          e.target.checked
-                        )
-                      }
-                      label="CC Employee's Manager"
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Subject
+                  </label>
+                  <Input
+                    type="text"
+                    value={
+                      settings.timesheetReminder.subject ||
+                      "Reminder: Update Your Timesheet"
+                    }
+                    onChange={(e) =>
+                      updateSetting("timesheetReminder.subject", e.target.value)
+                    }
+                    className="bg-bg-input"
+                    placeholder="Reminder: Update Your Timesheet"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Email Body
+                  </label>
+                  <RichTextEditor
+                    value={
+                      settings.timesheetReminder.body ||
+                      "Dear {{employee_name}},\n\nThis is a friendly reminder to update your timesheet for the current week.\n\nPlease log your hours at your earliest convenience.\n\nBest regards,\n{{company_name}}"
+                    }
+                    onChange={(value) =>
+                      updateSetting("timesheetReminder.body", value)
+                    }
+                    placeholder="Enter timesheet reminder email template..."
+                  />
+                </div>
+              </EmailCard>
+
+              {/* General Settings */}
+              <div className="bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 border border-brand-primary/20 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-brand-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
                     />
-                    <Checkbox
-                      checked={settings.notification?.notifyHR || false}
-                      onChange={(e) =>
-                        updateSetting("notification.notifyHR", e.target.checked)
-                      }
-                      label="Notify HR upon sending"
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                     />
-                    <Checkbox
-                      checked={
-                        settings.notification?.notifyAllEmployees || false
-                      }
-                      onChange={(e) =>
-                        updateSetting(
-                          "notification.notifyAllEmployees",
-                          e.target.checked
-                        )
-                      }
-                      label="Send celebration email to all employees"
-                    />
+                  </svg>
+                  General Settings
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-semibold text-text-primary mb-3">
+                      Schedule
+                    </h4>
+                    <div className="flex items-center gap-3">
+                      <label className="text-sm text-text-secondary whitespace-nowrap">
+                        Send daily at:
+                      </label>
+                      <Input
+                        type="time"
+                        value={settings.schedule?.time || "09:00"}
+                        onChange={(e) =>
+                          updateSetting("schedule.time", e.target.value)
+                        }
+                        className="px-3 py-2 bg-bg-input"
+                      />
+                    </div>
+                    <p className="text-xs text-text-muted mt-2">
+                      Time for birthday and anniversary emails
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-text-primary mb-3">
+                      Notifications
+                    </h4>
+                    <div className="space-y-3">
+                      <Checkbox
+                        checked={settings.notification?.ccManager || false}
+                        onChange={(e) =>
+                          updateSetting(
+                            "notification.ccManager",
+                            e.target.checked
+                          )
+                        }
+                        label="CC Employee's Manager"
+                      />
+                      <Checkbox
+                        checked={settings.notification?.notifyHR || false}
+                        onChange={(e) =>
+                          updateSetting(
+                            "notification.notifyHR",
+                            e.target.checked
+                          )
+                        }
+                        label="Notify HR upon sending"
+                      />
+                      <Checkbox
+                        checked={
+                          settings.notification?.notifyAllEmployees || false
+                        }
+                        onChange={(e) =>
+                          updateSetting(
+                            "notification.notifyAllEmployees",
+                            e.target.checked
+                          )
+                        }
+                        label="Send celebration email to all employees"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-6 border-t border-border">
+              <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   onClick={handleRunNow}
                   disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 text-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20 rounded-lg transition-colors disabled:opacity-50"
                 >
                   <PlayCircle size={18} />
                   Run Now
@@ -387,7 +593,7 @@ export default function EmailAutomation() {
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white hover:bg-brand-primary-dark rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white hover:bg-brand-primary-dark rounded-lg transition-colors disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 size={18} className="animate-spin" />

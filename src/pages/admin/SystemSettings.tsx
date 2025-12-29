@@ -101,12 +101,6 @@ export default function SystemSettings() {
       await apiService.updateCompanySettings(data);
       await refreshUser(); // Refresh user context to update logo/favicon in layout
       showToast("System settings updated successfully", "success");
-
-      // Need to refresh user context/layout to show new logo immediately?
-      // Ideally context should update, or we force a reload.
-      // For now, reload is safest to apply global changes like favicon.
-      // window.location.reload();
-      // Actually, let's just create a smooth experience, update context if possible or just notify.
     } catch (error: any) {
       console.error("Failed to update settings", error);
       showToast(error.message || "Failed to update settings", "error");
