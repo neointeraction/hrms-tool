@@ -144,7 +144,7 @@ export default function ProjectDashboard() {
                 </div>
                 <div className="flex items-center gap-1 ml-auto">
                   <Users size={14} />
-                  <span>{project.members?.length || 0} Members</span>
+                  <span>{project.members?.length || 0}</span>
                 </div>
                 <div className="flex items-center gap-1 ml-4 border-l pl-4 border-border">
                   <span className="flex items-center gap-1">

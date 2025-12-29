@@ -34,6 +34,8 @@ import { DocumentsTab } from "../features/employee/components/DocumentsTab";
 import { AssetsTab } from "../features/employee/components/AssetsTab";
 import { ChangePasswordModal } from "../components/common/ChangePasswordModal";
 import { cn } from "../utils/cn";
+import { Select } from "../components/common/Select";
+import { Textarea } from "../components/common/Textarea";
 
 const ALL_TABS = [
   "Basic Info",
@@ -392,11 +394,11 @@ export default function Profile() {
           {label}
         </label>
         {isEditing ? (
-          <textarea
+          <Textarea
             name={name}
             value={value}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main text-sm"
+            className="bg-bg-main"
             rows={4}
           />
         ) : (
@@ -783,23 +785,26 @@ export default function Profile() {
                       </label>
                       {isEditing ? (
                         <div className="relative">
-                          <select
+                          <Select
                             name="reportingManager"
                             value={profileData.reportingManager || ""}
-                            onChange={handleChange}
+                            onChange={(value) =>
+                              handleChange({
+                                target: { name: "reportingManager", value },
+                              } as any)
+                            }
+                            options={[
+                              { value: "", label: "Select Manager" },
+                              ...employees
+                                .filter((emp) => emp._id !== employeeId)
+                                .map((emp) => ({
+                                  value: emp._id,
+                                  label: `${emp.firstName} ${emp.lastName} (${emp.employeeId})`,
+                                })),
+                            ]}
                             disabled={true}
-                            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-bg-main appearance-none dark:bg-bg-main dark:border-border dark:text-text-primary cursor-not-allowed opacity-75"
-                          >
-                            <option value="">Select Manager</option>
-                            {employees
-                              .filter((emp) => emp._id !== employeeId)
-                              .map((emp) => (
-                                <option key={emp._id} value={emp._id}>
-                                  {emp.firstName} {emp.lastName} (
-                                  {emp.employeeId})
-                                </option>
-                              ))}
-                          </select>
+                            triggerClassName="bg-bg-main opacity-75 cursor-not-allowed"
+                          />
                         </div>
                       ) : (
                         <p className="text-text-primary text-sm font-medium leading-relaxed">

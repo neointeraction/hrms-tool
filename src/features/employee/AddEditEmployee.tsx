@@ -231,21 +231,43 @@ export default function AddEditEmployee({
   const fetchDropdowns = async () => {
     try {
       console.log("Fetching roles and employees...");
-      const [rolesData, employeesData, designationsData] = await Promise.all([
-        apiService.getRoles(),
-        apiService.getEmployees(),
-        apiService.getDesignations(),
-      ]);
-      console.log("Roles received:", rolesData);
-      console.log("Roles count:", rolesData?.length);
+      // Safely extract data whether it's an array or a response object
+      const extractData = (response: any) => {
+        if (Array.isArray(response)) return response;
+        if (response && Array.isArray(response.data)) return response.data;
+        if (response && Array.isArray(response.roles)) return response.roles; // Special case for roles
+        if (response && Array.isArray(response.employees))
+          return response.employees; // Special case for employees
+        return [];
+      };
 
-      console.log("Roles count:", rolesData?.length);
+      try {
+        const rolesRes = await apiService.getRoles();
+        setRoles(extractData(rolesRes));
+      } catch (e) {
+        console.error("Failed to fetch roles", e);
+      }
 
-      setRoles(rolesData || []);
-      setManagers(employeesData);
-      setDesignations(designationsData || []);
-      const shiftsData = await apiService.getShifts();
-      setShifts(shiftsData || []);
+      try {
+        const empRes = await apiService.getEmployees();
+        setManagers(extractData(empRes));
+      } catch (e) {
+        console.error("Failed to fetch employees", e);
+      }
+
+      try {
+        const desRes = await apiService.getDesignations();
+        setDesignations(extractData(desRes));
+      } catch (e) {
+        console.error("Failed to fetch designations", e);
+      }
+
+      try {
+        const shiftsRes = await apiService.getShifts();
+        setShifts(extractData(shiftsRes));
+      } catch (e) {
+        console.error("Failed to fetch shifts", e);
+      }
     } catch (err) {
       console.error("Failed to fetch dropdowns", err);
     }

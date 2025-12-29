@@ -17,6 +17,7 @@ interface Shift {
   breakDuration: number;
   gracePeriod: number;
   workingDays: string[];
+  saturdayPolicy?: "all" | "odd" | "even";
   status: "active" | "inactive";
 }
 
@@ -43,6 +44,7 @@ export default function ShiftManagement() {
     breakDuration: 0,
     gracePeriod: 0,
     workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    saturdayPolicy: "all",
     status: "active",
   });
 
@@ -71,6 +73,7 @@ export default function ShiftManagement() {
       breakDuration: shift.breakDuration,
       gracePeriod: shift.gracePeriod,
       workingDays: shift.workingDays,
+      saturdayPolicy: shift.saturdayPolicy || "all",
       status: shift.status,
     });
     setIsModalOpen(true);
@@ -112,6 +115,7 @@ export default function ShiftManagement() {
       breakDuration: 0,
       gracePeriod: 0,
       workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      saturdayPolicy: "all",
       status: "active",
     });
   };
@@ -309,6 +313,39 @@ export default function ShiftManagement() {
                 </button>
               ))}
             </div>
+            {formData.workingDays.includes("Saturday") && (
+              <div className="mt-3 bg-bg-panel p-3 rounded-lg border border-border">
+                <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+                  Saturday Working Policy
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+                    <input
+                      type="radio"
+                      name="saturdayPolicy"
+                      checked={formData.saturdayPolicy === "all"}
+                      onChange={() =>
+                        setFormData({ ...formData, saturdayPolicy: "all" })
+                      }
+                      className="text-brand-primary focus:ring-brand-primary"
+                    />
+                    All Saturdays
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+                    <input
+                      type="radio"
+                      name="saturdayPolicy"
+                      checked={formData.saturdayPolicy === "odd"}
+                      onChange={() =>
+                        setFormData({ ...formData, saturdayPolicy: "odd" })
+                      }
+                      className="text-brand-primary focus:ring-brand-primary"
+                    />
+                    Odd Saturdays Only
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

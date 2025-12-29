@@ -32,7 +32,7 @@ export default function RoleManagement() {
     Permission[]
   >([]);
   const [availableDocTypes, setAvailableDocTypes] = useState<any[]>([]);
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -219,9 +219,14 @@ export default function RoleManagement() {
             Manage system roles and permissions
           </p>
         </div>
-        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={20} />}>
-          Add Role
-        </Button>
+        {hasPermission("roles:create") && (
+          <Button
+            onClick={() => handleOpenModal()}
+            leftIcon={<Plus size={20} />}
+          >
+            Add Role
+          </Button>
+        )}
       </div>
 
       {error && (
@@ -322,23 +327,27 @@ export default function RoleManagement() {
             className: "text-right",
             render: (role) => (
               <div className="flex items-center justify-end gap-2">
-                <Tooltip content="Edit Role">
-                  <button
-                    onClick={() => handleOpenModal(role)}
-                    className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                </Tooltip>
+                {hasPermission("roles:edit") && (
+                  <Tooltip content="Edit Role">
+                    <button
+                      onClick={() => handleOpenModal(role)}
+                      className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                  </Tooltip>
+                )}
 
-                <Tooltip content="Delete Role">
-                  <button
-                    onClick={() => setDeleteRoleId(role._id)}
-                    className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </Tooltip>
+                {hasPermission("roles:delete") && (
+                  <Tooltip content="Delete Role">
+                    <button
+                      onClick={() => setDeleteRoleId(role._id)}
+                      className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </Tooltip>
+                )}
               </div>
             ),
           },

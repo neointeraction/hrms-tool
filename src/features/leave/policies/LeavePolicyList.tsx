@@ -7,6 +7,8 @@ import {
   Eye,
   Upload,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
@@ -23,6 +25,11 @@ export default function LeavePolicyList() {
   const [showForm, setShowForm] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  useEffect(() => {
+    setCarouselIndex(0);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchPolicies();
@@ -232,55 +239,133 @@ export default function LeavePolicyList() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredDocuments.map((doc) => (
-              <div
-                key={doc._id}
-                className="bg-bg-panel border border-border rounded-lg p-5 hover:border-brand-primary/50 transition-colors flex items-start gap-3"
+          {filteredDocuments.length > 3 ? (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() =>
+                  setCarouselIndex((prev) => Math.max(0, prev - 1))
+                }
+                disabled={carouselIndex === 0}
+                className="p-2 rounded-full bg-bg-panel border border-border hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-text-secondary"
               >
-                <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-lg">
-                  <FileText size={24} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4
-                    className="font-medium text-text-primary truncate"
-                    title={doc.name}
-                  >
-                    {doc.name}
-                  </h4>
-                  <p className="text-sm text-text-secondary line-clamp-2 mt-1">
-                    {doc.description || "No description provided"}
-                  </p>
+                <ChevronLeft size={24} />
+              </button>
 
-                  <div className="flex gap-3 mt-4">
-                    {doc.docs?.documentUrl && (
-                      <a
-                        href={
-                          doc.docs.documentUrl.startsWith("http")
-                            ? doc.docs.documentUrl
-                            : `${ASSET_BASE_URL}${doc.docs.documentUrl}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-medium text-brand-primary hover:underline flex items-center gap-1"
-                      >
-                        <Eye size={14} /> View Document
-                      </a>
-                    )}
+              <div className="flex-1 grid grid-cols-3 gap-4">
+                {filteredDocuments
+                  .slice(carouselIndex, carouselIndex + 3)
+                  .map((doc) => (
+                    <div
+                      key={doc._id}
+                      className="bg-bg-panel border border-border rounded-lg p-5 hover:border-brand-primary/50 transition-colors flex items-start gap-3"
+                    >
+                      <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-lg shrink-0">
+                        <FileText size={24} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4
+                          className="font-medium text-text-primary truncate"
+                          title={doc.name}
+                        >
+                          {doc.name}
+                        </h4>
+                        <p className="text-sm text-text-secondary line-clamp-2 mt-1 min-h-[40px]">
+                          {doc.description || "No description provided"}
+                        </p>
 
-                    {canManage && (
-                      <button
-                        onClick={() => handleDelete(doc._id)}
-                        className="text-xs font-medium text-red-500 hover:text-red-600 hover:underline flex items-center gap-1 ml-auto"
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    )}
+                        <div className="flex gap-3 mt-4">
+                          {doc.docs?.documentUrl && (
+                            <a
+                              href={
+                                doc.docs.documentUrl.startsWith("http")
+                                  ? doc.docs.documentUrl
+                                  : `${ASSET_BASE_URL}${doc.docs.documentUrl}`
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-medium text-brand-primary hover:underline flex items-center gap-1"
+                            >
+                              <Eye size={14} /> View Document
+                            </a>
+                          )}
+
+                          {canManage && (
+                            <button
+                              onClick={() => handleDelete(doc._id)}
+                              className="text-xs font-medium text-red-500 hover:text-red-600 hover:underline flex items-center gap-1 ml-auto"
+                            >
+                              <Trash2 size={14} /> Delete
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCarouselIndex((prev) =>
+                    Math.min(filteredDocuments.length - 3, prev + 1)
+                  )
+                }
+                disabled={carouselIndex + 3 >= filteredDocuments.length}
+                className="p-2 rounded-full bg-bg-panel border border-border hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-text-secondary"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredDocuments.map((doc) => (
+                <div
+                  key={doc._id}
+                  className="bg-bg-panel border border-border rounded-lg p-5 hover:border-brand-primary/50 transition-colors flex items-start gap-3"
+                >
+                  <div className="p-3 bg-brand-primary/10 text-brand-primary rounded-lg shrink-0">
+                    <FileText size={24} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4
+                      className="font-medium text-text-primary truncate"
+                      title={doc.name}
+                    >
+                      {doc.name}
+                    </h4>
+                    <p className="text-sm text-text-secondary line-clamp-2 mt-1 min-h-[40px]">
+                      {doc.description || "No description provided"}
+                    </p>
+
+                    <div className="flex gap-3 mt-4">
+                      {doc.docs?.documentUrl && (
+                        <a
+                          href={
+                            doc.docs.documentUrl.startsWith("http")
+                              ? doc.docs.documentUrl
+                              : `${ASSET_BASE_URL}${doc.docs.documentUrl}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-brand-primary hover:underline flex items-center gap-1"
+                        >
+                          <Eye size={14} /> View Document
+                        </a>
+                      )}
+
+                      {canManage && (
+                        <button
+                          onClick={() => handleDelete(doc._id)}
+                          className="text-xs font-medium text-red-500 hover:text-red-600 hover:underline flex items-center gap-1 ml-auto"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
