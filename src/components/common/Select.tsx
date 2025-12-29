@@ -26,6 +26,7 @@ interface SelectProps {
   id?: string;
   name?: string;
   searchable?: boolean;
+  triggerClassName?: string;
 }
 
 export const Select = ({
@@ -41,6 +42,7 @@ export const Select = ({
   required = false,
   id,
   searchable = false,
+  triggerClassName = "",
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -112,7 +114,8 @@ export const Select = ({
               : "border-border hover:border-text-muted focus:ring-brand-primary",
             isOpen && "ring-2 ring-brand-primary/20 border-brand-primary",
             disabled &&
-              "bg-bg-main text-text-muted cursor-not-allowed opacity-70"
+              "bg-bg-main text-text-muted cursor-not-allowed opacity-70",
+            triggerClassName
           )}
         >
           <span

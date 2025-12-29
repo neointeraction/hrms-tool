@@ -51,8 +51,13 @@ import Help from "../pages/Help";
 
 // Settings
 import SystemSettings from "../pages/admin/SystemSettings";
+import Landing from "../pages/Landing";
 
 export const router = createBrowserRouter([
+  {
+    path: "/landing",
+    element: <Landing />,
+  },
   {
     path: "/login",
     element: <Login />,
