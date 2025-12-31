@@ -24,10 +24,23 @@ interface Role {
   permissions: Permission[];
   accessibleModules: string[];
   mandatoryDocuments?: string[];
+  tenantId?: string;
 }
 
 export default function RoleManagement() {
   const [roles, setRoles] = useState<Role[]>([]);
+
+  const SYSTEM_ROLES = [
+    "Super Admin",
+    "Admin",
+    "HR",
+    "Employee",
+    "Project Manager",
+    "Consultant",
+    "CEO",
+    "Accountant",
+    "Intern",
+  ];
   const [availablePermissions, setAvailablePermissions] = useState<
     Permission[]
   >([]);
@@ -74,7 +87,7 @@ export default function RoleManagement() {
         apiService.getPermissions(),
         apiService.getAllDocumentTypes(),
       ]);
-      setRoles(rolesData);
+      setRoles(rolesData.filter((r: Role) => r.name !== "Super Admin"));
       setAvailablePermissions(permissionsData);
       if (docTypesData.success) {
         setAvailableDocTypes(docTypesData.data);
@@ -244,8 +257,20 @@ export default function RoleManagement() {
             searchKey: "name",
             render: (role) => (
               <div className="flex items-center gap-2 font-medium text-text-primary">
-                <Shield size={16} className="text-brand-primary" />
+                <Shield
+                  size={16}
+                  className={
+                    SYSTEM_ROLES.includes(role.name)
+                      ? "text-purple-600"
+                      : "text-brand-primary"
+                  }
+                />
                 {role.name}
+                {SYSTEM_ROLES.includes(role.name) && (
+                  <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
+                    System
+                  </span>
+                )}
               </div>
             ),
           },
@@ -338,16 +363,17 @@ export default function RoleManagement() {
                   </Tooltip>
                 )}
 
-                {hasPermission("roles:delete") && (
-                  <Tooltip content="Delete Role">
-                    <button
-                      onClick={() => setDeleteRoleId(role._id)}
-                      className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </Tooltip>
-                )}
+                {hasPermission("roles:delete") &&
+                  !SYSTEM_ROLES.includes(role.name) && (
+                    <Tooltip content="Delete Role">
+                      <button
+                        onClick={() => setDeleteRoleId(role._id)}
+                        className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </Tooltip>
+                  )}
               </div>
             ),
           },

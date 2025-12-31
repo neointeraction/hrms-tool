@@ -8,6 +8,7 @@ import LeaveWidget from "./LeaveWidget";
 import { useGreeting } from "../../../hooks/useGreeting";
 import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
+import { formatDate } from "../../../utils/dateUtils";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
@@ -28,12 +29,7 @@ export default function EmployeeDashboard() {
             {text}, {user?.name.split(" ")[0]}!{" "}
           </h1>
           <p className="text-text-secondary mt-1">
-            Here's your dashboard for today,{" "}
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
+            Here's your dashboard for today, {formatDate(new Date())}
           </p>
         </div>
         <AppreciationWidget />

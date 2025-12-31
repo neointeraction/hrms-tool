@@ -3,6 +3,7 @@ import { DollarSign, Download, Calendar } from "lucide-react"; // Start with Dol
 import { apiService } from "../../../services/api.service";
 import { useAuth } from "../../../context/AuthContext";
 import { generatePayslipPDF } from "../../../utils/payslipGenerator";
+import { formatDate } from "../../../utils/dateUtils";
 
 export default function PayrollSummaryWidget() {
   const { user } = useAuth();
@@ -47,11 +48,7 @@ export default function PayrollSummaryWidget() {
     const today = new Date();
     // 1st of next month
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    return nextMonth.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    return formatDate(nextMonth);
   };
 
   if (loading) {

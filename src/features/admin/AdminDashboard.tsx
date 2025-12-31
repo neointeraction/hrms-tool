@@ -7,11 +7,41 @@ import QAConfig from "./QAConfig";
 
 type Tab = "roles" | "audit" | "ai-config";
 
+import { useAuth } from "../../context/AuthContext";
+import { Clock } from "lucide-react";
+
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(
     (searchParams.get("tab") as Tab) || "roles"
   );
+
+  // Calculate Trial Days Remaining
+  const getTrialDaysRemaining = () => {
+    if (
+      user?.tenantId &&
+      typeof user.tenantId === "object" &&
+      user.tenantId.status === "trial" &&
+      user.tenantId.subscriptionEnd
+    ) {
+      const end = new Date(user.tenantId.subscriptionEnd);
+      const now = new Date();
+      const diffTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    return null;
+  };
+
+  const daysRemaining = getTrialDaysRemaining();
+
+  // Debug Log
+  console.log("AdminDashboard Check:", {
+    user,
+    tenant: user?.tenantId,
+    daysRemaining,
+  });
 
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab;
@@ -28,6 +58,24 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
+      {daysRemaining !== null && (
+        <div
+          className={`p-4 rounded-xl border flex items-center gap-3 ${
+            daysRemaining <= 3
+              ? "bg-red-500/10 border-red-500/20 text-red-500"
+              : "bg-brand-primary/10 border-brand-primary/20 text-brand-primary"
+          }`}
+        >
+          <Clock className="w-5 h-5" />
+          <div className="font-medium">
+            Trial Account:{" "}
+            <span className="font-bold">{daysRemaining} days remaining</span>{" "}
+            until expiration.
+            {daysRemaining <= 0 && " (Expires Today)"}
+          </div>
+        </div>
+      )}
+
       {/* ... header ... */}
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold text-text-primary">

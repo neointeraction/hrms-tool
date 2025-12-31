@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Modal } from "../components/common/Modal";
 import { useAuth } from "../context/AuthContext";
 import { apiService, ASSET_BASE_URL } from "../services/api.service";
+import { formatDate } from "../utils/dateUtils";
 import {
   User,
   Mail,
@@ -380,7 +381,15 @@ export default function Profile() {
           )
         ) : (
           <p className="text-text-primary text-sm font-medium leading-relaxed break-words min-h-[24px]">
-            {value || <span className="text-text-disabled">Not Set</span>}
+            {type === "date" ? (
+              value ? (
+                formatDate(value)
+              ) : (
+                <span className="text-text-disabled">Not Set</span>
+              )
+            ) : (
+              value || <span className="text-text-disabled">Not Set</span>
+            )}
           </p>
         )}
       </div>
@@ -559,7 +568,9 @@ export default function Profile() {
                         Joined On
                       </p>
                       <span className="font-medium text-text-primary">
-                        {profileData.dateOfJoining || "Not Set"}
+                        {profileData.dateOfJoining
+                          ? formatDate(profileData.dateOfJoining)
+                          : "Not Set"}
                       </span>
                     </div>
                   </div>
@@ -1061,9 +1072,7 @@ export default function Profile() {
                                   ) : (
                                     <p className="text-text-primary text-sm font-medium leading-relaxed">
                                       {item.fromDate
-                                        ? new Date(
-                                            item.fromDate
-                                          ).toLocaleDateString()
+                                        ? formatDate(item.fromDate)
                                         : "Not Set"}
                                     </p>
                                   )}
@@ -1092,9 +1101,7 @@ export default function Profile() {
                                   ) : (
                                     <p className="text-text-primary text-sm font-medium leading-relaxed">
                                       {item.toDate
-                                        ? new Date(
-                                            item.toDate
-                                          ).toLocaleDateString()
+                                        ? formatDate(item.toDate)
                                         : "Not Set"}
                                     </p>
                                   )}
@@ -1221,9 +1228,7 @@ export default function Profile() {
                                   ) : (
                                     <p className="text-text-primary text-sm font-medium leading-relaxed">
                                       {item.dateOfCompletion
-                                        ? new Date(
-                                            item.dateOfCompletion
-                                          ).toLocaleDateString()
+                                        ? formatDate(item.dateOfCompletion)
                                         : "Not Set"}
                                     </p>
                                   )}

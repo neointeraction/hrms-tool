@@ -4,12 +4,20 @@ import { useAuth } from "../../context/AuthContext";
 import SalaryStructureManager from "./SalaryStructureManager";
 import PayrollProcessor from "./PayrollProcessor";
 import PayslipView from "./PayslipView";
+import PayrollReports from "./PayrollReports";
 
 export default function PayrollDashboard() {
   const { hasPermission } = useAuth();
 
   const canManageStructure = hasPermission("payroll:manage_structure");
   const canProcessPayroll = hasPermission("payroll:process");
+
+  // Admin and HR usually have permission to view all reports, or we check role directly
+  const { user } = useAuth();
+  const canViewReports =
+    user?.role === "Admin" ||
+    user?.role === "HR" ||
+    hasPermission("payroll:view_reports");
 
   // Default tab based on permissions
   const getDefaultTab = () => {
@@ -27,7 +35,8 @@ export default function PayrollDashboard() {
           Payroll & Finance
         </h1>
         <p className="text-text-secondary">
-          Manage salaries, process payrolls, and view payslips.
+          Manage salaries, process payrolls, view payslips, and generate
+          reports.
         </p>
       </div>
 
@@ -60,6 +69,20 @@ export default function PayrollDashboard() {
           </button>
         )}
 
+        {canViewReports && (
+          <button
+            onClick={() => setActiveTab("reports")}
+            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "reports"
+                ? "border-brand-primary text-brand-primary"
+                : "border-transparent text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            <FileText size={18} />
+            Reports
+          </button>
+        )}
+
         <button
           onClick={() => setActiveTab("payslips")}
           className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -80,6 +103,7 @@ export default function PayrollDashboard() {
         {activeTab === "structure" && canManageStructure && (
           <SalaryStructureManager />
         )}
+        {activeTab === "reports" && canViewReports && <PayrollReports />}
         {activeTab === "payslips" && <PayslipView />}
       </div>
     </div>

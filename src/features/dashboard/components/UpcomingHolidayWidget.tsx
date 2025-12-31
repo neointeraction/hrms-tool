@@ -7,10 +7,11 @@ import {
   Award,
   Sparkles,
 } from "lucide-react";
-import { format, differenceInCalendarDays } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 import { apiService } from "../../../services/api.service";
 import { useAppStore } from "../../../store/useAppStore";
 import { Skeleton } from "../../../components/common/Skeleton";
+import { formatDate } from "../../../utils/dateUtils";
 
 export default function UpcomingHolidayWidget() {
   const [view, setView] = useState<"holiday" | "celebrations">("holiday");
@@ -196,7 +197,7 @@ export default function UpcomingHolidayWidget() {
                 style={{ marginBottom: "2rem" }}
               >
                 <p className="text-white font-bold text-sm">
-                  {format(new Date(upcomingHoliday.date), "MMMM do, yyyy")}
+                  {formatDate(upcomingHoliday.date)}
                 </p>
               </div>
 
@@ -370,11 +371,7 @@ export default function UpcomingHolidayWidget() {
                       {item.name}
                     </h4>
                     <p className="text-[10px] text-text-secondary font-medium">
-                      {new Date(item.date).toLocaleDateString("en-US", {
-                        day: "numeric",
-                        month: "short",
-                      })}{" "}
-                      • {item.designation}
+                      {formatDate(item.date)} • {item.designation}
                     </p>
                   </div>
                 </div>

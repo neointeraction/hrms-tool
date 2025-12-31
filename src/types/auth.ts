@@ -33,6 +33,7 @@ export interface User {
           maxStorage: number;
           enabledModules: string[];
         };
+        subscriptionEnd?: string;
       }
     | null;
   companyName?: string; // Derived field

@@ -18,6 +18,7 @@ import { useGreeting } from "../../../hooks/useGreeting";
 import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 import { Skeleton } from "../../../components/common/Skeleton";
+import { formatDate } from "../../../utils/dateUtils";
 
 export default function PMDashboard() {
   const { user } = useAuth();
@@ -423,10 +424,7 @@ export default function PMDashboard() {
                               </span>
                             </div>
                             <div className="flex justify-between text-xs text-text-muted">
-                              <span>
-                                Due{" "}
-                                {new Date(project.endDate).toLocaleDateString()}
-                              </span>
+                              <span>Due {formatDate(project.endDate)}</span>
                               <span>Team: 4</span>
                             </div>
                           </div>

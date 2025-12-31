@@ -21,6 +21,33 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+
+  // Calculate Trial Days Remaining
+  const getTrialDaysRemaining = () => {
+    if (
+      user?.tenantId &&
+      typeof user.tenantId === "object" &&
+      user.tenantId.status === "trial" &&
+      user.tenantId.subscriptionEnd
+    ) {
+      const end = new Date(user.tenantId.subscriptionEnd);
+      const now = new Date();
+      const diffTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    return null;
+  };
+
+  const daysRemaining = getTrialDaysRemaining();
+
+  // Debug Log
+  console.log("AdminDashboard Check (Home):", {
+    user,
+    tenant: user?.tenantId,
+    daysRemaining,
+  });
+
   const [statsData, setStatsData] = useState({
     users: 0,
     roles: 0,
@@ -182,6 +209,24 @@ export default function AdminDashboard() {
         </div>
         <AppreciationWidget />
       </div>
+
+      {daysRemaining !== null && (
+        <div
+          className={`p-4 rounded-xl border flex items-center gap-3 ${
+            daysRemaining <= 3
+              ? "bg-red-500/10 border-red-500/20 text-red-500"
+              : "bg-brand-primary/10 border-brand-primary/20 text-brand-primary"
+          }`}
+        >
+          <Clock className="w-5 h-5" />
+          <div className="font-medium">
+            Trial Account:{" "}
+            <span className="font-bold">{daysRemaining} days remaining</span>{" "}
+            until expiration.
+            {daysRemaining <= 0 && " (Expires Today)"}
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

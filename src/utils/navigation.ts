@@ -147,7 +147,6 @@ export const menuItems: MenuItem[] = [
   {
     to: "/help",
     label: "Help",
-    module: "help",
   },
 ];
 

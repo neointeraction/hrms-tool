@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../../services/api.service";
 import { Cake, Award, PartyPopper } from "lucide-react";
+import { formatDate } from "../../../utils/dateUtils";
 
 export default function UpcomingEventsWidget() {
   const [activeTab, setActiveTab] = useState<"birthdays" | "anniversaries">(
@@ -167,10 +168,7 @@ export default function UpcomingEventsWidget() {
                         : "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
                     }`}
                   >
-                    {new Date(item.date).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "short",
-                    })}
+                    {formatDate(item.date)}
                   </div>
                   {activeTab === "anniversaries" && (
                     <p className="text-[10px] text-text-secondary mt-1">

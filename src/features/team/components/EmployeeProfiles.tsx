@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, MoreVertical, AlertCircle } from "lucide-react";
 import AddEmployeeModal from "./AddEmployeeModal";
+import { formatDate } from "../../../utils/dateUtils";
 import { apiService } from "../../../services/api.service";
 import { Skeleton } from "../../../components/common/Skeleton";
 import { Input } from "../../../components/common/Input";
@@ -165,7 +166,7 @@ export default function EmployeeProfiles() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-text-secondary">
-                      {new Date(employee.createdAt).toLocaleDateString()}
+                      {formatDate(employee.createdAt)}
                     </td>
                     <td className="py-3 px-4">
                       <button className="text-text-muted hover:text-text-primary p-1 rounded hover:bg-bg-hover">

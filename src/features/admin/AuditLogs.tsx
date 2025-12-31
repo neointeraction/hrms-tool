@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Filter, Download, Search, Calendar } from "lucide-react";
 import { apiService } from "../../services/api.service";
+import { formatDateTime } from "../../utils/dateUtils";
 import { Button } from "../../components/common/Button";
 import { Skeleton } from "../../components/common/Skeleton";
 import { Input } from "../../components/common/Input";
@@ -244,7 +245,7 @@ export default function AuditLogs() {
                     className="hover:bg-bg-hover transition-colors"
                   >
                     <td className="px-6 py-4 text-sm text-text-secondary whitespace-nowrap">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {formatDateTime(log.timestamp)}
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary text-xs font-medium rounded">
