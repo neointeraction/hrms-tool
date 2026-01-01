@@ -39,6 +39,7 @@ export interface User {
   companyName?: string; // Derived field
   isSuperAdmin?: boolean;
   isCompanyAdmin?: boolean;
+  isFirstLogin?: boolean;
   department?: string;
   designation?: string;
   employeeId?: string;

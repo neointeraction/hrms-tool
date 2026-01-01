@@ -133,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessibleModules: apiUser.accessibleModules || [],
         theme: apiUser.theme,
         permissions: userData.permissions, // Capture permissions from API
+        isFirstLogin: apiUser.isFirstLogin, // Add this line
       };
 
       if (!updatedUser.id) {
@@ -199,6 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessibleModules: userData.user.accessibleModules,
         theme: userData.user.theme,
         permissions: userData.permissions,
+        isFirstLogin: userData.user.isFirstLogin, // Add this line
       };
 
       setUser(user);

@@ -341,6 +341,7 @@ export default function AddEditEmployee({
             "modifiedTime",
             "addedBy",
             "modifiedBy",
+            "onboarding",
           ].includes(key)
         ) {
           return;
@@ -627,6 +628,10 @@ export default function AddEditEmployee({
                   "text",
                   false,
                   [
+                    "Draft",
+                    "Invited",
+                    "Onboarding",
+                    "Review",
                     "Active",
                     "Probation",
                     "On Leave",

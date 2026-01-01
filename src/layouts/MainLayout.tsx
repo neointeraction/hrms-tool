@@ -43,10 +43,13 @@ import { useAuth } from "../context/AuthContext";
 import { getAccessibleMenuItems } from "../utils/navigation";
 import NotificationDropdown from "../components/layout/NotificationDropdown";
 import ChatWidget from "../features/chat/ChatWidget";
+import { AgentChat } from "../components/AgentChat";
 import { Tooltip } from "../components/common/Tooltip";
 import { Avatar } from "../components/common/Avatar";
 import { useNotification } from "../context/NotificationContext";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
+
+import { WelcomeModal } from "../components/common/WelcomeModal";
 
 export default function MainLayout() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -360,6 +363,7 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen bg-bg-main flex flex-col md:flex-row transition-colors duration-200">
+      <WelcomeModal />
       {/* Mobile Header */}
       <header className="md:hidden bg-bg-sidebar border-b border-border p-4 flex justify-between items-center sticky top-0 z-20">
         <div className="flex items-center gap-2">
@@ -677,6 +681,9 @@ export default function MainLayout() {
       </div>
       {/* Chat Widget - Only show if AI Chatbot module is enabled */}
       {user?.accessibleModules?.includes("ai_chatbot") && <ChatWidget />}
+
+      {/* HR Agent - Only for Admin/HR */}
+      {(user?.role === "Admin" || user?.role === "HR") && <AgentChat />}
     </div>
   );
 }

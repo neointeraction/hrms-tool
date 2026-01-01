@@ -1,5 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
+import OnboardingLayout from "../layouts/OnboardingLayout";
+import OnboardingWizard from "../pages/onboarding/OnboardingWizard";
 
 import EmployeeManagement from "../features/employee/EmployeeManagement";
 import RoleGuard from "../components/auth/RoleGuard";
@@ -77,6 +79,16 @@ export const router = createBrowserRouter([
   {
     path: "/reset-password/:token",
     element: <ResetPassword />,
+  },
+  {
+    path: "/onboarding",
+    element: <OnboardingLayout />,
+    children: [
+      {
+        path: "start/:token",
+        element: <OnboardingWizard />,
+      },
+    ],
   },
   {
     path: "/",

@@ -8,17 +8,20 @@ import {
   UserX,
   UserCheck,
   Upload,
+  Mail,
 } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import { Button } from "../../components/common/Button";
 import AddEditEmployee from "./AddEditEmployee";
+import InviteEmployeeModal from "./InviteEmployeeModal";
 import { BulkUploadModal } from "./components/BulkUploadModal";
 
 import { useAuth } from "../../context/AuthContext";
 
 import { Tooltip } from "../../components/common/Tooltip";
+import OnboardingApproval from "./OnboardingApproval";
 
 export default function EmployeeManagement() {
   const { hasPermission } = useAuth();
@@ -26,9 +29,13 @@ export default function EmployeeManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState(false);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState<"active" | "onboarding">("active");
 
   // User management states
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
@@ -40,11 +47,17 @@ export default function EmployeeManagement() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      // Fetch tenant-scoped employees (already includes user data via populate)
       const employeeData = await apiService.getEmployees();
-
-      // Employees from /api/employees are already tenant-scoped and include user data
-      setEmployees(Array.isArray(employeeData) ? employeeData : []);
+      // Filter out onboardings for main view
+      const activeList = Array.isArray(employeeData)
+        ? employeeData.filter(
+            (e: any) =>
+              !["Invited", "Onboarding", "Review", "Draft"].includes(
+                e.employeeStatus
+              )
+          )
+        : [];
+      setEmployees(activeList);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Failed to fetch employees");
@@ -79,10 +92,9 @@ export default function EmployeeManagement() {
     setIsModalOpen(false);
     setSelectedEmployee(null);
     setViewMode(false);
-    fetchEmployees(); // Refresh list after close
+    fetchEmployees();
   };
 
-  // User management handlers
   const handleStatusToggle = async (employee: any) => {
     try {
       const userId = employee.user?._id || employee.user;
@@ -94,7 +106,7 @@ export default function EmployeeManagement() {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
 
       await apiService.updateUserStatus(userId, newStatus);
-      fetchEmployees(); // Refresh to get updated data
+      fetchEmployees();
     } catch (err: any) {
       alert(err.message || "Failed to update status");
     }
@@ -137,7 +149,7 @@ export default function EmployeeManagement() {
     setActionLoading(true);
     try {
       await apiService.deleteUser(deleteUserId);
-      fetchEmployees(); // Refresh list
+      fetchEmployees();
     } catch (err: any) {
       alert(err.message || "Failed to delete user");
     } finally {
@@ -161,10 +173,20 @@ export default function EmployeeManagement() {
           {hasPermission("employees:create") && (
             <Button
               onClick={() => setIsBulkModalOpen(true)}
-              variant="outline"
+              variant="ghost"
               leftIcon={<Upload size={20} />}
             >
               Bulk Upload
+            </Button>
+          )}
+          {hasPermission("employees:create") && (
+            <Button
+              onClick={() => setIsInviteModalOpen(true)}
+              variant="secondary"
+              className="border border-gray-300 dark:border-gray-600"
+              leftIcon={<Mail size={20} />}
+            >
+              Invite Candidate
             </Button>
           )}
           {hasPermission("employees:create") && (
@@ -175,174 +197,202 @@ export default function EmployeeManagement() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex border-b border-border">
+        <button
+          onClick={() => setActiveTab("active")}
+          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+            activeTab === "active"
+              ? "border-brand-primary text-brand-primary"
+              : "border-transparent text-text-secondary hover:text-text-primary"
+          }`}
+        >
+          Active Employees
+        </button>
+        <button
+          onClick={() => setActiveTab("onboarding")}
+          className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+            activeTab === "onboarding"
+              ? "border-brand-primary text-brand-primary"
+              : "border-transparent text-text-secondary hover:text-text-primary"
+          }`}
+        >
+          Onboarding Requests
+        </button>
+      </div>
+
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg">{error}</div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
-        <Table
-          columns={[
-            {
-              header: "Employee",
-              accessorKey: "firstName",
-              searchKey: "firstName",
-              render: (emp) => (
-                <div className="flex items-center gap-3">
-                  {emp.profilePicture ? (
-                    <img
-                      src={
-                        emp.profilePicture.startsWith("http")
-                          ? emp.profilePicture
-                          : `${ASSET_BASE_URL}/${emp.profilePicture}`
-                      }
-                      alt={`${emp.firstName} ${emp.lastName}`}
-                      className="w-10 h-10 rounded-full object-cover border border-border"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-medium">
-                      {emp.firstName?.[0] || "?"}
-                      {emp.lastName?.[0] || ""}
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium text-text-primary">
-                      {emp.firstName} {emp.lastName}
-                      {emp.isPlaceholder && (
-                        <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
-                          No Details
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-text-secondary">
-                      {emp.employeeId}
+      {activeTab === "onboarding" ? (
+        <OnboardingApproval />
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <Table
+            columns={[
+              {
+                header: "Employee",
+                accessorKey: "firstName",
+                searchKey: "firstName",
+                render: (emp) => (
+                  <div className="flex items-center gap-3">
+                    {emp.profilePicture ? (
+                      <img
+                        src={
+                          emp.profilePicture.startsWith("http")
+                            ? emp.profilePicture
+                            : `${ASSET_BASE_URL}/${emp.profilePicture}`
+                        }
+                        alt={`${emp.firstName} ${emp.lastName}`}
+                        className="w-10 h-10 rounded-full object-cover border border-border"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-medium">
+                        {emp.firstName?.[0] || "?"}
+                        {emp.lastName?.[0] || ""}
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-medium text-text-primary">
+                        {emp.firstName} {emp.lastName}
+                        {emp.isPlaceholder && (
+                          <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                            No Details
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-text-secondary">
+                        {emp.employeeId}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ),
-            },
-            {
-              header: "Role & Dept",
-              accessorKey: "role", // Enable sorting by role
-              render: (emp) => (
-                <div>
-                  <div className="text-sm text-text-primary">{emp.role}</div>
-                  <div className="text-xs text-text-secondary">
-                    {emp.department}
-                  </div>
-                </div>
-              ),
-            },
-            {
-              header: "Status",
-              accessorKey: "user.status",
-              enableSorting: true,
-              render: (emp) => {
-                const userStatus = emp.user?.status || "active";
-                return (
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      userStatus === "active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {userStatus === "active" ? "Active" : "Inactive"}
-                  </span>
-                );
+                ),
               },
-            },
-            {
-              header: "Contact",
-              render: (emp) => (
-                <div className="text-sm text-text-secondary">
-                  <div>{emp.email}</div>
-                  <div>{emp.workPhone}</div>
-                </div>
-              ),
-            },
-            {
-              header: "Actions",
-              className: "text-right",
-              render: (emp) => {
-                const userStatus = emp.user?.status || "active";
-                return (
-                  <div className="flex items-center justify-end gap-1">
-                    <Tooltip content="View Details">
-                      <button
-                        onClick={() => handleViewEmployee(emp)}
-                        className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                      >
-                        <Eye size={16} />
-                      </button>
-                    </Tooltip>
-
-                    {hasPermission("employees:edit") && (
-                      <Tooltip content="Edit Employee">
+              {
+                header: "Role & Dept",
+                accessorKey: "role",
+                render: (emp) => (
+                  <div>
+                    <div className="text-sm text-text-primary">{emp.role}</div>
+                    <div className="text-xs text-text-secondary">
+                      {emp.department}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                header: "Status",
+                accessorKey: "user.status",
+                enableSorting: true,
+                render: (emp) => {
+                  const userStatus = emp.user?.status || "active";
+                  return (
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        userStatus === "active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {userStatus === "active" ? "Active" : "Inactive"}
+                    </span>
+                  );
+                },
+              },
+              {
+                header: "Contact",
+                render: (emp) => (
+                  <div className="text-sm text-text-secondary">
+                    <div>{emp.email}</div>
+                    <div>{emp.workPhone}</div>
+                  </div>
+                ),
+              },
+              {
+                header: "Actions",
+                className: "text-right",
+                render: (emp) => {
+                  const userStatus = emp.user?.status || "active";
+                  return (
+                    <div className="flex items-center justify-end gap-1">
+                      <Tooltip content="View Details">
                         <button
-                          onClick={() => handleEditEmployee(emp)}
+                          onClick={() => handleViewEmployee(emp)}
                           className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                         >
-                          <Edit2 size={16} />
+                          <Eye size={16} />
                         </button>
                       </Tooltip>
-                    )}
 
-                    {hasPermission("employees:edit") && (
-                      <Tooltip
-                        content={
-                          userStatus === "active"
-                            ? "Deactivate User"
-                            : "Activate User"
-                        }
-                      >
-                        <button
-                          onClick={() => handleStatusToggle(emp)}
-                          className={`p-2 rounded-lg transition-colors ${
+                      {hasPermission("employees:edit") && (
+                        <Tooltip content="Edit Employee">
+                          <button
+                            onClick={() => handleEditEmployee(emp)}
+                            className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        </Tooltip>
+                      )}
+
+                      {hasPermission("employees:edit") && (
+                        <Tooltip
+                          content={
                             userStatus === "active"
-                              ? "text-amber-600 hover:bg-amber-50"
-                              : "text-green-600 hover:bg-green-50"
-                          }`}
+                              ? "Deactivate User"
+                              : "Activate User"
+                          }
                         >
-                          {userStatus === "active" ? (
-                            <UserX size={16} />
-                          ) : (
-                            <UserCheck size={16} />
-                          )}
-                        </button>
-                      </Tooltip>
-                    )}
+                          <button
+                            onClick={() => handleStatusToggle(emp)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              userStatus === "active"
+                                ? "text-amber-600 hover:bg-amber-50"
+                                : "text-green-600 hover:bg-green-50"
+                            }`}
+                          >
+                            {userStatus === "active" ? (
+                              <UserX size={16} />
+                            ) : (
+                              <UserCheck size={16} />
+                            )}
+                          </button>
+                        </Tooltip>
+                      )}
 
-                    {hasPermission("employees:edit") && (
-                      <Tooltip content="Reset Password">
-                        <button
-                          onClick={() => handleResetPassword(emp)}
-                          className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                          <Lock size={16} />
-                        </button>
-                      </Tooltip>
-                    )}
+                      {hasPermission("employees:edit") && (
+                        <Tooltip content="Reset Password">
+                          <button
+                            onClick={() => handleResetPassword(emp)}
+                            className="p-2 text-text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
+                            <Lock size={16} />
+                          </button>
+                        </Tooltip>
+                      )}
 
-                    {hasPermission("employees:delete") && (
-                      <Tooltip content="Delete User">
-                        <button
-                          onClick={() => handleDeleteUser(emp)}
-                          className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </Tooltip>
-                    )}
-                  </div>
-                );
+                      {hasPermission("employees:delete") && (
+                        <Tooltip content="Delete User">
+                          <button
+                            onClick={() => handleDeleteUser(emp)}
+                            className="p-2 text-text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
+                  );
+                },
               },
-            },
-          ]}
-          data={employees}
-          isLoading={loading}
-          emptyMessage="No employees found."
-        />
-      </div>
+            ]}
+            data={employees}
+            isLoading={loading}
+            emptyMessage="No employees found."
+          />
+        </div>
+      )}
 
       {isModalOpen && (
         <AddEditEmployee
@@ -350,6 +400,16 @@ export default function EmployeeManagement() {
           onClose={handleCloseModal}
           employee={selectedEmployee}
           viewMode={viewMode}
+        />
+      )}
+
+      {isInviteModalOpen && (
+        <InviteEmployeeModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+          onSuccess={() => {
+            setActiveTab("onboarding"); // Switch to onboarding tab
+          }}
         />
       )}
 

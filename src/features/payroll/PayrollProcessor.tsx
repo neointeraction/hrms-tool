@@ -46,7 +46,15 @@ export default function PayrollProcessor() {
   const loadEmployees = async () => {
     try {
       const data: any = await apiService.getEmployees();
-      setEmployees(Array.isArray(data) ? data : data.employees || []);
+      const allEmployees = Array.isArray(data) ? data : data.employees || [];
+
+      // Filter Active employees who have completed onboarding (or legacy records)
+      const activeEmployees = allEmployees.filter(
+        (emp: any) =>
+          emp.employeeStatus === "Active" || emp.employeeStatus === "Probation"
+      );
+
+      setEmployees(activeEmployees);
     } catch (err) {
       console.error("failed to load employees");
     }

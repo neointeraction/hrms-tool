@@ -780,6 +780,28 @@ class ApiService {
     return response.json();
   }
 
+  // Onboarding
+  async inviteEmployee(data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  }): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/onboarding/invite`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to invite employee");
+    }
+    return response.json();
+  }
+
   // Asset Categories
   async getAssetCategories(includeInactive = false): Promise<any> {
     const response = await fetch(
@@ -897,6 +919,18 @@ class ApiService {
     }
 
     return response.json();
+  }
+
+  async acknowledgeWelcome(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/auth/acknowledge-welcome`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to acknowledge welcome");
+    }
   }
 
   async updateAsset(id: string, data: any): Promise<any> {

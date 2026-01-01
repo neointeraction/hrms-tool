@@ -33,7 +33,14 @@ export default function SalaryStructureManager() {
   const loadEmployees = async () => {
     try {
       const data: any = await apiService.getEmployees();
-      setEmployees(Array.isArray(data) ? data : data.employees || []);
+      const allEmployees = Array.isArray(data) ? data : data.employees || [];
+
+      const activeEmployees = allEmployees.filter(
+        (emp: any) =>
+          emp.employeeStatus === "Active" || emp.employeeStatus === "Probation"
+      );
+
+      setEmployees(activeEmployees);
     } catch (err) {
       console.error("Failed to load employees");
     }

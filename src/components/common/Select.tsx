@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check, Search } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { createPortal } from "react-dom";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -48,6 +49,7 @@ export const Select = ({
   const [searchTerm, setSearchTerm] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
@@ -55,17 +57,35 @@ export const Select = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(event.target as Node) &&
+        (!portalRef.current ||
+          !portalRef.current.contains(event.target as Node))
       ) {
         setIsOpen(false);
       }
     };
 
+    const handleScroll = (event: Event) => {
+      // If the scroll event came from inside the portal, ignore it
+      if (
+        portalRef.current &&
+        portalRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
+      if (isOpen) setIsOpen(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true); // Capture phase for all scrolls
+    window.addEventListener("resize", handleScroll);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleScroll);
     };
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && searchable && searchInputRef.current) {
@@ -135,53 +155,69 @@ export const Select = ({
           />
         </div>
 
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
-            {searchable && (
-              <div className="p-2 border-b border-border bg-bg-card sticky top-0 z-10">
-                <div className="relative">
-                  <Search
-                    size={14}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted"
-                  />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                    className="w-full pl-8 pr-3 py-1.5 text-sm bg-bg-input border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                    onClick={(e) => e.stopPropagation()} // Prevent closing
-                  />
+        {isOpen &&
+          createPortal(
+            <div
+              ref={portalRef}
+              className="fixed z-[10000] bg-bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+              style={{
+                top: containerRef.current
+                  ? containerRef.current.getBoundingClientRect().bottom + 4
+                  : 0,
+                left: containerRef.current
+                  ? containerRef.current.getBoundingClientRect().left
+                  : 0,
+                width: containerRef.current
+                  ? containerRef.current.getBoundingClientRect().width
+                  : "auto",
+              }}
+            >
+              {searchable && (
+                <div className="p-2 border-b border-border bg-bg-card sticky top-0 z-10">
+                  <div className="relative">
+                    <Search
+                      size={14}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted"
+                    />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search..."
+                      className="w-full pl-8 pr-3 py-1.5 text-sm bg-bg-input border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary"
+                      onClick={(e) => e.stopPropagation()} // Prevent closing
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            <div className="overflow-y-auto max-h-[200px]">
-              {filteredOptions.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-text-muted text-center">
-                  No options found
-                </div>
-              ) : (
-                <ul className="py-1">
-                  {filteredOptions.map((option) => (
-                    <li
-                      key={option.value}
-                      onClick={() => handleSelect(option.value)}
-                      className={cn(
-                        "px-3 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-bg-hover transition-colors text-text-primary",
-                        option.value === value &&
-                          "bg-brand-primary/5 text-brand-primary font-medium"
-                      )}
-                    >
-                      <span className="truncate">{option.label}</span>
-                      {option.value === value && <Check size={14} />}
-                    </li>
-                  ))}
-                </ul>
               )}
-            </div>
-          </div>
-        )}
+              <div className="overflow-y-auto max-h-[200px]">
+                {filteredOptions.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-text-muted text-center">
+                    No options found
+                  </div>
+                ) : (
+                  <ul className="py-1">
+                    {filteredOptions.map((option) => (
+                      <li
+                        key={option.value}
+                        onClick={() => handleSelect(option.value)}
+                        className={cn(
+                          "px-3 py-2 text-sm cursor-pointer flex items-center justify-between hover:bg-bg-hover transition-colors text-text-primary",
+                          option.value === value &&
+                            "bg-brand-primary/5 text-brand-primary font-medium"
+                        )}
+                      >
+                        <span className="truncate">{option.label}</span>
+                        {option.value === value && <Check size={14} />}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
       {error && <p className="mt-1 text-xs text-status-error">{error}</p>}
       {!error && helperText && (
