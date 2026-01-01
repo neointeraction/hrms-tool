@@ -3,7 +3,7 @@ import { Download, Search } from "lucide-react";
 import { utils, writeFile } from "xlsx";
 import { apiService } from "../../services/api.service";
 import { Button } from "../../components/common/Button";
-import { Table } from "../../components/common/Table";
+import { Table, type Column } from "../../components/common/Table";
 import { Select } from "../../components/common/Select";
 import { formatDate } from "../../utils/dateUtils";
 
@@ -118,7 +118,7 @@ export default function PayrollReports() {
     writeFile(workbook, `Payroll_Report_${selectedMonth}_${selectedYear}.xlsx`);
   };
 
-  const columns = [
+  const columns: Column<PayrollRecord>[] = [
     {
       header: "Employee",
       accessorKey: "employee",

@@ -14,7 +14,6 @@ import {
   FileText,
   Building2,
   User,
-  CreditCard,
   Send,
 } from "lucide-react";
 
