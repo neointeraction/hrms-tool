@@ -7,6 +7,8 @@ import {
   User,
   TrendingUp,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import { Avatar } from "../../../components/common/Avatar";
@@ -20,6 +22,7 @@ export default function LeaveWidget() {
   const [leaveStats, setLeaveStats] = useState<any[]>([]);
   const [employeesOnLeave, setEmployeesOnLeave] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { widgetAnimationPlayed } = useAppStore();
 
   useEffect(() => {
@@ -124,7 +127,7 @@ export default function LeaveWidget() {
             key="my-leaves"
             className="space-y-3 animate-in fade-in duration-300"
           >
-            {/* Leave Type Cards - Grid */}
+            {/* Leave Type Cards - Carousel */}
             {loading ? (
               <div className="grid grid-cols-3 gap-3">
                 <Skeleton className="h-24 w-full rounded-xl" />
@@ -132,36 +135,113 @@ export default function LeaveWidget() {
                 <Skeleton className="h-24 w-full rounded-xl" />
               </div>
             ) : leaveStats.length > 0 ? (
-              <div className="grid grid-cols-3 gap-3">
-                {leaveStats.map((stat) => (
-                  <div
-                    key={stat.type}
-                    className={`bg-gradient-to-br ${getTypeColor(
-                      stat.type
-                    )} rounded-xl p-3 border-2 transition-all hover:shadow-lg hover:scale-105 cursor-pointer relative overflow-hidden group`}
-                  >
-                    {/* Background decoration */}
-                    <div className="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
+              leaveStats.length <= 3 ? (
+                // Grid view for <= 3 items
+                <div className="grid grid-cols-3 gap-3">
+                  {leaveStats.map((stat) => (
+                    <div
+                      key={stat.type}
+                      className={`bg-gradient-to-br ${getTypeColor(
+                        stat.type
+                      )} rounded-xl p-3 border-2 transition-all hover:shadow-lg hover:scale-105 cursor-pointer relative overflow-hidden group`}
+                    >
+                      {/* Background decoration */}
+                      <div className="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
 
-                    <div className="relative z-10 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-lg bg-bg-card flex items-center justify-center shadow-md group-hover:scale-110 transition-transform mb-2">
-                        {getIcon(stat.type)}
-                      </div>
-                      <p className="text-xs font-bold text-text-primary mb-2 line-clamp-1">
-                        {stat.type}
-                      </p>
-                      <div>
-                        <p className="text-1.5xl font-black text-text-primary leading-none">
-                          {stat.pending}
+                      <div className="relative z-10 flex flex-col items-center text-center">
+                        <div className="w-10 h-10 rounded-lg bg-bg-card flex items-center justify-center shadow-md group-hover:scale-110 transition-transform mb-2">
+                          {getIcon(stat.type)}
+                        </div>
+                        <p className="text-xs font-bold text-text-primary mb-2 line-clamp-1">
+                          {stat.type}
                         </p>
-                        <p className="text-[10px] text-text-secondary font-semibold">
-                          days left
-                        </p>
+                        <div>
+                          <p className="text-1.5xl font-black text-text-primary leading-none">
+                            {stat.pending}
+                          </p>
+                          <p className="text-[10px] text-text-secondary font-semibold">
+                            days left
+                          </p>
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                // Carousel view for > 3 items
+                <div className="relative group/carousel">
+                  <div className="overflow-hidden rounded-xl">
+                    <div
+                      className="flex gap-3 transition-transform duration-300 ease-in-out"
+                      style={{
+                        transform: `translateX(-${currentIndex * (100 / 3)}%)`,
+                        width: `${(leaveStats.length / 3) * 100}%`,
+                      }}
+                    >
+                      {leaveStats.map((stat) => (
+                        <div
+                          key={stat.type}
+                          className={`flex-shrink-0 bg-gradient-to-br ${getTypeColor(
+                            stat.type
+                          )} rounded-xl p-3 border-2 transition-all hover:shadow-lg hover:scale-105 cursor-pointer relative overflow-hidden group`}
+                          style={{
+                            width: `calc(${100 / leaveStats.length}% - ${
+                              (12 * (leaveStats.length - 1)) / leaveStats.length
+                            }px)`,
+                          }}
+                        >
+                          {/* Background decoration */}
+                          <div className="absolute -right-2 -bottom-2 w-16 h-16 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
+
+                          <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className="w-10 h-10 rounded-lg bg-bg-card flex items-center justify-center shadow-md group-hover:scale-110 transition-transform mb-2">
+                              {getIcon(stat.type)}
+                            </div>
+                            <p className="text-xs font-bold text-text-primary mb-2 line-clamp-1">
+                              {stat.type}
+                            </p>
+                            <div>
+                              <p className="text-1.5xl font-black text-text-primary leading-none">
+                                {stat.pending}
+                              </p>
+                              <p className="text-[10px] text-text-secondary font-semibold">
+                                days left
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Carousel Controls */}
+                  {currentIndex > 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentIndex((prev) => Math.max(0, prev - 1));
+                      }}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-bg-card border border-border shadow-md rounded-full p-1.5 text-text-secondary hover:text-brand-primary z-20 opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                  )}
+
+                  {currentIndex < Math.max(0, leaveStats.length - 3) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentIndex((prev) =>
+                          Math.min(prev + 1, Math.max(0, leaveStats.length - 3))
+                        );
+                      }}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-bg-card border border-border shadow-md rounded-full p-1.5 text-text-secondary hover:text-brand-primary z-20 opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  )}
+                </div>
+              )
             ) : (
               <div className="text-center py-8 text-sm text-text-secondary">
                 <CalendarDays
