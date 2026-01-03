@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Download, Search } from "lucide-react";
-import { utils, writeFile } from "xlsx";
+import { Download, Search, Wallet, Banknote, Users } from "lucide-react";
+import { utils, writeFile } from "xlsx-js-style";
 import { apiService } from "../../services/api.service";
 import { Button } from "../../components/common/Button";
 import { Table, type Column } from "../../components/common/Table";
@@ -111,6 +111,40 @@ export default function PayrollReports() {
 
     // Create Worksheet
     const worksheet = utils.aoa_to_sheet([headers, ...data]);
+
+    // Calculate Column Widths
+    const wscols = headers.map((header, i) => {
+      const maxLen = Math.max(
+        header.length,
+        ...data.map((row) => (row[i] ? row[i].toString().length : 0))
+      );
+      return { wch: maxLen + 5 }; // Add padding
+    });
+    worksheet["!cols"] = wscols;
+
+    // Apply Header Styles
+    const range = utils.decode_range(worksheet["!ref"] || "A1");
+    // Only style the first row (header)
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[address]) continue;
+      worksheet[address].s = {
+        fill: {
+          fgColor: { rgb: "4F46E5" }, // Brand Primary for Report
+        },
+        font: {
+          color: { rgb: "FFFFFF" },
+          bold: true,
+        },
+        alignment: {
+          horizontal: "center",
+        },
+        border: {
+          bottom: { style: "thin", color: { rgb: "000000" } },
+        },
+      };
+    }
+
     const workbook = utils.book_new();
     utils.book_append_sheet(workbook, worksheet, "Payroll Report");
 
@@ -228,6 +262,62 @@ export default function PayrollReports() {
         </Button>
       </div>
 
+      {payrolls.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Total Payout Widget */}
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
+              <Wallet size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Payout
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                ₹
+                {payrolls
+                  .reduce((sum, p) => sum + p.netSalary, 0)
+                  .toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Average Salary Widget */}
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
+              <Banknote size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Average Salary
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                ₹
+                {Math.round(
+                  payrolls.reduce((sum, p) => sum + p.netSalary, 0) /
+                    payrolls.length
+                ).toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Total Employees Widget */}
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <Users size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Employees
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {payrolls.length}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
         <Table
           data={payrolls}
@@ -236,36 +326,6 @@ export default function PayrollReports() {
           emptyMessage="No payroll records found for this period."
         />
       </div>
-
-      {payrolls.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-bg-card p-4 rounded-lg border border-border">
-            <p className="text-text-secondary text-sm">Total Payout</p>
-            <p className="text-2xl font-bold text-text-primary">
-              ₹
-              {payrolls
-                .reduce((sum, p) => sum + p.netSalary, 0)
-                .toLocaleString()}
-            </p>
-          </div>
-          <div className="bg-bg-card p-4 rounded-lg border border-border">
-            <p className="text-text-secondary text-sm">Average Salary</p>
-            <p className="text-2xl font-bold text-text-primary">
-              ₹
-              {Math.round(
-                payrolls.reduce((sum, p) => sum + p.netSalary, 0) /
-                  payrolls.length
-              ).toLocaleString()}
-            </p>
-          </div>
-          <div className="bg-bg-card p-4 rounded-lg border border-border">
-            <p className="text-text-secondary text-sm">Total Employees</p>
-            <p className="text-2xl font-bold text-text-primary">
-              {payrolls.length}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

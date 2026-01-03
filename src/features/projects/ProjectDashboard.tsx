@@ -1,18 +1,47 @@
 import { useState, useEffect } from "react";
-import { Plus, Briefcase, Calendar, Users, Edit } from "lucide-react"; // Added Edit icon
+import {
+  Plus,
+  Briefcase,
+  Calendar,
+  Users,
+  Edit,
+  CheckCircle,
+} from "lucide-react"; // Added Edit icon
 import { Link } from "react-router-dom";
 import { apiService } from "../../services/api.service";
 import { useAuth } from "../../context/AuthContext";
 import { Skeleton } from "../../components/common/Skeleton";
 import { Button } from "../../components/common/Button";
+import { Input } from "../../components/common/Input";
+import { Select } from "../../components/common/Select";
 import ProjectFormModal from "./ProjectFormModal"; // Updated Import
+
+interface ProjectStats {
+  total: number;
+  active: number;
+  completed: number;
+  totalTasks: number;
+}
 
 export default function ProjectDashboard() {
   const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
+  const [stats, setStats] = useState<ProjectStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null); // For update
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.client?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "All" || project.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
     loadProjects();
@@ -21,8 +50,12 @@ export default function ProjectDashboard() {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getProjects();
+      const [data, statsData] = await Promise.all([
+        apiService.getProjects(),
+        apiService.getProjectStats(),
+      ]);
       setProjects(data.projects || []);
+      setStats(statsData);
     } catch (err) {
       console.error("Failed to load projects");
     } finally {
@@ -47,7 +80,9 @@ export default function ProjectDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Projects</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            Project Management
+          </h1>
           <p className="text-text-secondary">
             Manage and track your projects and tasks.
           </p>
@@ -57,6 +92,87 @@ export default function ProjectDashboard() {
             New Project
           </Button>
         )}
+      </div>
+
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Projects
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.total}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
+              <CheckCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">Active</p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.active}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <CheckCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Completed
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.completed}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-purple-500/10 rounded-lg text-purple-500">
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Tasks
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.totalTasks}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-4 items-center bg-bg-card p-4 rounded-lg border border-border">
+        <div className="flex-1">
+          <Input
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <div className="w-48">
+          <Select
+            value={statusFilter}
+            onChange={(val) => setStatusFilter(val as string)}
+            options={[
+              { value: "All", label: "All Status" },
+              { value: "Active", label: "Active" },
+              { value: "Completed", label: "Completed" },
+              { value: "On Hold", label: "On Hold" },
+            ]}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -74,7 +190,7 @@ export default function ProjectDashboard() {
             </div>
           ))}
         </div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         <div className="text-center py-12 bg-bg-card border border-border rounded-lg">
           <Briefcase
             size={48}
@@ -90,7 +206,7 @@ export default function ProjectDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <Link
               key={project._id}
               to={`/projects/${project._id}`}

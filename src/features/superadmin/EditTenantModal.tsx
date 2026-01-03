@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon, Globe } from "lucide-react";
 import { Modal } from "../../components/common/Modal";
+import { Button } from "../../components/common/Button";
 import { apiService } from "../../services/api.service";
 import { Checkbox } from "../../components/common/Checkbox";
 import { Select } from "../../components/common/Select";
@@ -373,20 +374,12 @@ const EditTenantModal = ({
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-secondary bg-bg-main border border-border rounded-lg hover:bg-bg-hover transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-lg hover:bg-brand-primary/90 focus:ring-4 focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
+          </Button>
+          <Button type="submit" disabled={loading} isLoading={loading}>
+            Save Changes
+          </Button>
         </div>
       </form>
     </Modal>

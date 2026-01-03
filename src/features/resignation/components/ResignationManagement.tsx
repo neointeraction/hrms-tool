@@ -6,6 +6,7 @@ import { Avatar } from "../../../components/common/Avatar";
 import { Table } from "../../../components/common/Table";
 import { Modal } from "../../../components/common/Modal";
 import { Select } from "../../../components/common/Select";
+import { Button } from "../../../components/common/Button";
 import { ASSET_BASE_URL } from "../../../services/api.service";
 
 import { Tooltip } from "../../../components/common/Tooltip";
@@ -298,27 +299,20 @@ export default function ResignationManagement() {
         maxWidth="max-w-md"
         footer={
           <div className="flex justify-end gap-3 w-full">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setActionModalOpen(false)}
-              className="px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={submitAction}
               disabled={actionLoading}
-              className={`px-3 py-1.5 text-sm font-medium text-white rounded-lg shadow-sm transition-colors ${
-                actionType === "approve"
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-red-600 hover:bg-red-700"
-              }`}
+              isLoading={actionLoading}
+              variant={actionType === "approve" ? "primary" : "danger"}
             >
-              {actionLoading
-                ? "Processing..."
-                : `Confirm ${
-                    actionType === "approve" ? "Approval" : "Rejection"
-                  }`}
-            </button>
+              {`Confirm ${actionType === "approve" ? "Approval" : "Rejection"}`}
+            </Button>
           </div>
         }
       >

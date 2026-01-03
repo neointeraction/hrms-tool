@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiService } from "../../../services/api.service";
+import { Button } from "../../../components/common/Button";
 import { DocumentCard } from "./DocumentCard";
 import { Modal } from "../../../components/common/Modal";
 import { Skeleton } from "../../../components/common/Skeleton";
@@ -366,28 +367,16 @@ const DocumentUploadModal = ({
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2 text-text-secondary hover:bg-bg-hover rounded-lg disabled:opacity-50"
-            >
+            <Button variant="secondary" onClick={onClose} disabled={loading}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={loading || !file}
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 flex items-center gap-2"
+              isLoading={loading}
             >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                "Upload"
-              )}
-            </button>
+              Upload
+            </Button>
           </div>
         </form>
       )}

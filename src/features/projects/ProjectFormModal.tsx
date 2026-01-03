@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api.service";
 
+import { Button } from "../../components/common/Button";
 import { Input } from "../../components/common/Input";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Modal } from "../../components/common/Modal";
@@ -128,35 +129,24 @@ export default function ProjectFormModal({
       maxWidth="max-w-lg"
       footer={
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() =>
               handleSubmit({ preventDefault: () => {} } as React.FormEvent)
             }
-            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-            disabled={loading}
+            isLoading={loading}
           >
-            {loading
-              ? isEditMode
-                ? "Updating..."
-                : "Creating..."
-              : isEditMode
-              ? "Update Project"
-              : "Create Project"}
-          </button>
+            {isEditMode ? "Update Project" : "Create Project"}
+          </Button>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Input
-            label="Project Name *"
+            label="Project Name"
             type="text"
             required
             value={formData.name}
@@ -206,7 +196,7 @@ export default function ProjectFormModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Select
-                label="Project Manager *"
+                label="Project Manager"
                 required
                 value={formData.manager}
                 onChange={(value) =>
@@ -277,7 +267,7 @@ export default function ProjectFormModal({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <DatePicker
-              label="Start Date *"
+              label="Start Date"
               name="startDate"
               required
               value={formData.startDate}

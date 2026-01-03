@@ -36,13 +36,6 @@ export default function AdminDashboard() {
 
   const daysRemaining = getTrialDaysRemaining();
 
-  // Debug Log
-  console.log("AdminDashboard Check:", {
-    user,
-    tenant: user?.tenantId,
-    daysRemaining,
-  });
-
   useEffect(() => {
     const tab = searchParams.get("tab") as Tab;
     if (tab && tabs.some((t) => t.id === tab)) {

@@ -232,8 +232,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  console.log(user, "user");
-
   // Dummy credentials fallback
   const authenticateWithDummyCredentials = (
     email: string,

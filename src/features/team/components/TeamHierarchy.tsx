@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiService, ASSET_BASE_URL } from "../../../services/api.service";
 import {
   ChevronRight,
@@ -118,8 +119,17 @@ const TreeNode = ({ node }: { node: Employee }) => {
 };
 
 export default function TeamHierarchy() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useNotification();
-  const [view, setView] = useState<"hierarchy" | "directory">("hierarchy");
+
+  const view =
+    (searchParams.get("tab") as "hierarchy" | "directory") || "hierarchy";
+
+  const setView = (newView: "hierarchy" | "directory") => {
+    setSearchParams({ tab: newView });
+  };
+
   const [tree, setTree] = useState<Employee[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -300,7 +310,10 @@ export default function TeamHierarchy() {
                 {filteredEmployees.map((emp) => (
                   <div
                     key={emp._id}
-                    className="group relative bg-bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center p-4"
+                    onClick={() =>
+                      navigate(`/organization/employee/${emp._id}`)
+                    }
+                    className="group relative bg-bg-card border border-border rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col items-center text-center p-4 cursor-pointer"
                   >
                     {/* Top Accent Bar */}
 

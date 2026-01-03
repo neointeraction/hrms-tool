@@ -1,4 +1,5 @@
 import { Modal } from "./Modal";
+import { Button } from "./Button";
 import { AlertTriangle, Info, AlertCircle, CheckCircle } from "lucide-react";
 
 interface ConfirmationModalProps {
@@ -54,20 +55,6 @@ export function ConfirmationModal({
     }
   };
 
-  const getButtonColor = () => {
-    switch (variant) {
-      case "danger":
-        return "bg-status-error hover:bg-status-error/90";
-      case "warning":
-        return "bg-status-warning hover:bg-status-warning/90";
-      case "success":
-        return "bg-status-success hover:bg-status-success/90";
-      case "info":
-      default:
-        return "bg-brand-primary hover:bg-brand-primary/90";
-    }
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -79,21 +66,17 @@ export function ConfirmationModal({
       footer={
         <div className="flex justify-center gap-4 w-full">
           {showCancel && (
-            <button
-              onClick={onClose}
-              className="px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>
               {cancelText}
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={onConfirm}
-            className={`px-3 py-1.5 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${getButtonColor()}`}
-            disabled={isLoading}
+            variant={variant === "info" ? "primary" : (variant as any)}
+            isLoading={isLoading}
           >
-            {isLoading ? "Processing..." : confirmText}
-          </button>
+            {confirmText}
+          </Button>
         </div>
       }
     >

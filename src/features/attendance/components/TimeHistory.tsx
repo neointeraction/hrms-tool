@@ -23,9 +23,8 @@ export default function TimeHistory() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      console.log("Fetching history with date range:", dateRange);
       const data = await apiService.getAttendanceHistory(dateRange);
-      console.log("Received attendance history:", data);
+
       setEntries(data.entries || []);
     } catch (error) {
       console.error("Failed to fetch history:", error);

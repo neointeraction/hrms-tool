@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "../../../components/common/Skeleton";
 import { apiService } from "../../../services/api.service";
 import { Modal } from "../../../components/common/Modal";
+import { Select } from "../../../components/common/Select";
 
 export default function AttendanceWidget() {
   const [status, setStatus] = useState<
@@ -25,6 +26,12 @@ export default function AttendanceWidget() {
 
   const [showClockOutModal, setShowClockOutModal] = useState(false);
   const [completedTasks, setCompletedTasks] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedTask, setSelectedTask] = useState("");
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [loadingTasks, setLoadingTasks] = useState(false);
 
   // Leave restriction state
   const [showLeaveErrorModal, setShowLeaveErrorModal] = useState(false);
@@ -66,6 +73,55 @@ export default function AttendanceWidget() {
     const interval = setInterval(fetchAttendanceData, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  // Fetch Projects when Modal Opens
+  useEffect(() => {
+    if (showClockOutModal) {
+      fetchProjects();
+    }
+  }, [showClockOutModal]);
+
+  // Fetch Tasks when Project Selected
+  useEffect(() => {
+    if (selectedProject) {
+      fetchTasks(selectedProject);
+    } else {
+      setTasks([]);
+      setSelectedTask("");
+    }
+  }, [selectedProject]);
+
+  const fetchProjects = async () => {
+    try {
+      setLoadingProjects(true);
+      const { projects } = await apiService.getProjects();
+      const options = projects.map((p: any) => ({
+        value: p._id,
+        label: p.name,
+      }));
+      setProjects(options);
+    } catch (err) {
+      console.error("Failed to fetch projects", err);
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
+
+  const fetchTasks = async (projectId: string) => {
+    try {
+      setLoadingTasks(true);
+      const { tasks } = await apiService.getTasks({ projectId });
+      const options = tasks.map((t: any) => ({
+        value: t._id,
+        label: t.title,
+      }));
+      setTasks(options);
+    } catch (err) {
+      console.error("Failed to fetch tasks", err);
+    } finally {
+      setLoadingTasks(false);
+    }
+  };
 
   // Live session timer
   useEffect(() => {
@@ -179,7 +235,7 @@ export default function AttendanceWidget() {
   const confirmClockOut = async () => {
     setActionLoading(true);
     try {
-      await apiService.clockOut(completedTasks);
+      await apiService.clockOut(completedTasks, selectedProject, selectedTask);
       setStatus("clocked-out");
       setTimeEntry(null);
       setSessionDuration("00:00:00");
@@ -259,12 +315,6 @@ export default function AttendanceWidget() {
               </div>
             </div>
 
-            {status === "clocked-out" && (
-              <p className="text-center text-white/90 text-sm mb-4">
-                Start your day by clocking in
-              </p>
-            )}
-
             {/* Total Today inside card */}
             <div className="border-t border-white/20 pt-3 flex items-center justify-between">
               <p className="text-white/80 text-xs flex items-center gap-1.5">
@@ -342,54 +392,88 @@ export default function AttendanceWidget() {
       </div>
 
       {/* Clock Out Modal */}
-      {showClockOutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in duration-200 border border-border">
-            <div className="p-6 border-b border-border bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10">
-              <h3 className="font-bold text-xl text-text-primary flex items-center gap-2">
-                <LogOut size={24} className="text-brand-primary" />
-                Clock Out
-              </h3>
-              <p className="text-sm text-text-secondary mt-1">
-                Great work today! Share what you accomplished
-              </p>
+      <Modal
+        isOpen={showClockOutModal}
+        onClose={() => setShowClockOutModal(false)}
+        title="Clock Out"
+        maxWidth="max-w-md"
+        hideHeader={true}
+        padding="p-0"
+      >
+        <div className="bg-bg-card rounded-2xl w-full overflow-hidden">
+          <div className="p-6 border-b border-border bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10">
+            <h3 className="font-bold text-xl text-text-primary flex items-center gap-2">
+              <LogOut size={24} className="text-brand-primary" />
+              Clock Out
+            </h3>
+            <p className="text-sm text-text-secondary mt-1">
+              Great work today! Share what you accomplished
+            </p>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-primary flex items-center gap-2">
+                <TrendingUp size={16} />
+                Today's Accomplishments
+              </label>
+              <textarea
+                value={completedTasks}
+                onChange={(e) => setCompletedTasks(e.target.value)}
+                placeholder="• Completed tasks&#10;• Fixed bugs&#10;• Attended meetings..."
+                className="w-full p-3 border border-border rounded-xl bg-bg-main focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary min-h-[100px] text-sm text-text-primary resize-none"
+                autoFocus
+              />
             </div>
-            <div className="p-6 space-y-4">
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-text-primary flex items-center gap-2">
-                  <TrendingUp size={16} />
-                  Today's Accomplishments
-                </label>
-                <textarea
-                  value={completedTasks}
-                  onChange={(e) => setCompletedTasks(e.target.value)}
-                  placeholder="• Completed tasks&#10;• Fixed bugs&#10;• Attended meetings..."
-                  className="w-full p-3 border border-border rounded-xl bg-bg-main focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary min-h-[100px] text-sm text-text-primary resize-none"
-                  autoFocus
+                <Select
+                  label="Project (Optional)"
+                  options={projects}
+                  value={selectedProject}
+                  onChange={(val) => setSelectedProject(val as string)}
+                  placeholder="Select Project"
+                  disabled={loadingProjects}
                 />
               </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  onClick={() => setShowClockOutModal(false)}
-                  className="px-6 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmClockOut}
-                  disabled={actionLoading}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-lg hover:opacity-90 text-sm font-medium flex items-center gap-2 transition-all disabled:opacity-50"
-                >
-                  {actionLoading && (
-                    <Loader2 className="animate-spin" size={16} />
-                  )}
-                  Confirm Clock Out
-                </button>
+              <div className="space-y-2">
+                <Select
+                  label="Task (Optional)"
+                  options={tasks}
+                  value={selectedTask}
+                  onChange={(val) => setSelectedTask(val as string)}
+                  placeholder="Select Task"
+                  disabled={!selectedProject || loadingTasks}
+                />
               </div>
+            </div>
+
+            {selectedProject && selectedTask && (
+              <p className="text-xs text-status-success bg-status-success/10 px-2 py-1 rounded">
+                A timesheet entry will be automatically created.
+              </p>
+            )}
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setShowClockOutModal(false)}
+                className="px-6 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmClockOut}
+                disabled={actionLoading}
+                className="px-6 py-2.5 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-lg hover:opacity-90 text-sm font-medium flex items-center gap-2 transition-all disabled:opacity-50"
+              >
+                {actionLoading && (
+                  <Loader2 className="animate-spin" size={16} />
+                )}
+                Confirm Clock Out
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </Modal>
       {/* Leave Restriction Modal */}
       <Modal
         isOpen={showLeaveErrorModal}

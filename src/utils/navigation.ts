@@ -42,6 +42,12 @@ export const menuItems: MenuItem[] = [
     module: "shifts",
   },
   {
+    to: "/locations",
+    label: "Location Management",
+    module: "organization",
+    roles: ["Admin", "HR"],
+  },
+  {
     to: "/settings/documents",
     label: "Document Management",
     module: "documents",

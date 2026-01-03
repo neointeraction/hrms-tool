@@ -6,7 +6,7 @@ import {
   getFirstAccessibleRoute,
   getAccessibleMenuItems,
 } from "../utils/navigation";
-import { Loader } from "../components/common/Loader";
+import { Button } from "../components/common/Button";
 import { PasswordInput } from "../components/common/PasswordInput";
 import { Input } from "../components/common/Input";
 
@@ -41,7 +41,6 @@ export default function Login() {
           };
         }
       } catch (err) {
-        console.log("Location access denied or failed", err);
         // Continue login without location
       }
 
@@ -186,13 +185,13 @@ export default function Login() {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full px-6 h-[38px] bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-all shadow-lg hover:shadow-brand-primary/30 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-sm flex items-center justify-center gap-2"
+              isLoading={isLoading}
+              className="w-full h-[38px] shadow-lg hover:shadow-brand-primary/30"
             >
-              {isLoading ? <Loader size={20} variant="white" /> : "Sign In"}
-            </button>
+              Sign In
+            </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-text-secondary">
@@ -304,6 +303,38 @@ export default function Login() {
                 </div>
                 <div className="text-[10px] text-text-muted truncate">
                   accounts@neointeraction.com
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("contractor@neointeraction.com");
+                  setPassword("password");
+                }}
+                className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
+              >
+                <div className="text-xs font-bold text-text-primary group-hover:text-brand-primary mb-0.5">
+                  Consultant
+                </div>
+                <div className="text-[10px] text-text-muted truncate">
+                  contractor@neointeraction.com
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("intern@neointeraction.com");
+                  setPassword("password");
+                }}
+                className="p-3 bg-bg-card border border-border rounded-lg hover:border-brand-primary/50 hover:bg-brand-primary/5 text-left transition-all group"
+              >
+                <div className="text-xs font-bold text-text-primary group-hover:text-brand-primary mb-0.5">
+                  Intern
+                </div>
+                <div className="text-[10px] text-text-muted truncate">
+                  intern@neointeraction.com
                 </div>
               </button>
 

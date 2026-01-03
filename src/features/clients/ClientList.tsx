@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  Briefcase,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Button } from "../../components/common/Button";
 import { Table } from "../../components/common/Table";
@@ -8,8 +16,16 @@ import ClientFormModal from "./ClientFormModal";
 import { useAuth } from "../../context/AuthContext";
 import { Tooltip } from "../../components/common/Tooltip";
 
+interface ClientStats {
+  total: number;
+  active: number;
+  inactive: number;
+  totalProjects: number;
+}
+
 export default function ClientList() {
   const [clients, setClients] = useState<any[]>([]);
+  const [stats, setStats] = useState<ClientStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
@@ -18,8 +34,6 @@ export default function ClientList() {
   const { user } = useAuth();
 
   const hasPermission = (permission: string) => {
-    console.log("hasPermission check:", permission, user?.permissions);
-
     // Check if permission exists as a string OR as an object with name
     const permissions = user?.permissions || [];
     return (
@@ -43,8 +57,12 @@ export default function ClientList() {
   const loadClients = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getClients();
+      const [data, statsData] = await Promise.all([
+        apiService.getClients(),
+        apiService.getClientStats(),
+      ]);
       setClients(data);
+      setStats(statsData);
     } catch (err) {
       console.error("Failed to load clients");
     } finally {
@@ -97,6 +115,64 @@ export default function ClientList() {
           </Button>
         )}
       </div>
+
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
+              <Users size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Clients
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.total}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
+              <CheckCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">Active</p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.active}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-status-error/10 rounded-lg text-status-error">
+              <XCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Inactive
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.inactive}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Projects
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.totalProjects}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Table
         isLoading={loading}

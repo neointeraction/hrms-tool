@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
+import { Button } from "../../components/common/Button";
 import { apiService } from "../../services/api.service";
 
 interface ClientFormModalProps {
@@ -61,23 +62,16 @@ export default function ClientFormModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => handleSubmit({ preventDefault: () => {} } as any)}
-            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50"
             disabled={loading}
+            isLoading={loading}
           >
-            {loading
-              ? "Saving..."
-              : isEditMode
-              ? "Update Client"
-              : "Create Client"}
-          </button>
+            {isEditMode ? "Update Client" : "Create Client"}
+          </Button>
         </div>
       }
     >

@@ -10,10 +10,6 @@ export function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    console.log("WelcomeModal Check:", {
-      user,
-      isFirstLogin: user?.isFirstLogin,
-    });
     if (user?.isFirstLogin) {
       setIsOpen(true);
       // Trigger confetti

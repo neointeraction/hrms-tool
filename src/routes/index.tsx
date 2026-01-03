@@ -27,10 +27,13 @@ import ProjectDashboard from "../features/projects/ProjectDashboard";
 import ProjectDetails from "../features/projects/ProjectDetails";
 import QAConfig from "../features/admin/QAConfig";
 import Organization from "../pages/Organization";
+import EmployeePublicProfile from "../features/employee/EmployeePublicProfile";
+
 import { TenantList, Analytics } from "../features/superadmin";
 import RoleManagement from "../features/admin/RoleManagement";
 import DesignationManagement from "../features/admin/DesignationManagement";
 import ShiftManagement from "../features/admin/ShiftManagement";
+import LocationManagement from "../features/admin/LocationManagement";
 import UserManagement from "../features/superadmin/UserManagement";
 import SuperAdminSettings from "../features/superadmin/Settings";
 import {
@@ -106,6 +109,7 @@ export const router = createBrowserRouter([
               "Employee",
               "Intern",
               "CEO",
+              "Consultant",
             ]}
           >
             <Dashboard />
@@ -122,7 +126,7 @@ export const router = createBrowserRouter([
               "Admin",
               "HR",
               "Project Manager",
-              "Contractor",
+
               "Intern",
               "Accountant",
             ]}
@@ -182,6 +186,14 @@ export const router = createBrowserRouter([
         element: (
           <ModuleGuard module="shifts">
             <ShiftManagement />
+          </ModuleGuard>
+        ),
+      },
+      {
+        path: "locations",
+        element: (
+          <ModuleGuard module="organization">
+            <LocationManagement />
           </ModuleGuard>
         ),
       },
@@ -333,6 +345,23 @@ export const router = createBrowserRouter([
             <ModuleGuard module="projects">
               <ProjectDetails />
             </ModuleGuard>
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "organization/employee/:id",
+        element: (
+          <RoleGuard
+            allowedRoles={[
+              "Admin",
+              "HR",
+              "Project Manager",
+              "Employee",
+              "Intern",
+              "Consultant",
+            ]}
+          >
+            <EmployeePublicProfile />
           </RoleGuard>
         ),
       },

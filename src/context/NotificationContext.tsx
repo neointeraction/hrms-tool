@@ -59,8 +59,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    console.log("Starting Social Wall polling...");
-
     const intervalId = setInterval(async () => {
       try {
         const checkTime = lastCheckedRef.current;
@@ -76,7 +74,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         lastCheckedRef.current = nextCheckTime;
 
         if (result.count > 0) {
-          console.log("New posts found:", result.count);
           setUnreadSocialCount((prev) => prev + result.count);
 
           if (result.latestPost) {

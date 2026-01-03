@@ -23,7 +23,6 @@ export default function SocialFeed() {
       if (pageNum > 1) setLoadingMore(true);
 
       const data = await apiService.getSocialFeed({ page: pageNum, limit: 10 });
-      console.log(`Loaded page ${pageNum}:`, data.posts.length, "posts");
 
       if (pageNum === 1) {
         setPosts(data.posts);

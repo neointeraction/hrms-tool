@@ -365,19 +365,12 @@ export default function ShiftManagement() {
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-text-secondary hover:bg-bg-hover rounded-lg transition-colors"
-            >
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
-            >
+            </Button>
+            <Button type="submit">
               {editingShift ? "Update Shift" : "Create Shift"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

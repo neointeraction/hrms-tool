@@ -58,13 +58,11 @@ export default function ApplyLeaveModal({
 
   useEffect(() => {
     if (isOpen) {
-      console.log("DEBUG: Fetching leave stats...");
       apiService.getLeaveStats().then((data) => {
-        console.log("DEBUG: getLeaveStats response:", data);
         // Correctly handling backend response which returns { stats: [{ type: '...' }] }
         if (data && data.stats) {
           const types = data.stats.map((s: any) => s.type);
-          console.log("DEBUG: Extracted Leave Types:", types);
+
           setLeaveTypes(types);
           // Set default type if not already set or invalid
           if (types.length > 0 && !types.includes(formData.type)) {
@@ -78,7 +76,6 @@ export default function ApplyLeaveModal({
             setFormData((prev) => ({ ...prev, type: types[0] }));
           }
         } else {
-          console.log("DEBUG: No stats or leavePolicy in data", data);
         }
       });
     }

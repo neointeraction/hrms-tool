@@ -43,6 +43,8 @@ const getIcon = (iconName: string) => {
       return <Briefcase className="text-white" size={size} />;
     case "Star":
       return <Star className="text-white" size={size} />;
+    case "Clock":
+      return <Clock className="text-white" size={size} />;
     default:
       return <Calendar className="text-white" size={size} />;
   }

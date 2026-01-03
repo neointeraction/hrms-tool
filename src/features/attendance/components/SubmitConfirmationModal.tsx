@@ -1,6 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Modal } from "../../../components/common/Modal";
+import { Button } from "../../../components/common/Button";
 
 interface SubmitConfirmationModalProps {
   isOpen: boolean;
@@ -25,18 +26,10 @@ export default function SubmitConfirmationModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors"
-          >
-            Confirm Submit
-          </button>
+          </Button>
+          <Button onClick={onConfirm}>Confirm Submit</Button>
         </div>
       }
     >

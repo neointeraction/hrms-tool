@@ -29,7 +29,7 @@ interface ApiResponse<T = any> {
 class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("authToken");
-    console.log("[ApiService Debug] getAuthHeaders. Token found:", !!token);
+
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -557,6 +557,25 @@ class ApiService {
     return response.json();
   }
 
+  async getDesignationStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    designationCounts: Record<string, number>;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/designations/stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch designation stats");
+    }
+
+    return response.json();
+  }
+
   async createDesignation(data: any): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/designations`, {
       method: "POST",
@@ -667,6 +686,90 @@ class ApiService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to delete shift");
+    }
+
+    return response.json();
+  }
+
+  // Location Management
+  async getLocations(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/locations`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch locations");
+    }
+
+    return response.json();
+  }
+
+  async getLocationStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    locationCounts: Record<string, number>;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/locations/stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch location stats");
+    }
+
+    return response.json();
+  }
+
+  async createLocation(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/locations`, {
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create location");
+    }
+
+    return response.json();
+  }
+
+  async updateLocation(id: string, data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+      method: "PUT",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update location");
+    }
+
+    return response.json();
+  }
+
+  async deleteLocation(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to delete location");
     }
 
     return response.json();
@@ -1554,6 +1657,25 @@ class ApiService {
     return response.json();
   }
 
+  async getProjectStats(): Promise<{
+    total: number;
+    active: number;
+    completed: number;
+    totalTasks: number;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/projects/stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch project stats");
+    }
+
+    return response.json();
+  }
+
   async getProjectById(id: string): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
       headers: this.getAuthHeaders(),
@@ -1593,6 +1715,25 @@ class ApiService {
   }
 
   // Client Management
+  async getClientStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    totalProjects: number;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/clients/stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch client stats");
+    }
+
+    return response.json();
+  }
+
   async getClients(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/clients`, {
       method: "GET",
@@ -1829,11 +1970,15 @@ class ApiService {
     return response.json();
   }
 
-  async clockOut(completedTasks?: string): Promise<any> {
+  async clockOut(
+    completedTasks?: string,
+    projectId?: string,
+    taskId?: string
+  ): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/attendance/clock-out`, {
       method: "POST",
       headers: this.getAuthHeaders(),
-      body: JSON.stringify({ completedTasks }),
+      body: JSON.stringify({ completedTasks, projectId, taskId }),
     });
     if (!response.ok) {
       const error = await response.json();
@@ -2600,6 +2745,18 @@ class ApiService {
     if (!response.ok) throw new Error("Failed to restore document version");
     return response.json();
   }
+  async getEmployeePublicProfile(id: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/employees/public/${id}`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch employee");
+    }
+    return response.json();
+  }
+
   async getEmployeeTimeline(id: string): Promise<any[]> {
     const response = await fetch(`${API_BASE_URL}/employees/${id}/timeline`, {
       headers: this.getAuthHeaders(),

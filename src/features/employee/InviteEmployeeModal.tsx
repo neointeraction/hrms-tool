@@ -4,6 +4,7 @@ import { apiService } from "../../services/api.service";
 import { Modal } from "../../components/common/Modal";
 import { Input } from "../../components/common/Input";
 import { Select } from "../../components/common/Select";
+import { Button } from "../../components/common/Button";
 
 interface InviteEmployeeModalProps {
   isOpen: boolean;
@@ -99,12 +100,7 @@ export default function InviteEmployeeModal({
         maxWidth="max-w-sm"
         footer={
           <div className="flex justify-center w-full">
-            <button
-              onClick={handleClose}
-              className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors"
-            >
-              Done
-            </button>
+            <Button onClick={handleClose}>Done</Button>
           </div>
         }
       >
@@ -133,22 +129,17 @@ export default function InviteEmployeeModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3 w-full">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-            disabled={loading}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
-            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             disabled={loading}
+            leftIcon={<Mail size={16} />}
+            isLoading={loading}
           >
-            <Mail size={16} />
-            {loading ? "Sending..." : "Send Invitation"}
-          </button>
+            Send Invitation
+          </Button>
         </div>
       }
     >

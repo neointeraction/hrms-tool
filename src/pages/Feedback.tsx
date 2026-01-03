@@ -80,7 +80,6 @@ export default function Feedback() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   // Debug: Check role
-  console.log("Current User Role:", currentUser?.role);
 
   /* 
     Role Check Logic:

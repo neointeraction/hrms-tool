@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { Badge, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
+import {
+  Badge,
+  Plus,
+  Edit2,
+  Trash2,
+  AlertCircle,
+  Briefcase,
+  CheckCircle,
+  XCircle,
+  Users,
+} from "lucide-react";
 import { apiService } from "../../services/api.service";
 import { Table } from "../../components/common/Table";
 import { Input } from "../../components/common/Input";
@@ -10,6 +20,13 @@ import { Select } from "../../components/common/Select";
 
 import { Tooltip } from "../../components/common/Tooltip";
 import { useAuth } from "../../context/AuthContext";
+
+interface DesignationStats {
+  total: number;
+  active: number;
+  inactive: number;
+  designationCounts: Record<string, number>;
+}
 
 interface Designation {
   _id: string;
@@ -24,6 +41,7 @@ export default function DesignationManagement() {
   const canManage = hasPermission("designations:manage");
 
   const [designations, setDesignations] = useState<Designation[]>([]);
+  const [stats, setStats] = useState<DesignationStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,8 +61,12 @@ export default function DesignationManagement() {
   const fetchDesignations = async () => {
     setLoading(true);
     try {
-      const data = await apiService.getDesignations();
+      const [data, statsData] = await Promise.all([
+        apiService.getDesignations(),
+        apiService.getDesignationStats(),
+      ]);
       setDesignations(data);
+      setStats(statsData);
       setError(null);
     } catch (err) {
       setError("Failed to fetch designations");
@@ -134,6 +156,67 @@ export default function DesignationManagement() {
         )}
       </div>
 
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
+              <Briefcase size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Designations
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.total}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
+              <CheckCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">Active</p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.active}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-text-secondary/10 rounded-lg text-text-secondary">
+              <XCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Inactive
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {stats.inactive}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <Users size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Total Assigned
+              </p>
+              <p className="text-2xl font-bold text-text-primary">
+                {Object.values(stats.designationCounts).reduce(
+                  (a, b) => a + b,
+                  0
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="bg-status-error/10 text-status-error p-4 rounded-lg flex items-center gap-2">
           <AlertCircle size={20} />
@@ -161,6 +244,17 @@ export default function DesignationManagement() {
               <span className="text-text-secondary truncate block max-w-md">
                 {d.description || "-"}
               </span>
+            ),
+          },
+          {
+            header: "Employees",
+            render: (d: Designation) => (
+              <div className="flex items-center gap-2">
+                <Users size={16} className="text-text-secondary" />
+                <span className="text-text-primary font-medium">
+                  {stats?.designationCounts[d._id] || 0}
+                </span>
+              </div>
             ),
           },
           {
@@ -261,20 +355,16 @@ export default function DesignationManagement() {
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 font-medium transition-colors"
-            >
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary font-medium transition-colors disabled:opacity-50"
               disabled={modalLoading}
+              isLoading={modalLoading}
             >
-              {modalLoading ? "Saving..." : "Save Designation"}
-            </button>
+              Save Designation
+            </Button>
           </div>
         </form>
       </Modal>

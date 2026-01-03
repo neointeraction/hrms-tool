@@ -6,6 +6,7 @@ import type { RegisterUserData } from "../../../services/api.service";
 import { Select } from "../../../components/common/Select";
 import { Input } from "../../../components/common/Input";
 import { Modal } from "../../../components/common/Modal";
+import { Button } from "../../../components/common/Button";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -83,23 +84,18 @@ export default function AddEmployeeModal({
       maxWidth="max-w-md"
       footer={
         <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-            disabled={loading}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() =>
               handleSubmit({ preventDefault: () => {} } as React.FormEvent)
             }
-            className="px-4 py-2.5 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             disabled={loading}
+            isLoading={loading}
           >
-            {loading ? "Adding..." : "Add Employee"}
-          </button>
+            Add Employee
+          </Button>
         </div>
       }
     >
@@ -178,15 +174,25 @@ export default function AddEmployeeModal({
               }))
             }
             options={[
-              { value: "Engineering", label: "Engineering" },
-              { value: "IT", label: "IT" },
-              { value: "Design", label: "Design" },
-              { value: "Product", label: "Product" },
-              { value: "Marketing", label: "Marketing" },
-              { value: "Sales", label: "Sales" },
-              { value: "HR", label: "HR" },
-              { value: "Finance", label: "Finance" },
+              { value: "Human Resources (HR)", label: "Human Resources (HR)" },
+              { value: "Administration", label: "Administration" },
+              { value: "Finance & Accounts", label: "Finance & Accounts" },
+              {
+                value: "Information Technology (IT)",
+                label: "Information Technology (IT)",
+              },
               { value: "Operations", label: "Operations" },
+              { value: "Sales", label: "Sales" },
+              { value: "Marketing", label: "Marketing" },
+              {
+                value: "Customer Support / Customer Success",
+                label: "Customer Support / Customer Success",
+              },
+              { value: "Legal & Compliance", label: "Legal & Compliance" },
+              {
+                value: "Procurement / Purchasing",
+                label: "Procurement / Purchasing",
+              },
             ]}
           />
         </div>

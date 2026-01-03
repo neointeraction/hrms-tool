@@ -8,6 +8,7 @@ import { Button } from "../../components/common/Button";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Select } from "../../components/common/Select";
 import { Input } from "../../components/common/Input";
+import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 
 import { Tooltip } from "../../components/common/Tooltip";
 
@@ -48,10 +49,14 @@ export default function HolidayManagement({
     type: "Public",
   });
 
+  // Delete State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [holidayToDelete, setHolidayToDelete] = useState<string | null>(null);
+
   const fetchHolidays = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getHolidays(2025); // Default to current/next year or generic
+      const data = await apiService.getHolidays(new Date().getFullYear()); // Dynamic current year
       setHolidays(data);
       setError("");
     } catch (err: any) {
@@ -78,11 +83,18 @@ export default function HolidayManagement({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this holiday?"))
-      return;
+  const handleDelete = (id: string) => {
+    setHolidayToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!holidayToDelete) return;
+
     try {
-      await apiService.deleteHoliday(id);
+      await apiService.deleteHoliday(holidayToDelete);
+      setShowDeleteModal(false);
+      setHolidayToDelete(null);
       fetchHolidays();
     } catch (err: any) {
       alert(err.message);
@@ -197,13 +209,13 @@ export default function HolidayManagement({
         <div className="flex justify-between items-center mb-4">
           {error && <p className="text-status-error text-sm">{error}</p>}
           {!error && <span />} {/* Spacer */}
-          <button
+          <Button
             onClick={() => setIsAdding(!isAdding)}
-            className="flex items-center gap-2 bg-brand-primary text-white px-3 py-1.5 text-sm rounded-lg hover:bg-brand-primary/90 transition-colors"
+            leftIcon={<Plus size={16} />}
+            className="text-sm py-1.5"
           >
-            <Plus size={16} />
             Add Holiday
-          </button>
+          </Button>
         </div>
       )}
 
@@ -247,25 +259,29 @@ export default function HolidayManagement({
             />
           </div>
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setIsAdding(false)}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-            >
+            <Button variant="secondary" onClick={() => setIsAdding(false)}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors"
-            >
-              Save
-            </button>
+            </Button>
+            <Button type="submit">Save</Button>
           </div>
         </form>
       )}
 
       {/* List */}
       <Table columns={columns} data={holidays} isLoading={loading} />
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setHolidayToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Holiday"
+        message="Are you sure you want to delete this holiday? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

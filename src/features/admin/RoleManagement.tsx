@@ -609,21 +609,20 @@ export default function RoleManagement() {
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 font-medium transition-colors"
               disabled={modalLoading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary font-medium transition-colors disabled:opacity-50"
               disabled={modalLoading}
+              isLoading={modalLoading}
             >
               {modalLoading ? "Saving..." : "Save Role"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

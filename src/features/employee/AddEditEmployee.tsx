@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Modal } from "../../components/common/Modal";
 import { apiService, ASSET_BASE_URL } from "../../services/api.service";
 import { PasswordInput } from "../../components/common/PasswordInput";
@@ -21,6 +22,7 @@ import {
 import { Select } from "../../components/common/Select";
 import { DatePicker } from "../../components/common/DatePicker";
 import { Input } from "../../components/common/Input";
+import { Button } from "../../components/common/Button";
 import { DocumentsTab } from "./components/DocumentsTab";
 import { AssetsTab } from "./components/AssetsTab";
 import { useAuth } from "../../context/AuthContext";
@@ -84,6 +86,7 @@ export default function AddEditEmployee({
   const [managers, setManagers] = useState<any[]>([]);
   const [designations, setDesignations] = useState<any[]>([]);
   const [shifts, setShifts] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -230,7 +233,6 @@ export default function AddEditEmployee({
 
   const fetchDropdowns = async () => {
     try {
-      console.log("Fetching roles and employees...");
       // Safely extract data whether it's an array or a response object
       const extractData = (response: any) => {
         if (Array.isArray(response)) return response;
@@ -267,6 +269,13 @@ export default function AddEditEmployee({
         setShifts(extractData(shiftsRes));
       } catch (e) {
         console.error("Failed to fetch shifts", e);
+      }
+
+      try {
+        const locRes = await apiService.getLocations();
+        setLocations(extractData(locRes));
+      } catch (e) {
+        console.error("Failed to fetch locations", e);
       }
     } catch (err) {
       console.error("Failed to fetch dropdowns", err);
@@ -433,21 +442,16 @@ export default function AddEditEmployee({
       footer={
         !viewMode ? (
           <div className="flex justify-end gap-3 w-full">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-bg-hover text-sm font-medium transition-colors"
-              disabled={loading}
-            >
+            <Button variant="secondary" onClick={onClose} disabled={loading}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-medium transition-colors disabled:opacity-50"
               disabled={loading}
+              isLoading={loading}
             >
               {loading ? "Saving..." : "Save Employee"}
-            </button>
+            </Button>
           </div>
         ) : undefined
       }
@@ -558,18 +562,42 @@ export default function AddEditEmployee({
             {activeTab === "Work Info" && (
               <div className="grid grid-cols-2 gap-4">
                 {renderInput("Department", "department", "text", false, [
-                  "Engineering",
-                  "HR",
+                  "Human Resources (HR)",
+                  "Administration",
+                  "Finance & Accounts",
+                  "Information Technology (IT)",
+                  "Operations",
                   "Sales",
                   "Marketing",
-                  "Finance",
+                  "Customer Support / Customer Success",
+                  "Legal & Compliance",
+                  "Procurement / Purchasing",
                 ])}
-                {renderInput("Location", "location", "text", false, [
-                  "New York",
-                  "London",
-                  "Remote",
-                  "Bangalore",
-                ])}
+                <div>
+                  <Select
+                    label="Location"
+                    value={formData.location}
+                    onChange={(value) =>
+                      handleChange({ target: { name: "location", value } })
+                    }
+                    options={locations.map((l) => ({
+                      value: l.name,
+                      label: l.name,
+                    }))}
+                    disabled={viewMode}
+                    className="disabled:opacity-60"
+                    footer={
+                      <Link
+                        to="/locations"
+                        target="_blank"
+                        className="flex items-center gap-2 text-sm text-brand-primary hover:underline"
+                      >
+                        <Plus size={14} />
+                        Add Location
+                      </Link>
+                    }
+                  />
+                </div>
                 <div>
                   <Select
                     label="Designation"
@@ -583,6 +611,16 @@ export default function AddEditEmployee({
                     }))}
                     disabled={viewMode}
                     className="disabled:opacity-60"
+                    footer={
+                      <Link
+                        to="/designations"
+                        target="_blank"
+                        className="flex items-center gap-2 text-sm text-brand-primary hover:underline"
+                      >
+                        <Plus size={14} />
+                        Add Designation
+                      </Link>
+                    }
                   />
                 </div>
                 <div>
@@ -613,6 +651,16 @@ export default function AddEditEmployee({
                     }))}
                     disabled={viewMode}
                     className="disabled:opacity-60"
+                    footer={
+                      <Link
+                        to="/shifts"
+                        target="_blank"
+                        className="flex items-center gap-2 text-sm text-brand-primary hover:underline"
+                      >
+                        <Plus size={14} />
+                        Add Shift
+                      </Link>
+                    }
                   />
                 </div>
                 {renderInput(

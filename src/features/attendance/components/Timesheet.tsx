@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import {
   Plus,
   Trash2,
@@ -216,6 +216,41 @@ export default function Timesheet() {
 
     // Create workbook and worksheet
     const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Calculate column widths
+    const wscols = Object.keys(exportData[0]).map((key) => {
+      const maxLen = Math.max(
+        key.toString().length,
+        ...exportData.map((row) =>
+          row[key as keyof typeof row]
+            ? row[key as keyof typeof row].toString().length
+            : 0
+        )
+      );
+      return { wch: maxLen + 5 }; // Add padding
+    });
+    ws["!cols"] = wscols;
+
+    // Apply Header Styles
+    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
+    // Only style the first row (header)
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[address]) continue;
+      ws[address].s = {
+        fill: {
+          fgColor: { rgb: "4F46E5" }, // Brand Primary Color (approx)
+        },
+        font: {
+          color: { rgb: "FFFFFF" },
+          bold: true,
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
 

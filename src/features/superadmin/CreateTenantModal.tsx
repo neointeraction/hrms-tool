@@ -1,6 +1,15 @@
 import { useState } from "react";
-import { X, Upload, Image as ImageIcon, Globe } from "lucide-react";
+import {
+  X,
+  Upload,
+  Image as ImageIcon,
+  Globe,
+  CheckCircle,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Modal } from "../../components/common/Modal";
+import { Button } from "../../components/common/Button";
 import { Select } from "../../components/common/Select";
 import { Input } from "../../components/common/Input";
 import { apiService } from "../../services/api.service";
@@ -85,6 +94,14 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
     }
   };
 
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -96,61 +113,90 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
 
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 mb-4">
-              <svg
-                className="h-6 w-6 text-green-600 dark:text-green-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Tenant Created Successfully!
+      <Modal
+        isOpen={true}
+        onClose={onClose}
+        title="Tenant Created Successfully"
+        maxWidth="max-w-md"
+        footer={
+          <Button onClick={onClose} className="w-full">
+            Done
+          </Button>
+        }
+      >
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-6 animate-in zoom-in duration-300">
+            <CheckCircle
+              className="h-8 w-8 text-green-600 dark:text-green-400"
+              strokeWidth={2.5}
+            />
+          </div>
+
+          <div className="mb-6 space-y-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              All Set!
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              The company admin account has been created. Please save these
-              credentials:
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+              The company admin account has been created. Please share these
+              credentials securely.
             </p>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-left mb-4">
-              <div className="mb-2">
-                <label className="text-xs text-gray-500 dark:text-gray-400">
-                  Email
-                </label>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 p-5 text-left mb-6 space-y-4 shadow-sm">
+            <div className="group">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 block">
+                Admin Email
+              </label>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 font-mono">
                   {success.email}
-                </p>
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 dark:text-gray-400">
-                  Temporary Password
-                </label>
-                <p className="text-sm font-mono font-medium text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                  {success.password}
-                </p>
+                </code>
+                <button
+                  onClick={() => handleCopy(success.email, "email")}
+                  className="p-2 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-all"
+                  title="Copy Email"
+                >
+                  {copiedField === "email" ? (
+                    <Check size={18} className="text-green-500" />
+                  ) : (
+                    <Copy size={18} />
+                  )}
+                </button>
               </div>
             </div>
-            <p className="text-xs text-orange-600 dark:text-orange-400 mb-4">
-              ⚠️ The admin should change this password on first login
+
+            <div className="group">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 block">
+                Temporary Password
+              </label>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 font-mono">
+                  {success.password}
+                </code>
+                <button
+                  onClick={() => handleCopy(success.password, "password")}
+                  className="p-2 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-all"
+                  title="Copy Password"
+                >
+                  {copiedField === "password" ? (
+                    <Check size={18} className="text-green-500" />
+                  ) : (
+                    <Copy size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-200 rounded-lg text-xs text-left">
+            <div className="min-w-fit mt-0.5">⚠️</div>
+            <p>
+              For security, the admin will be required to change this password
+              immediately upon their first login.
             </p>
-            <button
-              onClick={onClose}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Close
-            </button>
           </div>
         </div>
-      </div>
+      </Modal>
     );
   }
 
@@ -409,20 +455,12 @@ const CreateTenantModal = ({ onClose, onCreate }: CreateTenantModalProps) => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-secondary bg-bg-main border border-border rounded-lg hover:bg-bg-hover transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-lg hover:bg-brand-primary/90 focus:ring-4 focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {loading ? "Creating..." : "Create Tenant"}
-          </button>
+          </Button>
+          <Button type="submit" disabled={loading} isLoading={loading}>
+            Create Tenant
+          </Button>
         </div>
       </form>
     </Modal>

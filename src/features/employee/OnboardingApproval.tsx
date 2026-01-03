@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { API_BASE_URL, apiService } from "../../services/api.service";
 import { Modal } from "../../components/common/Modal";
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
-import { Check, X, Eye, FileText, Download, Loader2 } from "lucide-react";
+import { Check, X, Eye, FileText, Download } from "lucide-react";
 import { Table } from "../../components/common/Table";
 import { Tooltip } from "../../components/common/Tooltip";
+import { Button } from "../../components/common/Button";
 
 export default function OnboardingApproval() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -276,44 +277,39 @@ export default function OnboardingApproval() {
                     rows={2}
                   />
                   <div className="flex justify-end gap-2">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowRejectInput(false)}
-                      className="px-4 py-2 text-gray-600 hover:bg-white rounded-lg transition-colors text-sm"
+                      className="bg-white hover:bg-white/80"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="danger"
                       onClick={handleReject}
-                      disabled={isProcessing}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
+                      isLoading={isProcessing}
                     >
-                      {isProcessing && (
-                        <Loader2 className="animate-spin" size={14} />
-                      )}
                       Confirm Return
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex justify-end gap-3 pt-2">
-                  <button
+                  <Button
+                    variant="secondary"
                     onClick={() => setShowRejectInput(true)}
-                    className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 flex items-center gap-2 text-sm font-medium transition-colors"
+                    leftIcon={<X size={16} />}
                   >
-                    <X size={16} /> Request Changes
-                  </button>
-                  <button
+                    Request Changes
+                  </Button>
+                  <Button
                     onClick={handleApproveClick}
                     disabled={isProcessing}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md shadow-green-200 flex items-center gap-2 text-sm font-medium transition-all transform hover:scale-[1.02]"
+                    isLoading={isProcessing}
+                    leftIcon={<Check size={18} />}
                   >
-                    {isProcessing ? (
-                      <Loader2 className="animate-spin" size={18} />
-                    ) : (
-                      <Check size={18} />
-                    )}
                     Approve & Activate
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

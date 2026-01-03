@@ -36,6 +36,7 @@ import {
   CalendarClock,
   Rocket,
   HelpCircle,
+  MapPin,
 } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { cn } from "../utils/cn";
@@ -156,6 +157,11 @@ export default function MainLayout() {
       label: "Hierarchy",
     },
     {
+      to: "/locations",
+      icon: MapPin, // Use MapPin for locations
+      label: "Location Management",
+    },
+    {
       to: "/social",
       icon: Hash,
       label: "Social Wall",
@@ -254,7 +260,7 @@ export default function MainLayout() {
     },
     {
       title: "Organization Structure",
-      items: ["/organization"],
+      items: ["/organization", "/locations"],
     },
     {
       title: "System",
@@ -348,6 +354,13 @@ export default function MainLayout() {
       return [
         { label: "Project Management", to: "/projects" },
         { label: "Project Details" },
+      ];
+    }
+
+    if (path.startsWith("/organization/employee/")) {
+      return [
+        { label: "Organization", to: "/organization?tab=directory" },
+        { label: "Employee Profile" },
       ];
     }
 

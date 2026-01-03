@@ -41,13 +41,6 @@ export default function AdminDashboard() {
 
   const daysRemaining = getTrialDaysRemaining();
 
-  // Debug Log
-  console.log("AdminDashboard Check (Home):", {
-    user,
-    tenant: user?.tenantId,
-    daysRemaining,
-  });
-
   const [statsData, setStatsData] = useState({
     users: 0,
     roles: 0,

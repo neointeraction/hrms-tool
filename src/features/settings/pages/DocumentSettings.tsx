@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Search, FileText, Trash2, Edit2 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { DocumentTypeModal } from "../components/DocumentTypeModal";
 import { Button } from "../../../components/common/Button";
+import { Input } from "../../../components/common/Input";
 
 export const DocumentSettings = () => {
   const [documentTypes, setDocumentTypes] = useState<any[]>([]);
@@ -79,18 +80,15 @@ export const DocumentSettings = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-            size={18}
-          />
-          <input
-            type="text"
+      <div className="flex gap-4 items-center bg-bg-card p-4 rounded-lg border border-border mb-6">
+        <div className="flex-1 max-w-md">
+          <Input
             placeholder="Search document types..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-bg-card border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchTerm(e.target.value)
+            }
+            leftIcon={<Search size={18} />}
           />
         </div>
       </div>

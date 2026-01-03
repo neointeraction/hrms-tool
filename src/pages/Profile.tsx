@@ -55,15 +55,12 @@ export default function Profile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
 
-  const TABS = ALL_TABS.filter((tab) => {
-    if (
-      tab === "Documents" &&
-      !user?.accessibleModules?.includes("documents")
-    ) {
-      return false;
-    }
-    return true;
-  });
+  /*
+   * Pre-filtering tabs based on modules.
+   * "Documents" tab in profile should be accessible to everyone for their own docs,
+   * regardless of the administrative "documents" module.
+   */
+  const TABS = ALL_TABS;
 
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [isEditing, setIsEditing] = useState(false);

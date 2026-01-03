@@ -28,6 +28,7 @@ interface SelectProps {
   name?: string;
   searchable?: boolean;
   triggerClassName?: string;
+  footer?: React.ReactNode;
 }
 
 export const Select = ({
@@ -44,6 +45,7 @@ export const Select = ({
   id,
   searchable = false,
   triggerClassName = "",
+  footer,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,14 +57,23 @@ export const Select = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Check if click is inside the trigger
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node) &&
-        (!portalRef.current ||
-          !portalRef.current.contains(event.target as Node))
+        containerRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        return;
       }
+
+      // Check if click is inside the portal content
+      if (
+        portalRef.current &&
+        portalRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
+
+      setIsOpen(false);
     };
 
     const handleScroll = (event: Event) => {
@@ -215,6 +226,11 @@ export const Select = ({
                   </ul>
                 )}
               </div>
+              {footer && (
+                <div className="p-2 border-t border-border bg-bg-main/50">
+                  {footer}
+                </div>
+              )}
             </div>,
             document.body
           )}

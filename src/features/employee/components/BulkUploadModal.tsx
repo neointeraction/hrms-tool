@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Modal } from "../../../components/common/Modal";
 import { apiService } from "../../../services/api.service";
 import { Select } from "../../../components/common/Select";
+import { Button } from "../../../components/common/Button";
 import {
   Upload,
   X,
@@ -237,13 +238,12 @@ export const BulkUploadModal = ({ isOpen, onClose }: BulkUploadModalProps) => {
                     ID (e.g., EMP001_Offer.pdf)
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={!selectedDocTypeId || isUploading}
-                  className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 font-medium text-sm"
                 >
                   Select Files
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -332,14 +332,14 @@ export const BulkUploadModal = ({ isOpen, onClose }: BulkUploadModalProps) => {
             )}
 
             <div className="flex justify-end pt-4 border-t border-border gap-3">
-              <button
+              <Button
+                variant="secondary"
                 onClick={onClose}
                 disabled={isUploading}
-                className="px-4 py-2 text-text-secondary hover:bg-bg-hover rounded-lg font-medium text-sm"
               >
                 Close
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleUpload}
                 disabled={
                   isUploading ||
@@ -347,9 +347,8 @@ export const BulkUploadModal = ({ isOpen, onClose }: BulkUploadModalProps) => {
                     (f) => fileStatuses[f.name]?.status === "pending"
                   ).length === 0
                 }
-                className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 font-medium text-sm flex items-center gap-2"
+                isLoading={isUploading}
               >
-                {isUploading && <Loader2 size={16} className="animate-spin" />}
                 {isUploading
                   ? "Uploading..."
                   : `Upload ${
@@ -357,7 +356,7 @@ export const BulkUploadModal = ({ isOpen, onClose }: BulkUploadModalProps) => {
                         (f) => fileStatuses[f.name]?.status === "pending"
                       ).length
                     } Files`}
-              </button>
+              </Button>
             </div>
           </>
         )}

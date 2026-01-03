@@ -109,7 +109,6 @@ export default function UserManagement() {
       setUsers(
         users.map((u) => (u._id === userId ? { ...u, status: newStatus } : u))
       );
-      console.log(`Updated user ${userId} status to ${newStatus}`);
     } catch (err) {
       console.error("Failed to update status", err);
     }
@@ -124,7 +123,6 @@ export default function UserManagement() {
     setActionLoading(true);
     try {
       // await apiService.resetUserPassword(resetPasswordUserId); // API call
-      console.log(`Reset password for user ${resetPasswordUserId}`);
       // alert("Password reset email sent to user."); // Could replace with toast
     } catch (err) {
       console.error("Failed to reset password", err);
@@ -144,7 +142,6 @@ export default function UserManagement() {
     try {
       await apiService.deleteUser(deleteUserId);
       setUsers(users.filter((u) => u._id !== deleteUserId));
-      console.log(`Deleted user ${deleteUserId}`);
     } catch (err) {
       console.error("Failed to delete user", err);
       // alert("Failed to delete user"); // Could replace with toast
