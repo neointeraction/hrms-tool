@@ -13,6 +13,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { format } from "date-fns";
+import { Skeleton } from "../../components/common/Skeleton";
 
 interface Employee {
   id: string;
@@ -43,6 +44,69 @@ interface Appreciation {
     avatar?: string;
   };
 }
+
+const PublicProfileSkeleton = () => (
+  <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-pulse">
+    {/* Back Navigation Skeleton */}
+    <Skeleton className="h-6 w-20" />
+
+    {/* Header Card Skeleton */}
+    <div className="bg-bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+      <div className="h-32 bg-gray-200 dark:bg-gray-800"></div>
+      <div className="px-8 pb-8">
+        <div className="relative flex justify-between items-end -mt-12 mb-6">
+          <div className="flex items-end gap-6">
+            <div className="w-32 h-32 rounded-full border-4 border-bg-card bg-gray-300 dark:bg-gray-700 p-1 shadow-md" />
+            <div className="pb-2 mb-1 space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-5 w-64" />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions Skeleton */}
+        <div className="flex gap-4 pt-4 border-t border-border">
+          <Skeleton className="h-9 w-32 rounded-lg" />
+          <Skeleton className="h-9 w-32 rounded-lg" />
+        </div>
+      </div>
+    </div>
+
+    {/* Navigation Tabs Skeleton */}
+    <div className="flex border-b border-border gap-6">
+      <Skeleton className="h-10 w-24" />
+      <Skeleton className="h-10 w-32" />
+      <Skeleton className="h-10 w-40" />
+    </div>
+
+    {/* Content Area Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm space-y-4">
+        <Skeleton className="h-6 w-40 mb-2" />
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="flex justify-between border-b border-border pb-3"
+          >
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm space-y-4">
+        <Skeleton className="h-6 w-48 mb-2" />
+        <div className="flex items-center gap-4 p-4 bg-bg-main rounded-lg border border-border">
+          <Skeleton className="w-12 h-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function EmployeePublicProfile() {
   const { id } = useParams<{ id: string }>();
@@ -104,11 +168,7 @@ export default function EmployeePublicProfile() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
-      </div>
-    );
+    return <PublicProfileSkeleton />;
   }
 
   if (!employee) {

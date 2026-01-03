@@ -37,6 +37,7 @@ import { ChangePasswordModal } from "../components/common/ChangePasswordModal";
 import { cn } from "../utils/cn";
 import { Select } from "../components/common/Select";
 import { Textarea } from "../components/common/Textarea";
+import { Skeleton } from "../components/common/Skeleton";
 
 const ALL_TABS = [
   "Basic Info",
@@ -1329,34 +1330,34 @@ const InputField = ({ label, name, value, onChange, isEditing }: any) => (
 );
 
 const ProfileSkeleton = () => (
-  <div className="space-y-6 animate-pulse">
+  <div className="space-y-6 animate-in fade-in duration-500">
     <div className="flex justify-between items-center mb-6">
       <div className="space-y-2">
-        <div className="h-8 w-48 bg-gray-200 rounded dark:bg-gray-700" />
-        <div className="h-4 w-64 bg-gray-100 rounded dark:bg-gray-800" />
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
       </div>
       <div className="flex gap-3">
-        <div className="h-9 w-32 bg-gray-200 rounded-lg dark:bg-gray-700" />
-        <div className="h-9 w-32 bg-gray-200 rounded-lg dark:bg-gray-700" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
       </div>
     </div>
 
     {/* Header Card Skeleton */}
     <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 mb-6">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-        <div className="w-32 h-32 rounded-full bg-gray-200 shrink-0 dark:bg-gray-700" />
+        <Skeleton className="w-32 h-32 rounded-full shrink-0" />
         <div className="flex-1 w-full">
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
             <div className="space-y-3 text-center md:text-left">
-              <div className="h-8 w-64 bg-gray-200 rounded mx-auto md:mx-0 dark:bg-gray-700" />
-              <div className="h-5 w-48 bg-gray-100 rounded mx-auto md:mx-0 dark:bg-gray-800" />
-              <div className="h-6 w-24 bg-gray-100 rounded-full mx-auto md:mx-0 dark:bg-gray-800" />
+              <Skeleton className="h-8 w-64 mx-auto md:mx-0" />
+              <Skeleton className="h-5 w-48 mx-auto md:mx-0" />
+              <Skeleton className="h-6 w-24 rounded-full mx-auto md:mx-0" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-            <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
-            <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
-            <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700" />
+            <Skeleton className="h-10 rounded-lg" />
+            <Skeleton className="h-10 rounded-lg" />
+            <Skeleton className="h-10 rounded-lg" />
           </div>
         </div>
       </div>
@@ -1368,22 +1369,19 @@ const ProfileSkeleton = () => (
         <div className="bg-bg-card rounded-xl shadow-sm border border-border p-3 h-96">
           <div className="space-y-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="h-10 bg-gray-100 rounded-lg w-full dark:bg-gray-800"
-              />
+              <Skeleton key={i} className="h-10 w-full rounded-lg" />
             ))}
           </div>
         </div>
       </div>
       <div className="col-span-12 md:col-span-9">
         <div className="bg-bg-card rounded-xl shadow-sm border border-border p-6 h-[600px]">
-          <div className="h-6 w-48 bg-gray-200 rounded mb-8 dark:bg-gray-700" />
+          <Skeleton className="h-6 w-48 mb-8" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="space-y-2">
-                <div className="h-4 w-24 bg-gray-100 rounded dark:bg-gray-800" />
-                <div className="h-10 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-900 dark:border-gray-800" />
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 rounded-lg" />
               </div>
             ))}
           </div>
