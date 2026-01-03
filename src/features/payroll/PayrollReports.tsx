@@ -6,6 +6,44 @@ import { Button } from "../../components/common/Button";
 import { Table, type Column } from "../../components/common/Table";
 import { Select } from "../../components/common/Select";
 import { formatDate } from "../../utils/dateUtils";
+import { Skeleton } from "../../components/common/Skeleton";
+
+const PayrollReportSkeleton = () => (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="bg-bg-card p-4 rounded-xl border border-border flex items-center gap-4"
+        >
+          <Skeleton className="h-10 w-10 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+      <div className="p-4 border-b border-border">
+        <div className="flex gap-4">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+        </div>
+      </div>
+      <div className="p-4 space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex gap-4">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 interface PayrollRecord {
   _id: string;
@@ -262,70 +300,76 @@ export default function PayrollReports() {
         </Button>
       </div>
 
-      {payrolls.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Total Payout Widget */}
-          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-            <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
-              <Wallet size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-text-secondary font-medium">
-                Total Payout
-              </p>
-              <p className="text-2xl font-bold text-text-primary">
-                ₹
-                {payrolls
-                  .reduce((sum, p) => sum + p.netSalary, 0)
-                  .toLocaleString()}
-              </p>
-            </div>
-          </div>
+      {loading ? (
+        <PayrollReportSkeleton />
+      ) : (
+        <>
+          {payrolls.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Total Payout Widget */}
+              <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">
+                  <Wallet size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-text-secondary font-medium">
+                    Total Payout
+                  </p>
+                  <p className="text-2xl font-bold text-text-primary">
+                    ₹
+                    {payrolls
+                      .reduce((sum, p) => sum + p.netSalary, 0)
+                      .toLocaleString()}
+                  </p>
+                </div>
+              </div>
 
-          {/* Average Salary Widget */}
-          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-            <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
-              <Banknote size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-text-secondary font-medium">
-                Average Salary
-              </p>
-              <p className="text-2xl font-bold text-text-primary">
-                ₹
-                {Math.round(
-                  payrolls.reduce((sum, p) => sum + p.netSalary, 0) /
-                    payrolls.length
-                ).toLocaleString()}
-              </p>
-            </div>
-          </div>
+              {/* Average Salary Widget */}
+              <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-status-success/10 rounded-lg text-status-success">
+                  <Banknote size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-text-secondary font-medium">
+                    Average Salary
+                  </p>
+                  <p className="text-2xl font-bold text-text-primary">
+                    ₹
+                    {Math.round(
+                      payrolls.reduce((sum, p) => sum + p.netSalary, 0) /
+                        payrolls.length
+                    ).toLocaleString()}
+                  </p>
+                </div>
+              </div>
 
-          {/* Total Employees Widget */}
-          <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
-              <Users size={24} />
+              {/* Total Employees Widget */}
+              <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+                  <Users size={24} />
+                </div>
+                <div>
+                  <p className="text-sm text-text-secondary font-medium">
+                    Total Employees
+                  </p>
+                  <p className="text-2xl font-bold text-text-primary">
+                    {payrolls.length}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-text-secondary font-medium">
-                Total Employees
-              </p>
-              <p className="text-2xl font-bold text-text-primary">
-                {payrolls.length}
-              </p>
-            </div>
+          )}
+
+          <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+            <Table
+              data={payrolls}
+              columns={columns}
+              isLoading={false}
+              emptyMessage="No payroll records found for this period."
+            />
           </div>
-        </div>
+        </>
       )}
-
-      <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
-        <Table
-          data={payrolls}
-          columns={columns}
-          isLoading={loading}
-          emptyMessage="No payroll records found for this period."
-        />
-      </div>
     </div>
   );
 }

@@ -83,7 +83,14 @@ export const generatePayslipPDF = async (slip: any, user: any) => {
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(8);
-  doc.text("Dec 01, 2025", 95, startY + 12); // Placeholder/Actual Pay Date
+  const payDateStr = slip.paymentDate
+    ? new Date(slip.paymentDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      })
+    : "N/A";
+  doc.text(payDateStr, 95, startY + 12); // Placeholder/Actual Pay Date
   doc.text(`${slip.month} ${slip.year}`, 135, startY + 12);
   doc.text(new Date().toLocaleDateString(), 175, startY + 12);
 
@@ -130,12 +137,20 @@ export const generatePayslipPDF = async (slip: any, user: any) => {
   doc.setFont("helvetica", "normal");
   doc.text("Department", col1, infoY + lineHeight * 3);
   doc.setFont("helvetica", "bold");
-  doc.text(user?.department || "N/A", col2, infoY + lineHeight * 3);
+  doc.text(
+    slip?.employee?.department || user?.department || "N/A",
+    col2,
+    infoY + lineHeight * 3
+  );
 
   doc.setFont("helvetica", "normal");
   doc.text("Project Location", col1, infoY + lineHeight * 4);
   doc.setFont("helvetica", "bold");
-  doc.text("Bangalore", col2, infoY + lineHeight * 4);
+  doc.text(
+    slip?.employee?.location || user?.location || "N/A",
+    col2,
+    infoY + lineHeight * 4
+  );
 
   // Right Column
   doc.setFont("helvetica", "normal");
@@ -146,13 +161,18 @@ export const generatePayslipPDF = async (slip: any, user: any) => {
   doc.setFont("helvetica", "normal");
   doc.text("DOJ", col3, infoY + lineHeight);
   doc.setFont("helvetica", "bold");
-  const dojStr = user?.doj ? new Date(user.doj).toLocaleDateString() : "N/A";
+  const rawDOJ = slip?.employee?.dateOfJoining || user?.doj;
+  const dojStr = rawDOJ ? new Date(rawDOJ).toLocaleDateString() : "N/A";
   doc.text(dojStr, col4, infoY + lineHeight);
 
   doc.setFont("helvetica", "normal");
   doc.text("PAN", col3, infoY + lineHeight * 2);
   doc.setFont("helvetica", "bold");
-  doc.text(user?.pan || "N/A", col4, infoY + lineHeight * 2);
+  doc.text(
+    slip?.employee?.pan || user?.pan || "N/A",
+    col4,
+    infoY + lineHeight * 2
+  );
 
   doc.setFont("helvetica", "normal");
   doc.text("Bank Name", col3, infoY + lineHeight * 3);

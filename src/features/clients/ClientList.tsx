@@ -15,6 +15,54 @@ import { ConfirmationModal } from "../../components/common/ConfirmationModal";
 import ClientFormModal from "./ClientFormModal";
 import { useAuth } from "../../context/AuthContext";
 import { Tooltip } from "../../components/common/Tooltip";
+import { Skeleton } from "../../components/common/Skeleton";
+
+const ClientSkeleton = () => (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex justify-between items-center">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <Skeleton className="h-10 w-32 rounded-lg" />
+    </div>
+
+    {/* Stats Grid Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4"
+        >
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Table Skeleton */}
+    <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+      <div className="p-4 border-b border-border">
+        <div className="flex gap-4">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+        </div>
+      </div>
+      <div className="p-4 space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex gap-4">
+            <Skeleton className="h-12 w-full rounded-md" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 interface ClientStats {
   total: number;
@@ -98,6 +146,10 @@ export default function ClientList() {
     setShowModal(true);
   };
 
+  if (loading) {
+    return <ClientSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -175,7 +227,7 @@ export default function ClientList() {
       )}
 
       <Table
-        isLoading={loading}
+        isLoading={false} // Handled by skeletal loader
         data={clients}
         columns={[
           {

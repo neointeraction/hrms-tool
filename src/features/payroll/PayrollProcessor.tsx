@@ -7,6 +7,32 @@ import { Tooltip } from "../../components/common/Tooltip";
 import { Table, type Column } from "../../components/common/Table";
 
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Skeleton } from "../../components/common/Skeleton";
+
+const PayrollTableSkeleton = () => (
+  <div className="space-y-4 animate-in fade-in duration-500">
+    <div className="p-4 border-b border-border bg-bg-secondary/30 flex justify-between items-center">
+      <Skeleton className="h-6 w-48" />
+      <Skeleton className="h-9 w-32" />
+    </div>
+    <div className="p-4 space-y-4">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex gap-4 items-center">
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-1/4" />
+          </div>
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-6 w-24" />
+          <div className="flex gap-2 justify-end flew-1">
+            <Skeleton className="h-8 w-20 rounded-md" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export default function PayrollProcessor() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -352,12 +378,16 @@ export default function PayrollProcessor() {
           </button>
         </div>
 
-        <Table
-          columns={columns}
-          data={employees}
-          isLoading={isListLoading}
-          emptyMessage="No employees found to process."
-        />
+        {isListLoading ? (
+          <PayrollTableSkeleton />
+        ) : (
+          <Table
+            columns={columns}
+            data={employees}
+            isLoading={false}
+            emptyMessage="No employees found to process."
+          />
+        )}
       </div>
 
       <ConfirmationModal

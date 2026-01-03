@@ -6,6 +6,49 @@ import { Check, X, Eye, FileText, Download } from "lucide-react";
 import { Table } from "../../components/common/Table";
 import { Tooltip } from "../../components/common/Tooltip";
 import { Button } from "../../components/common/Button";
+import { Skeleton } from "../../components/common/Skeleton";
+
+const OnboardingSkeleton = () => (
+  <div className="space-y-4 animate-in fade-in duration-500">
+    <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div className="p-4 border-b border-border">
+        <div className="grid grid-cols-12 gap-4">
+          <Skeleton className="h-4 w-20 col-span-3" /> {/* Name */}
+          <Skeleton className="h-4 w-20 col-span-3" /> {/* Email */}
+          <Skeleton className="h-4 w-16 col-span-2" /> {/* Status */}
+          <Skeleton className="h-4 w-24 col-span-3" /> {/* Progress */}
+          <Skeleton className="h-4 w-8 col-span-1 justify-self-end" />{" "}
+          {/* Actions */}
+        </div>
+      </div>
+      <div className="p-4 space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="grid grid-cols-12 gap-4 items-center">
+            <div className="col-span-3">
+              <Skeleton className="h-5 w-32" />
+            </div>
+            <div className="col-span-3">
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <div className="col-span-2">
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </div>
+            <div className="col-span-3 space-y-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-3 w-8" />
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full" />
+            </div>
+            <div className="col-span-1 flex justify-end">
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export default function OnboardingApproval() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -166,10 +209,7 @@ export default function OnboardingApproval() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="p-8 text-center text-gray-500">Loading requests...</div>
-    );
+  if (loading) return <OnboardingSkeleton />;
 
   return (
     <div className="space-y-4">

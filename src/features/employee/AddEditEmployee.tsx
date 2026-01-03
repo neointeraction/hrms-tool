@@ -466,7 +466,7 @@ export default function AddEditEmployee({
               onClick={() => setActiveTab(tab)}
               className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between ${
                 activeTab === tab
-                  ? "bg-brand-primary text-white shadow-sm"
+                  ? "bg-gradient-to-r from-brand-primary to-brand-secondary text-white"
                   : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
               }`}
             >

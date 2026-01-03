@@ -23,6 +23,56 @@ interface ProjectStats {
   totalTasks: number;
 }
 
+const ProjectSkeleton = () => (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex justify-between items-center">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <Skeleton className="h-10 w-32 rounded-lg" />
+    </div>
+
+    {/* Stats Grid Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4"
+        >
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Filter Bar Skeleton */}
+    <div className="flex gap-4 items-center bg-bg-card p-4 rounded-lg border border-border">
+      <Skeleton className="h-10 w-full rounded-md" />
+      <Skeleton className="h-10 w-48 rounded-md" />
+    </div>
+
+    {/* Project Grid Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className="bg-bg-card border border-border rounded-lg p-5 flex flex-col h-[180px]"
+        >
+          <Skeleton className="h-6 w-3/4 mb-3" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <div className="mt-auto pt-3 flex gap-2">
+            <Skeleton className="h-4 w-1/4" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function ProjectDashboard() {
   const { user } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
@@ -75,6 +125,10 @@ export default function ProjectDashboard() {
   };
 
   const isPM = user?.role === "Project Manager" || user?.role === "Admin";
+
+  if (loading) {
+    return <ProjectSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -175,22 +229,7 @@ export default function ProjectDashboard() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="bg-bg-card border border-border rounded-lg p-5 flex flex-col h-[180px]"
-            >
-              <Skeleton className="h-6 w-3/4 mb-3" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <div className="mt-auto pt-3 flex gap-2">
-                <Skeleton className="h-4 w-1/4" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : filteredProjects.length === 0 ? (
+      {filteredProjects.length === 0 ? (
         <div className="text-center py-12 bg-bg-card border border-border rounded-lg">
           <Briefcase
             size={48}

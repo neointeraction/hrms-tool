@@ -7,11 +7,77 @@ import { Input } from "../../components/common/Input";
 
 import { Skeleton } from "../../components/common/Skeleton";
 
+const EmployeeListSkeleton = () => (
+  <div className="space-y-2 animate-in fade-in duration-500">
+    {[1, 2, 3, 4, 5].map((i) => (
+      <div
+        key={i}
+        className="w-full text-left p-3 rounded-lg border border-transparent flex flex-col gap-2"
+      >
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+    ))}
+  </div>
+);
+
+const SalaryStructureSkeleton = () => (
+  <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6 animate-in fade-in duration-500">
+    <div className="flex justify-between items-center border-b border-border pb-4">
+      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-9 w-32 rounded-lg" />
+    </div>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-1">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-10 w-full rounded" />
+      </div>
+      <div className="space-y-1">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-10 w-full rounded" />
+      </div>
+    </div>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Skeleton className="h-9 flex-1" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 flex-1" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Skeleton className="h-9 flex-1" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <Skeleton className="h-16 w-full rounded-lg" />
+  </div>
+);
+
 export default function SalaryStructureManager() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
   const [isFetching, setIsFetching] = useState(false);
+  const [isEmployeeLoading, setIsEmployeeLoading] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [structure, setStructure] = useState<any>({
     baseSalary: 0,
@@ -32,6 +98,7 @@ export default function SalaryStructureManager() {
 
   const loadEmployees = async () => {
     try {
+      setIsEmployeeLoading(true);
       const data: any = await apiService.getEmployees();
       const allEmployees = Array.isArray(data) ? data : data.employees || [];
 
@@ -43,6 +110,8 @@ export default function SalaryStructureManager() {
       setEmployees(activeEmployees);
     } catch (err) {
       console.error("Failed to load employees");
+    } finally {
+      setIsEmployeeLoading(false);
     }
   };
 
@@ -135,81 +204,41 @@ export default function SalaryStructureManager() {
             <Search size={18} /> Select Employee
           </h3>
           <div className="space-y-2 max-h-[500px] overflow-y-auto">
-            {employees.map((emp) => (
-              <button
-                key={emp._id}
-                onClick={() => setSelectedEmployee(emp._id)}
-                className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
-                  selectedEmployee === emp._id
-                    ? "bg-brand-primary text-white"
-                    : "hover:bg-bg-hover text-text-secondary"
-                }`}
-              >
-                <div className="font-medium">
-                  {emp.firstName} {emp.lastName}
-                </div>
-                <div
-                  className={`text-xs ${
+            {isEmployeeLoading ? (
+              <EmployeeListSkeleton />
+            ) : (
+              employees.map((emp) => (
+                <button
+                  key={emp._id}
+                  onClick={() => setSelectedEmployee(emp._id)}
+                  className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
                     selectedEmployee === emp._id
-                      ? "text-white/80"
-                      : "text-text-muted"
+                      ? "bg-gradient-to-r from-brand-primary to-brand-secondary text-white"
+                      : "hover:bg-bg-hover text-text-secondary"
                   }`}
                 >
-                  {emp.employeeId} • {emp.designation}
-                </div>
-              </button>
-            ))}
+                  <div className="font-medium">
+                    {emp.firstName} {emp.lastName}
+                  </div>
+                  <div
+                    className={`text-xs ${
+                      selectedEmployee === emp._id
+                        ? "text-white/80"
+                        : "text-text-muted"
+                    }`}
+                  >
+                    {emp.employeeId} • {emp.designation}
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
 
         <div className="md:col-span-2 space-y-6">
           {selectedEmployee ? (
             isFetching ? (
-              <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6">
-                <div className="flex justify-between items-center border-b border-border pb-4">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-9 w-32 rounded-lg" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-10 w-full rounded" />
-                  </div>
-                  <div className="space-y-1">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-10 w-full rounded" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-12" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Skeleton className="h-9 flex-1" />
-                      <Skeleton className="h-9 w-32" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Skeleton className="h-9 flex-1" />
-                      <Skeleton className="h-9 w-32" />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-12" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Skeleton className="h-9 flex-1" />
-                      <Skeleton className="h-9 w-32" />
-                    </div>
-                  </div>
-                </div>
-                <Skeleton className="h-16 w-full rounded-lg" />
-              </div>
+              <SalaryStructureSkeleton />
             ) : (
               <div className="bg-bg-card rounded-lg border border-border p-6 space-y-6">
                 <div className="flex justify-between items-center border-b border-border pb-4">

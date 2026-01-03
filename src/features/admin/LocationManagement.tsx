@@ -16,6 +16,7 @@ import { Modal } from "../../components/common/Modal";
 import { Table } from "../../components/common/Table";
 
 import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { Skeleton } from "../../components/common/Skeleton";
 
 interface LocationStats {
   total: number;
@@ -23,6 +24,54 @@ interface LocationStats {
   inactive: number;
   locationCounts: Record<string, number>;
 }
+
+const LocationSkeleton = () => (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    {/* Header Skeleton */}
+    <div className="flex justify-between items-center">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <Skeleton className="h-10 w-32 rounded-lg" />
+    </div>
+
+    {/* Stats Grid Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4"
+        >
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Table Skeleton */}
+    <div className="bg-bg-card rounded-lg border border-border overflow-hidden">
+      <div className="p-4 border-b border-border">
+        <div className="flex gap-4">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-6 w-1/4" />
+        </div>
+      </div>
+      <div className="p-4 space-y-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex gap-4">
+            <Skeleton className="h-12 w-full rounded-md" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export default function LocationManagement() {
   const [locations, setLocations] = useState<any[]>([]);
@@ -214,11 +263,7 @@ export default function LocationManagement() {
   ];
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-text-secondary">
-        Loading locations...
-      </div>
-    );
+    return <LocationSkeleton />;
   }
 
   return (

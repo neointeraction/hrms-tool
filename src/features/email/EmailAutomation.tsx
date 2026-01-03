@@ -287,7 +287,7 @@ export default function EmailAutomation() {
                 onClick={() => setActiveSettingsTab("birthday_anniversary")}
                 className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between ${
                   activeSettingsTab === "birthday_anniversary"
-                    ? "bg-brand-primary text-white shadow-sm"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-secondary text-white"
                     : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
@@ -300,7 +300,7 @@ export default function EmailAutomation() {
                 onClick={() => setActiveSettingsTab("timesheet")}
                 className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between ${
                   activeSettingsTab === "timesheet"
-                    ? "bg-brand-primary text-white shadow-sm"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-secondary text-white"
                     : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
@@ -313,7 +313,7 @@ export default function EmailAutomation() {
                 onClick={() => setActiveSettingsTab("general")}
                 className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all group flex items-center justify-between ${
                   activeSettingsTab === "general"
-                    ? "bg-brand-primary text-white shadow-sm"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-secondary text-white"
                     : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
