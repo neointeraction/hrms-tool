@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
-import { Shield, FileText, Bot } from "lucide-react";
+import {
+  Shield,
+  FileText,
+  Bot,
+  Activity,
+  Database,
+  AlertCircle,
+} from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import RoleManagement from "./RoleManagement";
 import AuditLogs from "./AuditLogs";
 import QAConfig from "./QAConfig";
+import { apiService } from "../../services/api.service";
 
 type Tab = "roles" | "audit" | "ai-config";
 
@@ -16,6 +24,35 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>(
     (searchParams.get("tab") as Tab) || "roles"
   );
+  const [systemHealth, setSystemHealth] = useState<any>(null);
+
+  useEffect(() => {
+    fetchSystemHealth();
+  }, []);
+
+  const fetchSystemHealth = async () => {
+    try {
+      console.log("Fetching system health...");
+      const data = await apiService.getSystemHealth();
+      console.log("System health data:", data);
+      setSystemHealth(data);
+    } catch (error) {
+      console.error("Failed to load system health", error);
+      // Optional: set error state to show in UI
+    }
+  };
+
+  const formatUptime = (seconds: number) => {
+    const days = Math.floor(seconds / (3600 * 24));
+    const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    return parts.join(" ") || "< 1m";
+  };
 
   // Calculate Trial Days Remaining
   const getTrialDaysRemaining = () => {
@@ -78,6 +115,59 @@ export default function AdminDashboard() {
           Manage users, roles, employees, and system configurations.
         </p>
       </div>
+
+      {/* System Health Widgets */}
+      {systemHealth && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-bg-card p-4 rounded-xl border border-border flex items-center gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+              <Activity size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Server Uptime
+              </p>
+              <p className="text-xl font-bold text-text-primary">
+                {formatUptime(systemHealth.uptime)}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border flex items-center gap-4">
+            <div
+              className={`p-3 rounded-lg ${
+                systemHealth.dbStatus === "Connected"
+                  ? "bg-green-500/10 text-green-500"
+                  : "bg-red-500/10 text-red-500"
+              }`}
+            >
+              <Database size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Database Status
+              </p>
+              <p className="text-xl font-bold text-text-primary">
+                {systemHealth.dbStatus}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-bg-card p-4 rounded-xl border border-border flex items-center gap-4">
+            <div className={`p-3 rounded-lg bg-orange-500/10 text-orange-500`}>
+              <AlertCircle size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-text-secondary font-medium">
+                Recent Failed Actions
+              </p>
+              <p className="text-xl font-bold text-text-primary">
+                {systemHealth.errorCount}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 border-b border-border">

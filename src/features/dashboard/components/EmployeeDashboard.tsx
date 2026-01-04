@@ -1,14 +1,17 @@
-import PayrollSummaryWidget from "./PayrollSummaryWidget";
-// import { cn } from "../../../utils/cn";
+import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 // import { apiService } from "../../../services/api.service";
 import UpcomingHolidayWidget from "./UpcomingHolidayWidget";
 import AttendanceWidget from "./AttendanceWidget";
 import LeaveWidget from "./LeaveWidget";
+import PayrollSummaryWidget from "./PayrollSummaryWidget";
 import { useGreeting } from "../../../hooks/useGreeting";
 import FeedbackWidget from "../../../components/dashboard/FeedbackWidget";
 import AppreciationWidget from "../../../components/dashboard/AppreciationWidget";
 import { formatDate } from "../../../utils/dateUtils";
+// import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+// import { Skeleton } from "../../../components/common/Skeleton";
+// import { Button } from "../../../components/common/Button";
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();

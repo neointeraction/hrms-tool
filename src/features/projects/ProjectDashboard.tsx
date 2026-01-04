@@ -126,6 +126,10 @@ export default function ProjectDashboard() {
 
   const isPM = user?.role === "Project Manager" || user?.role === "Admin";
 
+  const showWidgets = ["Admin", "HR", "Project Manager"].includes(
+    user?.role || ""
+  );
+
   if (loading) {
     return <ProjectSkeleton />;
   }
@@ -148,7 +152,7 @@ export default function ProjectDashboard() {
         )}
       </div>
 
-      {stats && (
+      {showWidgets && stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-bg-card p-4 rounded-xl border border-border shadow-sm flex items-center gap-4">
             <div className="p-3 bg-brand-primary/10 rounded-lg text-brand-primary">

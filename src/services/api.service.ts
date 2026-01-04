@@ -1639,6 +1639,29 @@ class ApiService {
     return response.json();
   }
 
+  async getSystemHealth(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/admin/system-health`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch system health");
+    }
+    return response.json();
+  }
+
+  async getHRStats(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/dashboard/hr-stats`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch HR stats");
+    }
+    return response.json();
+  }
+
   async getMyPayslips(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/payroll/my-payslips`, {
       headers: this.getAuthHeaders(),

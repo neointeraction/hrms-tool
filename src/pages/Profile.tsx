@@ -69,7 +69,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [employeeId, setEmployeeId] = useState<string | null>(null);
-  const [employees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
 
   const [profileData, setProfileData] = useState({
     // Basic
@@ -140,11 +140,16 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch current user details first (for basic auth/user info)
-        const userResponse = await apiService.getCurrentUser();
-
         // Fetch specific employee profile for this user
-        const employeeRecord = await apiService.getMyEmployeeProfile();
+        const [userResponse, employeeRecord, allDirectory] = await Promise.all([
+          apiService.getCurrentUser(),
+          apiService.getMyEmployeeProfile(),
+          apiService.getDirectory().catch(() => []),
+        ]);
+
+        if (Array.isArray(allDirectory)) {
+          setEmployees(allDirectory);
+        }
 
         if (employeeRecord) {
           setEmployeeId(employeeRecord._id);
@@ -373,7 +378,6 @@ export default function Profile() {
               name={name}
               value={value}
               onChange={handleChange}
-              className="bg-bg-main"
               disabled={readOnly}
             />
           )
@@ -405,7 +409,6 @@ export default function Profile() {
             name={name}
             value={value}
             onChange={handleChange}
-            className="bg-bg-main"
             rows={4}
           />
         ) : (
@@ -802,7 +805,7 @@ export default function Profile() {
                               .filter((emp) => emp._id !== employeeId)
                               .map((emp) => ({
                                 value: emp._id,
-                                label: `${emp.firstName} ${emp.lastName} (${emp.employeeId})`,
+                                label: `${emp.firstName} ${emp.lastName}`,
                               })),
                           ]}
                           disabled={true}
@@ -832,12 +835,66 @@ export default function Profile() {
                     Calendar,
                     "date"
                   )}
-                  {renderField("Gender", "gender", profileData.gender)}
-                  {renderField(
-                    "Marital Status",
-                    "maritalStatus",
-                    profileData.maritalStatus
-                  )}
+                  <div className="group">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                      Gender
+                    </label>
+                    {isEditing ? (
+                      <Select
+                        name="gender"
+                        value={profileData.gender}
+                        onChange={(value) =>
+                          handleChange({
+                            target: { name: "gender", value },
+                          } as any)
+                        }
+                        options={[
+                          { value: "Male", label: "Male" },
+                          { value: "Female", label: "Female" },
+                          { value: "Other", label: "Other" },
+                          {
+                            value: "Prefer not to say",
+                            label: "Prefer not to say",
+                          },
+                        ]}
+                      />
+                    ) : (
+                      <p className="text-text-primary text-sm font-medium leading-relaxed break-words min-h-[24px]">
+                        {profileData.gender || (
+                          <span className="text-text-disabled">Not Set</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="group">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
+                      Marital Status
+                    </label>
+                    {isEditing ? (
+                      <Select
+                        name="maritalStatus"
+                        value={profileData.maritalStatus}
+                        onChange={(value) =>
+                          handleChange({
+                            target: { name: "maritalStatus", value },
+                          } as any)
+                        }
+                        options={[
+                          { value: "Single", label: "Single" },
+                          { value: "Married", label: "Married" },
+                          { value: "Divorced", label: "Divorced" },
+                          { value: "Widowed", label: "Widowed" },
+                        ]}
+                      />
+                    ) : (
+                      <p className="text-text-primary text-sm font-medium leading-relaxed break-words min-h-[24px]">
+                        {profileData.maritalStatus || (
+                          <span className="text-text-disabled">Not Set</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
                   <div className="col-span-full border-t border-border my-2"></div>
                   {renderTextArea("About Me", "aboutMe", profileData.aboutMe)}
                   {renderTextArea(
@@ -1311,12 +1368,7 @@ const InputField = ({ label, name, value, onChange, isEditing }: any) => (
       {label}
     </label>
     {isEditing ? (
-      <Input
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="bg-bg-main"
-      />
+      <Input name={name} value={value} onChange={onChange} />
     ) : (
       <p className="text-text-primary text-sm font-medium leading-relaxed">
         {value || (

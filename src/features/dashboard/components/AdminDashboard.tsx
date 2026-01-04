@@ -11,6 +11,7 @@ import {
   FileText,
   AlertCircle,
   Clock,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { apiService } from "../../../services/api.service";
@@ -41,6 +42,8 @@ export default function AdminDashboard() {
 
   const daysRemaining = getTrialDaysRemaining();
 
+  const [systemHealth, setSystemHealth] = useState<any>(null);
+
   const [statsData, setStatsData] = useState({
     users: 0,
     roles: 0,
@@ -53,13 +56,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [employeesData, rolesData, assetsData, logsData] =
+        const [employeesData, rolesData, assetsData, logsData, healthData] =
           await Promise.all([
             apiService.getAllEmployees().catch(() => []),
             apiService.getRoles().catch(() => []),
             apiService.getAssetStats().catch(() => ({ totalAssets: 0 })),
             apiService.getAuditLogs({ limit: 5 }).catch(() => ({ logs: [] })),
+            apiService.getSystemHealth().catch(() => null),
           ]);
+
+        if (healthData) {
+          setSystemHealth(healthData);
+        }
 
         // Handle both array (actual API) and object (type definition) responses
         const employeesList = Array.isArray(employeesData)
@@ -265,10 +273,9 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Column */}
-        <div className="lg:col-span-3 space-y-8">
-          {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Activity - Takes 2 cols */}
+        <div className="lg:col-span-2">
           <section className="bg-bg-card rounded-xl border border-border shadow-sm overflow-hidden h-full flex flex-col">
             <div className="p-6 border-b border-border flex justify-between items-center bg-bg-main/30">
               <div className="flex items-center gap-2">
@@ -376,6 +383,77 @@ export default function AdminDashboard() {
               )}
             </div>
           </section>
+        </div>
+
+        {/* Plan Usage Widget - Takes 1 col */}
+        <div className="lg:col-span-1">
+          {systemHealth?.planStats && (
+            <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow h-full">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-text-secondary text-sm font-medium">
+                    Current Plan
+                  </p>
+                  <h3 className="text-2xl font-bold text-text-primary capitalize">
+                    {systemHealth.planStats.plan}
+                  </h3>
+                </div>
+                <div className="p-3 rounded-lg bg-indigo-500/10 text-indigo-500">
+                  <CreditCard size={20} />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Employee Limit */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-text-secondary">Employees</span>
+                    <span className="font-medium text-text-primary">
+                      {systemHealth.planStats.usage.employeeCount} /{" "}
+                      {systemHealth.planStats.limits.maxEmployees}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-bg-main rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(
+                          (systemHealth.planStats.usage.employeeCount /
+                            systemHealth.planStats.limits.maxEmployees) *
+                            100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Storage Limit */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-text-secondary">Storage</span>
+                    <span className="font-medium text-text-primary">
+                      {systemHealth.planStats.usage.storageUsed} MB /{" "}
+                      {systemHealth.planStats.limits.maxStorage} MB
+                    </span>
+                  </div>
+                  <div className="h-2 bg-bg-main rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(
+                          (systemHealth.planStats.usage.storageUsed /
+                            systemHealth.planStats.limits.maxStorage) *
+                            100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
