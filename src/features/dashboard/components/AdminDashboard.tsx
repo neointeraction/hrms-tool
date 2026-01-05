@@ -294,18 +294,28 @@ export default function AdminDashboard() {
 
             <div className="p-6 flex-1 overflow-y-auto max-h-[500px]">
               {loading ? (
-                <div className="space-y-6">
+                <div className="space-y-0">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <Skeleton className="w-8 h-8 rounded-full" />
-                        {i !== 4 && (
-                          <div className="w-0.5 h-full bg-border mt-2" />
-                        )}
+                    <div key={i} className="relative flex gap-4">
+                      {/* Timeline Line */}
+                      {i !== 4 && (
+                        <div className="absolute left-[15px] top-8 bottom-[-8px] w-0.5 bg-border/50" />
+                      )}
+
+                      {/* Icon Bubble */}
+                      <div className="relative z-10 flex-shrink-0 w-8 h-8">
+                        <Skeleton className="w-full h-full rounded-full" />
                       </div>
+
+                      {/* Content */}
                       <div className="flex-1 pb-6">
-                        <Skeleton className="h-4 w-3/4 mb-2" />
-                        <Skeleton className="h-3 w-1/3" />
+                        <div className="flex flex-col gap-2 mt-1">
+                          <div className="flex justify-between items-center">
+                            <Skeleton className="h-4 w-2/3" />
+                            <Skeleton className="h-3 w-16" />
+                          </div>
+                          <Skeleton className="h-3 w-1/3" />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -387,72 +397,101 @@ export default function AdminDashboard() {
 
         {/* Plan Usage Widget - Takes 1 col */}
         <div className="lg:col-span-1">
-          {systemHealth?.planStats && (
-            <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow h-full">
+          {loading ? (
+            <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm h-full">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-text-secondary text-sm font-medium">
-                    Current Plan
-                  </p>
-                  <h3 className="text-2xl font-bold text-text-primary capitalize">
-                    {systemHealth.planStats.plan}
-                  </h3>
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-8 w-32" />
                 </div>
-                <div className="p-3 rounded-lg bg-indigo-500/10 text-indigo-500">
-                  <CreditCard size={20} />
-                </div>
+                <Skeleton className="h-12 w-12 rounded-lg" />
               </div>
 
               <div className="space-y-6">
-                {/* Employee Limit */}
                 <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-text-secondary">Employees</span>
-                    <span className="font-medium text-text-primary">
-                      {systemHealth.planStats.usage.employeeCount} /{" "}
-                      {systemHealth.planStats.limits.maxEmployees}
-                    </span>
+                  <div className="flex justify-between mb-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-12" />
                   </div>
-                  <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-500 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min(
-                          (systemHealth.planStats.usage.employeeCount /
-                            systemHealth.planStats.limits.maxEmployees) *
-                            100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
+                  <Skeleton className="h-2 w-full rounded-full" />
                 </div>
-
-                {/* Storage Limit */}
                 <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-text-secondary">Storage</span>
-                    <span className="font-medium text-text-primary">
-                      {systemHealth.planStats.usage.storageUsed} MB /{" "}
-                      {systemHealth.planStats.limits.maxStorage} MB
-                    </span>
+                  <div className="flex justify-between mb-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-12" />
                   </div>
-                  <div className="h-2 bg-bg-main rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-500 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min(
-                          (systemHealth.planStats.usage.storageUsed /
-                            systemHealth.planStats.limits.maxStorage) *
-                            100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
+                  <Skeleton className="h-2 w-full rounded-full" />
                 </div>
               </div>
             </div>
+          ) : (
+            systemHealth?.planStats && (
+              <div className="bg-bg-card p-6 rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow h-full">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-text-secondary text-sm font-medium">
+                      Current Plan
+                    </p>
+                    <h3 className="text-2xl font-bold text-text-primary capitalize">
+                      {systemHealth.planStats.plan}
+                    </h3>
+                  </div>
+                  <div className="p-3 rounded-lg bg-indigo-500/10 text-indigo-500">
+                    <CreditCard size={20} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Employee Limit */}
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-text-secondary">Employees</span>
+                      <span className="font-medium text-text-primary">
+                        {systemHealth.planStats.usage.employeeCount} /{" "}
+                        {systemHealth.planStats.limits.maxEmployees}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-bg-main rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            (systemHealth.planStats.usage.employeeCount /
+                              systemHealth.planStats.limits.maxEmployees) *
+                              100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Storage Limit */}
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-text-secondary">Storage</span>
+                      <span className="font-medium text-text-primary">
+                        {systemHealth.planStats.usage.storageUsed} MB /{" "}
+                        {systemHealth.planStats.limits.maxStorage} MB
+                      </span>
+                    </div>
+                    <div className="h-2 bg-bg-main rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(
+                            (systemHealth.planStats.usage.storageUsed /
+                              systemHealth.planStats.limits.maxStorage) *
+                              100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
           )}
         </div>
       </div>

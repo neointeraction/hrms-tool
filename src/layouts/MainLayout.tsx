@@ -692,8 +692,11 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
-      {/* Chat Widget - Only show if AI Chatbot module is enabled */}
-      {user?.accessibleModules?.includes("ai_chatbot") && <ChatWidget />}
+      {/* Chat Widget - Show if AI Chatbot module is enabled for the tenant */}
+      {((user?.tenantId as any)?.limits?.enabledModules?.includes(
+        "ai_chatbot"
+      ) ||
+        user?.accessibleModules?.includes("ai_chatbot")) && <ChatWidget />}
 
       {/* HR Agent - Only for Admin/HR */}
       {(user?.role === "Admin" || user?.role === "HR") && <AgentChat />}

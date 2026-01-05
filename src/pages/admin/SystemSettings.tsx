@@ -179,16 +179,26 @@ export default function SystemSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">
-          System Settings
-        </h1>
-        <p className="text-text-secondary">
-          Manage your company branding and general configuration
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">
+            System Settings
+          </h1>
+          <p className="text-text-secondary">
+            Manage your company branding and general configuration
+          </p>
+        </div>
+        <Button
+          type="submit"
+          form="settings-form"
+          isLoading={saving}
+          leftIcon={<Save size={20} />}
+        >
+          Save Changes
+        </Button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="settings-form" onSubmit={handleSubmit} className="space-y-6">
         {/* Branding Section */}
         <div className="bg-bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -339,16 +349,6 @@ export default function SystemSettings() {
 
             {/* Fields removed as per request */}
           </div>
-        </div>
-
-        <div className="flex justify-end pt-4">
-          <Button
-            type="submit"
-            isLoading={saving}
-            leftIcon={<Save size={20} />}
-          >
-            Save Changes
-          </Button>
         </div>
       </form>
     </div>
