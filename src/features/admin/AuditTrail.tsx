@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import {
-  Filter,
   Clock,
-  User,
   FileText,
-  MapPin,
   Trash2,
   Monitor,
-  Smartphone,
   Globe,
-  ArrowRight,
   Shield,
   Activity,
   AlertCircle,
@@ -17,7 +12,6 @@ import {
   LogIn,
   LogOut,
   Search,
-  Calendar,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
