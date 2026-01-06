@@ -2134,6 +2134,59 @@ class ApiService {
     return response.json();
   }
 
+  async mergeTimesheetEntries(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/merge`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to merge timesheet entries");
+    }
+    return response.json();
+  }
+
+  async startTimesheetTimer(data: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/clock-in`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to start timer");
+    }
+    return response.json();
+  }
+
+  async stopTimesheetTimer(data?: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/clock-out`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data || {}),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to stop timer");
+    }
+    return response.json();
+  }
+
+  async getActiveTimesheetTimer(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/timesheet/active-timer`, {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    // 404 means no active timer, which is fine
+    if (response.status === 404) return null;
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch active timer");
+    }
+    return response.json();
+  }
+
   // Time Correction Methods
   async requestTimeCorrection(data: any): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/time-correction/request`, {

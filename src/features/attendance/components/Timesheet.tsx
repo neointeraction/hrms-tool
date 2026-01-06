@@ -9,6 +9,8 @@ import {
   XCircle,
   AlertCircle,
   Download,
+  StopCircle,
+  Clock,
 } from "lucide-react";
 import { apiService } from "../../../services/api.service";
 import { Button } from "../../../components/common/Button";
@@ -18,6 +20,7 @@ import { Textarea } from "../../../components/common/Textarea";
 import { Table } from "../../../components/common/Table";
 import { DatePicker } from "../../../components/common/DatePicker";
 import { ConfirmationModal } from "../../../components/common/ConfirmationModal";
+import { Modal } from "../../../components/common/Modal";
 import { Skeleton } from "../../../components/common/Skeleton";
 
 import SubmitConfirmationModal from "./SubmitConfirmationModal";
@@ -44,15 +47,88 @@ export default function Timesheet() {
     undefined
   );
 
+  const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [mergeFormData, setMergeFormData] = useState({
+    project: "",
+    task: "",
+    description: "",
+    startTime: "",
+    endTime: "",
+  });
+
+  // Timer State
+  const [activeTimer, setActiveTimer] = useState<any>(null);
+  const [timerDuration, setTimerDuration] = useState<string>("00:00:00");
+  const [showClockInModal, setShowClockInModal] = useState(false);
+  const [clockInFormData, setClockInFormData] = useState({
+    project: "",
+    task: "",
+    description: "",
+  });
+
+  // Filter State
+  const [filters, setFilters] = useState({
+    client: "",
+    project: "",
+    entryType: "",
+  });
+
   useEffect(() => {
     fetchEntries();
     fetchProjects();
+    fetchActiveTimer();
   }, []);
+
+  // Timer Tick
+  useEffect(() => {
+    let interval: any;
+    if (activeTimer) {
+      interval = setInterval(() => {
+        const start = new Date(activeTimer.clockIn).getTime();
+        const now = new Date().getTime();
+        const diff = now - start;
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        setTimerDuration(
+          `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        );
+      }, 1000);
+    } else {
+      setTimerDuration("00:00:00");
+    }
+    return () => clearInterval(interval);
+  }, [activeTimer]);
+
+  const fetchActiveTimer = async () => {
+    try {
+      const data = await apiService.getActiveTimesheetTimer();
+      if (data && data.activeTimer) {
+        setActiveTimer(data.activeTimer);
+      } else {
+        setActiveTimer(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch active timer");
+    }
+  };
+
+  const fetchProjects = async () => {
+    try {
+      const data = await apiService.getProjects();
+      setProjects(data.projects || []);
+    } catch (error) {
+      console.error("Failed to fetch projects");
+    }
+  };
 
   useEffect(() => {
     if (formData.project && projects.length > 0) {
-      // Check if project is an ID (from selection) or just a name (legacy/initial)
-      // For now, let's assume if it matches an ID in our list, we fetch tasks
       const selectedProj = projects.find(
         (p) => p._id === formData.project || p.name === formData.project
       );
@@ -66,14 +142,18 @@ export default function Timesheet() {
     }
   }, [formData.project, projects]);
 
-  const fetchProjects = async () => {
-    try {
-      const data = await apiService.getProjects();
-      setProjects(data.projects || []);
-    } catch (error) {
-      console.error("Failed to fetch projects");
+  useEffect(() => {
+    if (clockInFormData.project && projects.length > 0) {
+      const selectedProj = projects.find(
+        (p) =>
+          p._id === clockInFormData.project ||
+          p.name === clockInFormData.project
+      );
+      if (selectedProj) {
+        fetchTasks(selectedProj._id);
+      }
     }
-  };
+  }, [clockInFormData.project, projects]);
 
   const fetchTasks = async (projectId: string) => {
     try {
@@ -84,13 +164,67 @@ export default function Timesheet() {
     }
   };
 
+  const handleClockIn = async () => {
+    try {
+      if (!clockInFormData.project || !clockInFormData.task) {
+        alert("Please select a project and task");
+        return;
+      }
+
+      setSubmitting(true);
+      const selectedProj = projects.find(
+        (p) => p._id === clockInFormData.project
+      );
+      const selectedTask = projectTasks.find(
+        (t) => t._id === clockInFormData.task
+      );
+
+      await apiService.startTimesheetTimer({
+        ...clockInFormData,
+        project: selectedProj ? selectedProj.name : clockInFormData.project,
+        projectId: selectedProj ? selectedProj._id : undefined,
+        task: selectedTask ? selectedTask.title : clockInFormData.task,
+        taskId: selectedTask ? selectedTask._id : undefined,
+      });
+
+      setShowClockInModal(false);
+      setClockInFormData({ project: "", task: "", description: "" });
+      fetchActiveTimer();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleClockOut = async () => {
+    if (!confirm("Stop the timer?")) return;
+    try {
+      setSubmitting(true);
+      await apiService.stopTimesheetTimer();
+      setActiveTimer(null);
+      fetchEntries();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const fetchEntries = async () => {
     try {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 30);
-      const data = await apiService.getTimesheetEntries({
+
+      const queryParams: any = {
         startDate: startDate.toISOString().split("T")[0],
-      });
+      };
+
+      if (filters.client) queryParams.client = filters.client;
+      if (filters.project) queryParams.projectId = filters.project;
+      if (filters.entryType) queryParams.entryType = filters.entryType;
+
+      const data = await apiService.getTimesheetEntries(queryParams);
       setEntries(data.entries || []);
     } catch (error) {
       console.error("Failed to fetch entries:", error);
@@ -102,10 +236,6 @@ export default function Timesheet() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Map IDs to Names for backward compatibility if needed, or backend handles it?
-      // Backend expects 'project' string and 'projectId' optional.
-      // We will send both if we have a match.
-
       const selectedProj = projects.find((p) => p._id === formData.project);
       const selectedTask = projectTasks.find((t) => t._id === formData.task);
 
@@ -115,6 +245,7 @@ export default function Timesheet() {
         projectId: selectedProj ? selectedProj._id : undefined,
         task: selectedTask ? selectedTask.title : formData.task,
         taskId: selectedTask ? selectedTask._id : undefined,
+        entryType: "manual",
       };
 
       await apiService.createTimesheetEntry(payload);
@@ -144,25 +275,12 @@ export default function Timesheet() {
   };
 
   const handleSubmitForApproval = async () => {
-    // Get current week's Sunday (or week start)
-    // Assuming backend logic uses week ending or starting.
-    // The modal asks for weekStartDate logic or weekEnding?
-    // Let's stick to existing logic but just open modal.
-
-    // Original logic was calculating Week Ending (Sunday?)
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 is Sunday
-    // if today is Sunday (0), daysUntilSunday is 0.
-    // If today is Monday (1), days until sunday is 6.
-    // So this calculates Next Sunday or Today if Sunday.
+    const dayOfWeek = today.getDay();
     const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-
-    // Wait, typically timesheets are submitted for the *past* week or current week?
-    // Let's assume standard logic: Submit *Current* week (implied by "daysUntilSunday").
     const weekEnding = new Date(today);
     weekEnding.setDate(today.getDate() + daysUntilSunday);
 
-    // Calculate week start for display in modal
     const weekStart = new Date(weekEnding);
     weekStart.setDate(weekEnding.getDate() - 6);
 
@@ -175,7 +293,6 @@ export default function Timesheet() {
 
     setSubmitting(true);
     try {
-      // Recalculate weekEnding from pendingWeekStart
       const weekEnding = new Date(pendingWeekStart);
       weekEnding.setDate(pendingWeekStart.getDate() + 6);
 
@@ -201,23 +318,25 @@ export default function Timesheet() {
       return;
     }
 
-    // Define headers and data
-    const exportData = entries.map((entry) => ({
-      Date: new Date(entry.date).toLocaleDateString(),
-      Project: entry.project,
-      Task: entry.task,
-      Description: entry.description || "",
-      "Start Time": entry.startTime,
-      "End Time": entry.endTime,
-      Hours: entry.hours,
-      Status: entry.status,
-      "Review Comments": entry.reviewComments || "",
-    }));
+    const exportData = entries.map((entry) => {
+      const proj = projects.find((p) => p.name === entry.project);
+      return {
+        Date: new Date(entry.date).toLocaleDateString(),
+        Type: entry.entryType === "timer" ? "Timer" : "Manual",
+        Client: proj?.client || "",
+        Project: entry.project,
+        Task: entry.task,
+        Description: entry.description || "",
+        "Start Time": entry.startTime,
+        "End Time": entry.endTime,
+        Hours: entry.hours,
+        Status: entry.status,
+        "Review Comments": entry.reviewComments || "",
+      };
+    });
 
-    // Create workbook and worksheet
     const ws = XLSX.utils.json_to_sheet(exportData);
 
-    // Calculate column widths
     const wscols = Object.keys(exportData[0]).map((key) => {
       const maxLen = Math.max(
         key.toString().length,
@@ -227,19 +346,17 @@ export default function Timesheet() {
             : 0
         )
       );
-      return { wch: maxLen + 5 }; // Add padding
+      return { wch: maxLen + 5 };
     });
     ws["!cols"] = wscols;
 
-    // Apply Header Styles
     const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-    // Only style the first row (header)
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const address = XLSX.utils.encode_cell({ r: 0, c: C });
       if (!ws[address]) continue;
       ws[address].s = {
         fill: {
-          fgColor: { rgb: "4F46E5" }, // Brand Primary Color (approx)
+          fgColor: { rgb: "4F46E5" },
         },
         font: {
           color: { rgb: "FFFFFF" },
@@ -254,7 +371,6 @@ export default function Timesheet() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Timesheet");
 
-    // Generate Excel file
     XLSX.writeFile(
       wb,
       `timesheet_export_${new Date().toISOString().split("T")[0]}.xlsx`
@@ -304,10 +420,89 @@ export default function Timesheet() {
 
   const hasDraftEntries = entries.some((e) => e.status === "draft");
 
+  // Clear selection on entry fetch
+  useEffect(() => {
+    setSelectedEntries([]);
+  }, [entries]);
+
+  const handleSelectRow = (id: string) => {
+    setSelectedEntries((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (
+      selectedEntries.length ===
+      entries.filter((e) => e.status === "draft").length
+    ) {
+      setSelectedEntries([]);
+    } else {
+      setSelectedEntries(
+        entries.filter((e) => e.status === "draft").map((e) => e._id)
+      );
+    }
+  };
+
+  const handleMergeClick = () => {
+    if (selectedEntries.length < 2) return;
+
+    // Pre-fill merge form with data from first selected entry
+    const firstEntry = entries.find((e) => e._id === selectedEntries[0]);
+    if (firstEntry) {
+      // Find earliest start time and latest end time logic could go here
+      // For now, default to first entry's times
+      setMergeFormData({
+        project: firstEntry.project || "",
+        task: firstEntry.task || "",
+        description: selectedEntries
+          .map((id) => entries.find((e) => e._id === id)?.description)
+          .filter(Boolean)
+          .join(" + "),
+        startTime: firstEntry.startTime,
+        endTime: firstEntry.endTime,
+      });
+    }
+    setShowMergeModal(true);
+  };
+
+  const confirmMerge = async () => {
+    try {
+      setSubmitting(true);
+      const selectedProj = projects.find(
+        (p) =>
+          p._id === mergeFormData.project || p.name === mergeFormData.project
+      );
+      const selectedTask = projectTasks.find(
+        (t) => t._id === mergeFormData.task || t.title === mergeFormData.task
+      );
+
+      const payload = {
+        entryIds: selectedEntries,
+        ...mergeFormData,
+        project: selectedProj ? selectedProj.name : mergeFormData.project,
+        projectId: selectedProj ? selectedProj._id : undefined,
+        task: selectedTask ? selectedTask.title : mergeFormData.task,
+        taskId: selectedTask ? selectedTask._id : undefined,
+      };
+
+      await apiService.mergeTimesheetEntries(payload);
+      setShowMergeModal(false);
+      fetchEntries(); // Will clear selection via useEffect
+      setSuccessMessage("Entries merged successfully");
+      setShowSuccessModal(true);
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ... existing functions ...
+
   if (loading) {
     return (
       <div className="space-y-6">
-        {/* Header Skeleton */}
         <div className="flex justify-between items-center">
           <div className="space-y-2">
             <Skeleton className="h-7 w-48" />
@@ -318,8 +513,6 @@ export default function Timesheet() {
             <Skeleton className="h-10 w-32" />
           </div>
         </div>
-
-        {/* List Skeleton */}
         <div className="border border-border rounded-lg overflow-hidden">
           <div className="p-4 space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -339,6 +532,32 @@ export default function Timesheet() {
 
   return (
     <div className="space-y-6">
+      {/* Active Timer Banner */}
+      {activeTimer && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex justify-between items-center shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+              <Clock size={24} />
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-900">
+                Active Timer: {activeTimer.project} - {activeTimer.task}
+              </h4>
+              <p className="text-2xl font-mono font-bold text-blue-700">
+                {timerDuration}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="danger"
+            onClick={handleClockOut}
+            leftIcon={<StopCircle size={18} />}
+          >
+            Stop Timer
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -350,6 +569,15 @@ export default function Timesheet() {
           </p>
         </div>
         <div className="flex gap-2">
+          {selectedEntries.length >= 2 && (
+            <Button
+              variant="secondary"
+              onClick={handleMergeClick}
+              className="bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200"
+            >
+              Merge Selected ({selectedEntries.length})
+            </Button>
+          )}
           {entries.length > 0 && (
             <Button
               variant="secondary"
@@ -379,12 +607,98 @@ export default function Timesheet() {
         </div>
       </div>
 
-      {/* Add Form */}
-      {showAddForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-bg-main border border-border rounded-lg p-4 space-y-4"
-        >
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg border border-border">
+        <div>
+          <Select
+            label="Client"
+            value={filters.client}
+            onChange={(val) =>
+              setFilters({ ...filters, client: val as string })
+            }
+            options={Array.from(
+              new Set(projects.map((p) => p.client).filter(Boolean))
+            ).map((client) => ({ value: client, label: client }))}
+            placeholder="All Clients"
+          />
+        </div>
+        <div>
+          <Select
+            label="Project"
+            value={filters.project}
+            onChange={(val) =>
+              setFilters({ ...filters, project: val as string })
+            }
+            options={projects.map((p) => ({ value: p._id, label: p.name }))}
+            placeholder="All Projects"
+          />
+        </div>
+        <div>
+          <Select
+            label="Entry Type"
+            value={filters.entryType}
+            onChange={(val) =>
+              setFilters({ ...filters, entryType: val as string })
+            }
+            options={[
+              { value: "manual", label: "Manual Entry" },
+              { value: "timer", label: "Timer" },
+            ]}
+            placeholder="All Types"
+          />
+        </div>
+        <div className="flex items-end gap-2">
+          <Button variant="secondary" onClick={fetchEntries} className="flex-1">
+            Apply Filters
+          </Button>
+          <Button
+            variant="outline"
+            className="px-3"
+            onClick={() => {
+              setFilters({ client: "", project: "", entryType: "" });
+              // We need to trigger fetch with valid empty filters, but setFilters is async.
+              // So we call fetchEntries manually with empty params or rely on useEffect if we added one (we didn't).
+              // Let's create a specialized clear function or just call setFilters then fetchEntries with empty params.
+              // Best way:
+              setFilters({ client: "", project: "", entryType: "" });
+              // Trigger a fetch with empty params (ignoring the async state update for this immediate call)
+              const startDate = new Date();
+              startDate.setDate(startDate.getDate() - 30);
+              apiService
+                .getTimesheetEntries({
+                  startDate: startDate.toISOString().split("T")[0],
+                })
+                .then((data) => setEntries(data.entries || []));
+            }}
+            title="Clear Filters"
+          >
+            <XCircle size={18} />
+          </Button>
+        </div>
+      </div>
+
+      {/* ... Add Form ... (unchanged) */}
+      {/* Add Entry Modal */}
+      <Modal
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        title="Add Timesheet Entry"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setShowAddForm(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="add-entry-form"
+              leftIcon={<Save size={16} />}
+            >
+              Save Entry
+            </Button>
+          </div>
+        }
+      >
+        <form id="add-entry-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <DatePicker
@@ -493,25 +807,54 @@ export default function Timesheet() {
               />
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button type="submit" leftIcon={<Save size={16} />}>
-              Save Entry
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setShowAddForm(false)}
-            >
-              Cancel
-            </Button>
-          </div>
         </form>
-      )}
+      </Modal>
 
       {/* Entries List */}
       <div className="border border-border rounded-lg overflow-hidden">
         <Table
           columns={[
+            {
+              header: (
+                <div className="h-full flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={
+                      entries.filter((e) => e.status === "draft").length > 0 &&
+                      selectedEntries.length ===
+                        entries.filter((e) => e.status === "draft").length
+                    }
+                    className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                  />
+                </div>
+              ),
+              render: (entry) =>
+                entry.status === "draft" ? (
+                  <input
+                    type="checkbox"
+                    checked={selectedEntries.includes(entry._id)}
+                    onChange={() => handleSelectRow(entry._id)}
+                    className="rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
+                  />
+                ) : null,
+              className: "w-10 text-center",
+            },
+            {
+              header: "Type",
+              render: (entry: any) =>
+                entry.entryType === "timer" ? (
+                  <div
+                    className="flex items-center gap-1 text-blue-600"
+                    title="Timer Entry"
+                  >
+                    <Clock size={16} />
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-500">Manual</span>
+                ),
+              className: "w-10 text-center",
+            },
             {
               header: "Date",
               accessorKey: "date",
@@ -520,6 +863,20 @@ export default function Timesheet() {
                   {new Date(entry.date).toLocaleDateString()}
                 </span>
               ),
+            },
+            {
+              header: "Client",
+              render: (entry: any) => {
+                // Try to find client from project if available or entry might have client info?
+                // Currently backend doesn't populate client on Timesheet entry explicitly,
+                // but we can look it up from projects list if loaded
+                const proj = projects.find((p) => p.name === entry.project);
+                return (
+                  <span className="text-sm text-gray-600">
+                    {proj?.client || "-"}
+                  </span>
+                );
+              },
             },
             {
               header: "Project",
@@ -593,6 +950,7 @@ export default function Timesheet() {
         />
       </div>
 
+      {/* ... Total Hours ... */}
       {entries.length > 0 && (
         <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-4 flex justify-between items-center">
           <span className="font-semibold text-text-primary">
@@ -604,21 +962,90 @@ export default function Timesheet() {
         </div>
       )}
 
+      {/* Clock In Modal */}
+      <Modal
+        isOpen={showClockInModal}
+        onClose={() => setShowClockInModal(false)}
+        title="Start Timer"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setShowClockInModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClockIn}
+              isLoading={submitting}
+              leftIcon={<Clock size={16} />}
+            >
+              Start
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <Select
+              label="Project"
+              value={clockInFormData.project}
+              onChange={(val) =>
+                setClockInFormData({
+                  ...clockInFormData,
+                  project: val as string,
+                  task: "",
+                })
+              }
+              required
+              options={projects.map((p) => ({
+                value: p._id,
+                label: p.name,
+              }))}
+              placeholder="Select Project"
+            />
+          </div>
+          <div>
+            <Select
+              label="Task"
+              value={clockInFormData.task}
+              onChange={(val) =>
+                setClockInFormData({ ...clockInFormData, task: val as string })
+              }
+              required
+              options={projectTasks.map((t) => ({
+                value: t._id,
+                label: t.title,
+              }))}
+              placeholder="Select Task"
+            />
+          </div>
+          <div>
+            <Textarea
+              label="Description (Optional)"
+              value={clockInFormData.description}
+              onChange={(e) =>
+                setClockInFormData({
+                  ...clockInFormData,
+                  description: e.target.value,
+                })
+              }
+              rows={2}
+              placeholder="What are you working on?"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* ... SubmitConfirmationModal ... */}
       <SubmitConfirmationModal
         isOpen={showSubmitModal}
         onClose={() => setShowSubmitModal(false)}
         onConfirm={confirmSubmit}
         weekStartDate={pendingWeekStart}
-        totalHours={
-          // Calculate total hours for the *current* week to display in modal?
-          // The existing calculateTotalHours is for *all* entries loaded (last 30 days).
-          // For the modal, it might be nice to filter, but user prompt just said generic "submit modal".
-          // We can pass the total available or just 0 if complex to filter right now without loop.
-          // Let's pass the 30-day total or try to sum draft?
-          entries
-            .filter((e) => e.status === "draft")
-            .reduce((acc, curr) => acc + (curr.hours || 0), 0)
-        }
+        totalHours={entries
+          .filter((e) => e.status === "draft")
+          .reduce((acc, curr) => acc + (curr.hours || 0), 0)}
       />
 
       <ConfirmationModal
@@ -631,6 +1058,104 @@ export default function Timesheet() {
         variant="success"
         showCancel={false}
       />
+
+      {/* Merge Modal */}
+      {/* Merge Modal */}
+      <Modal
+        isOpen={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        title="Merge Entries"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setShowMergeModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={confirmMerge} isLoading={submitting}>
+              Confirm Merge
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            Combine selected entries into a single entry. This will delete the
+            original entries.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Select
+                label="Project"
+                value={mergeFormData.project}
+                onChange={(val) =>
+                  setMergeFormData({
+                    ...mergeFormData,
+                    project: val as string,
+                  })
+                }
+                options={projects.map((p) => ({
+                  value: p._id,
+                  label: p.name,
+                }))}
+              />
+            </div>
+            <div>
+              <Select
+                label="Task"
+                value={mergeFormData.task}
+                onChange={(val) =>
+                  setMergeFormData({ ...mergeFormData, task: val as string })
+                }
+                options={projectTasks.map((t) => ({
+                  value: t._id,
+                  label: t.title,
+                }))}
+              />
+            </div>
+            <div>
+              <Input
+                label="Start Time"
+                type="time"
+                value={mergeFormData.startTime}
+                onChange={(e) =>
+                  setMergeFormData({
+                    ...mergeFormData,
+                    startTime: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div>
+              <Input
+                label="End Time"
+                type="time"
+                value={mergeFormData.endTime}
+                onChange={(e) =>
+                  setMergeFormData({
+                    ...mergeFormData,
+                    endTime: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-2">
+              <Textarea
+                label="Description"
+                value={mergeFormData.description}
+                onChange={(e) =>
+                  setMergeFormData({
+                    ...mergeFormData,
+                    description: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

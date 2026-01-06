@@ -14,7 +14,7 @@ import { Skeleton } from "./Skeleton";
 
 // Maintaining existing interface for backward compatibility
 export interface Column<T> {
-  header: string;
+  header: string | React.ReactNode;
   accessorKey?: keyof T;
   searchKey?: keyof T; // New prop for search-only accessor
   accessorFn?: (item: T) => any; // New prop for custom accessor function
@@ -52,7 +52,7 @@ export function Table<T extends { _id: string } | { id: string }>({
       const columnId =
         (col.accessorKey as string) ||
         (col.searchKey as string) ||
-        col.header ||
+        (typeof col.header === "string" ? col.header : null) ||
         "col-" + Math.random().toString(36).substr(2, 9);
 
       return columnHelper.accessor(
@@ -64,7 +64,8 @@ export function Table<T extends { _id: string } | { id: string }>({
         },
         {
           id: columnId,
-          header: col.header,
+          header:
+            typeof col.header === "string" ? col.header : () => col.header,
           enableSorting: col.enableSorting ?? !!col.accessorKey,
           enableGlobalFilter: !!(col.accessorKey || col.searchKey), // Explicitly enable global filter if key exists
           cell: (info) => {
